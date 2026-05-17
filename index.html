@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navina CI Launcher</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f8f9fb;
+    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+    height: 56px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: #fff;
+    flex-shrink: 0;
+  }
+  .header-title { font-size: 14px; font-weight: 700; color: #111827; }
+  .header-divider { width: 1px; height: 18px; background: #e5e7eb; margin: 0 4px; }
+  .header-sub { font-size: 12px; color: #9ca3af; font-weight: 500; }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .header-badge {
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    color: #16a34a; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+  }
+
+  /* ── Layout ── */
+  .layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 56px); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 216px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+    flex-shrink: 0;
+    padding: 16px 0 24px;
+  }
+  .sidebar-label {
+    font-size: 10px; font-weight: 700; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 0 16px 10px;
+    margin-top: 4px;
+  }
+  .category-group { margin-bottom: 4px; }
+  .category-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 16px;
+    font-size: 11px; font-weight: 700; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .category-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .competitor-item {
+    display: flex; align-items: center;
+    padding: 6px 12px 6px 32px;
+    font-size: 13px; font-weight: 500; color: #6b7280;
+    cursor: pointer; border-radius: 6px;
+    margin: 0 6px;
+    transition: background 0.1s, color 0.1s;
+  }
+  .competitor-item:hover { background: #f3f4f6; color: #374151; }
+  .competitor-item.selected {
+    background: #eef2ff; color: #4338ca; font-weight: 600;
+  }
+
+  /* ── Main content ── */
+  .main { flex: 1; overflow-y: auto; padding: 36px 40px 120px; }
+
+  .page-header { margin-bottom: 32px; }
+  .page-title { font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 6px; letter-spacing: -0.5px; }
+  .page-sub { font-size: 14px; color: #6b7280; line-height: 1.5; }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 32px; }
+  .section-label {
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* ── Competitor display ── */
+  .competitor-display-area {
+    min-height: 48px;
+    display: flex; align-items: center;
+  }
+  .selected-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: #eef2ff; border: 1.5px solid #c7d2fe;
+    border-radius: 10px;
+    font-size: 13px; font-weight: 600; color: #4338ca;
+  }
+  .placeholder-chip {
+    font-size: 13px; color: #d1d5db;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .placeholder-chip span { font-size: 18px; }
+
+  /* ── Analysis grid ── */
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: 10px;
+  }
+  .analysis-card {
+    padding: 14px 16px;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .analysis-card:hover {
+    border-color: #a5b4fc;
+    box-shadow: 0 2px 8px rgba(79,70,229,0.08);
+  }
+  .analysis-card.selected {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    box-shadow: 0 2px 12px rgba(79,70,229,0.12);
+  }
+  .analysis-icon { font-size: 20px; margin-bottom: 8px; line-height: 1; }
+  .analysis-name { font-size: 13px; font-weight: 700; color: #1f2937; margin-bottom: 3px; }
+  .analysis-desc { font-size: 11px; color: #9ca3af; line-height: 1.4; }
+  .analysis-card.selected .analysis-name { color: #4338ca; }
+
+  /* ── Persona pills ── */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    padding: 7px 16px;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 13px; font-weight: 500; color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pill:hover { border-color: #a5b4fc; color: #4338ca; background: #f5f3ff; }
+
+  .pill.persona-sales.selected     { background: #fef2f2; border-color: #fca5a5; color: #dc2626; font-weight: 600; }
+  .pill.persona-product.selected   { background: #eff6ff; border-color: #93c5fd; color: #2563eb; font-weight: 600; }
+  .pill.persona-clinical.selected  { background: #f0fdf4; border-color: #86efac; color: #16a34a; font-weight: 600; }
+  .pill.persona-executive.selected { background: #fffbeb; border-color: #fcd34d; color: #d97706; font-weight: 600; }
+  .pill.persona-marketing.selected { background: #faf5ff; border-color: #c4b5fd; color: #7c3aed; font-weight: 600; }
+  .pill.persona-analyst.selected   { background: #eef2ff; border-color: #a5b4fc; color: #4338ca; font-weight: 600; }
+
+  /* ── Notes ── */
+  .notes-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 13px; font-weight: 400;
+    color: #1f2937;
+    resize: vertical; min-height: 80px;
+    font-family: inherit;
+    line-height: 1.6;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .notes-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.08);
+  }
+  .notes-input::placeholder { color: #d1d5db; }
+
+  /* ── Preview ── */
+  .preview-box {
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 12px; font-weight: 400;
+    color: #9ca3af;
+    line-height: 1.8;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    min-height: 80px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .preview-box .tag {
+    display: inline-block;
+    background: #eef2ff; color: #4338ca;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  /* ── Launch bar ── */
+  .launch-bar {
+    position: fixed;
+    bottom: 0; left: 216px; right: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid #e5e7eb;
+    padding: 14px 40px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 50;
+  }
+  .btn-launch {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 24px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border: none; border-radius: 10px;
+    color: #fff; font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+    font-family: inherit;
+  }
+  .btn-launch:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+  }
+  .btn-launch:active { transform: translateY(0); }
+  .btn-launch:disabled {
+    background: #e5e7eb; color: #9ca3af;
+    box-shadow: none; cursor: not-allowed; transform: none; opacity: 1;
+  }
+  .btn-copy {
+    display: flex; align-items: center; gap: 6px;
+    padding: 11px 18px;
+    background: #fff; border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    color: #374151; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-copy:hover { background: #f9fafb; border-color: #d1d5db; }
+  .launch-hint { font-size: 12px; color: #9ca3af; margin-left: 4px; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: #111827; color: #fff;
+    padding: 10px 20px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; transition: all 0.25s;
+    pointer-events: none; z-index: 999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Drive creation modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal {
+    background: #fff; border-radius: 16px;
+    padding: 28px 32px; max-width: 540px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    transform: translateY(8px); transition: transform 0.2s;
+  }
+  .modal-overlay.show .modal { transform: translateY(0); }
+  .modal-title { font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 6px; }
+  .modal-sub { font-size: 13px; color: #6b7280; margin-bottom: 20px; line-height: 1.5; }
+  .modal-steps { margin-bottom: 20px; }
+  .modal-step {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid #f3f4f6;
+    font-size: 13px; color: #374151;
+  }
+  .modal-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #eef2ff; color: #4338ca;
+    font-size: 11px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .modal-prompt-box {
+    background: #f8f9fb; border: 1.5px solid #e5e7eb; border-radius: 10px;
+    padding: 14px 16px; font-size: 12px; color: #374151;
+    font-family: 'SF Mono', 'Fira Code', monospace; line-height: 1.7;
+    max-height: 140px; overflow-y: auto; margin-bottom: 16px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .modal-actions { display: flex; gap: 10px; }
+  .btn-modal-copy {
+    flex: 1; padding: 10px; background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border: none; border-radius: 9px; color: #fff; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+  }
+  .btn-modal-copy:hover { opacity: 0.9; }
+  .btn-modal-close {
+    padding: 10px 16px; background: #f3f4f6; border: none;
+    border-radius: 9px; color: #6b7280; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn-drive {
+    display: flex; align-items: center; gap: 6px;
+    padding: 11px 18px;
+    background: #fff; border: 1.5px solid #bbf7d0;
+    border-radius: 10px;
+    color: #16a34a; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-drive:hover { background: #f0fdf4; border-color: #86efac; }
+  .btn-drive:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Resources links */
+  .resources-panel { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .resource-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    background: #f8f9fb; border: 1.5px solid #e5e7eb;
+    border-radius: 8px; font-size: 12px; font-weight: 600;
+    color: #4338ca; text-decoration: none;
+    transition: all 0.15s;
+  }
+  .resource-link:hover { background: #eef2ff; border-color: #a5b4fc; }
+  .resource-link.battlecard { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+  .resource-link.battlecard:hover { background: #fee2e2; border-color: #fca5a5; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">N</div>
+  <span class="header-title">Navina CI</span>
+  <div class="header-divider"></div>
+  <span class="header-sub">Competitive Intelligence Launcher</span>
+  <div class="header-right">
+    <div class="header-badge">✓ No API · Opens in Claude.ai</div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-label">Competitors</div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="category-dot" style="background:#ef4444"></span>HCC / Risk Adj.</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Reveleer')">Reveleer</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Stanson Health')">Stanson Health</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Foresee Medical')">Foresee Medical</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Inferscience')">Inferscience</div>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="category-dot" style="background:#3b82f6"></span>Pop Health</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Innovaccer')">Innovaccer</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Arcadia')">Arcadia</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Health Catalyst')">Health Catalyst</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Lightbeam Health')">Lightbeam Health</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Persivia')">Persivia</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Azara Healthcare')">Azara Healthcare</div>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="category-dot" style="background:#8b5cf6"></span>Ambient Scribes</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Abridge')">Abridge</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Ambience Healthcare')">Ambience Healthcare</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Suki')">Suki</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Nuance DAX')">Nuance DAX</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Nabla')">Nabla</div>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="category-dot" style="background:#f59e0b"></span>EHRs</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Epic Systems')">Epic Systems</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Athenahealth')">Athenahealth</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'eClinicalWorks')">eClinicalWorks</div>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="category-dot" style="background:#10b981"></span>Payer Solutions</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Raapid')">Raapid</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Vertexa Health')">Vertexa Health</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Pareto Intelligence')">Pareto Intelligence</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'GeBBS')">GeBBS</div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title">Build a CI Request</div>
+      <div class="page-sub">Select a competitor, choose what you need, and launch directly in Claude.ai — your prompt is built automatically.</div>
+    </div>
+
+    <!-- Step 1: Competitor -->
+    <div class="section">
+      <div class="section-label">Step 1 — Competitor</div>
+      <div class="competitor-display-area">
+        <div id="competitor-display" class="placeholder-chip">
+          <span>←</span> Select a competitor from the sidebar
+        </div>
+      </div>
+      <div id="resources-panel" class="resources-panel" style="display:none"></div>
+    </div>
+
+    <!-- Step 2: Analysis Type -->
+    <div class="section">
+      <div class="section-label">Step 2 — Analysis Type</div>
+      <div class="analysis-grid">
+        <div class="analysis-card" onclick="selectAnalysis(this,'battlecard')">
+          <div class="analysis-icon">⚔️</div>
+          <div class="analysis-name">Battlecard</div>
+          <div class="analysis-desc">Sales win/loss card with objections & talk track</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'deep-dive')">
+          <div class="analysis-icon">🔍</div>
+          <div class="analysis-name">Deep Dive</div>
+          <div class="analysis-desc">Full company overview, product, customers</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'compare')">
+          <div class="analysis-icon">⚖️</div>
+          <div class="analysis-name">Compare</div>
+          <div class="analysis-desc">Side-by-side capability table vs Navina</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'sw')">
+          <div class="analysis-icon">±</div>
+          <div class="analysis-name">S&W Analysis</div>
+          <div class="analysis-desc">Strengths & exploitable weaknesses</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'news')">
+          <div class="analysis-icon">📰</div>
+          <div class="analysis-name">Latest News</div>
+          <div class="analysis-desc">Recent updates, funding, launches + sources</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'roadmap')">
+          <div class="analysis-icon">🗺️</div>
+          <div class="analysis-name">Roadmap Signals</div>
+          <div class="analysis-desc">What they're building — confirmed vs speculative</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'kpi')">
+          <div class="analysis-icon">📊</div>
+          <div class="analysis-name">KPI Comparison</div>
+          <div class="analysis-desc">Their metrics vs Navina's proof points</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'exec-brief')">
+          <div class="analysis-icon">📋</div>
+          <div class="analysis-name">Exec Brief</div>
+          <div class="analysis-desc">400-word strategic summary for leadership</div>
+        </div>
+        <div class="analysis-card" onclick="selectAnalysis(this,'navina-wins')">
+          <div class="analysis-icon">🏆</div>
+          <div class="analysis-name">Where Navina Wins</div>
+          <div class="analysis-desc">Differentiation + proof points to use in deals</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Persona -->
+    <div class="section">
+      <div class="section-label">Step 3 — Your Role</div>
+      <div class="pills">
+        <div class="pill persona-sales selected" onclick="selectPersona(this,'Sales Executive')">🎯 Sales</div>
+        <div class="pill persona-product" onclick="selectPersona(this,'Product Manager')">🛠 Product</div>
+        <div class="pill persona-clinical" onclick="selectPersona(this,'Clinical Manager')">🏥 Clinical</div>
+        <div class="pill persona-executive" onclick="selectPersona(this,'Executive')">⚡ Executive</div>
+        <div class="pill persona-marketing" onclick="selectPersona(this,'Marketing / Strategy')">📣 Marketing</div>
+        <div class="pill persona-analyst" onclick="selectPersona(this,'CI Analyst')">🔬 CI Analyst</div>
+      </div>
+    </div>
+
+    <!-- Step 4: Context -->
+    <div class="section">
+      <div class="section-label">Step 4 — Additional Context <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#d1d5db">(optional)</span></div>
+      <textarea class="notes-input" id="notes-input"
+        placeholder="e.g. We're in a competitive deal in Texas, they're using Epic. Focus on their recent partnership announcements."
+        oninput="updatePreview()"></textarea>
+    </div>
+
+    <!-- Preview -->
+    <div class="section">
+      <div class="section-label">Prompt Preview</div>
+      <div class="preview-box" id="preview-box">
+        Select a competitor and analysis type to preview the prompt...
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Launch Bar -->
+<div class="launch-bar">
+  <button class="btn-launch" id="btn-launch" onclick="launch()" disabled>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    Open in Claude.ai
+  </button>
+  <button class="btn-drive" id="btn-drive" onclick="openDriveModal()" disabled>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+    Create in Drive
+  </button>
+  <button class="btn-copy" onclick="copyPrompt()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+    Copy Prompt
+  </button>
+  <span class="launch-hint" id="launch-hint">Select a competitor and analysis type to continue</span>
+</div>
+
+<!-- Drive Creation Modal -->
+<div class="modal-overlay" id="drive-modal" onclick="closeDriveModal(event)">
+  <div class="modal">
+    <div class="modal-title">📊 Create in Google Drive</div>
+    <div class="modal-sub" id="modal-sub">Creating a new file based on Navina's template and saving it to Drive.</div>
+    <div id="modal-existing-box" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin:10px 0 4px;font-size:13px;">
+      <span style="font-weight:600;color:#16a34a;">📂 Existing battlecard found — </span>
+      <a id="modal-existing-link" href="#" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:underline;">Open in Drive →</a>
+    </div>
+    <div class="modal-steps">
+      <div class="modal-step">
+        <div class="step-num">1</div>
+        <div>Copy the prompt below</div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">2</div>
+        <div>Open your <strong>Claude Code session</strong> (this tool, not Claude.ai)</div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">3</div>
+        <div id="modal-step3-text">Paste the prompt — Claude Code will create and save the file in Drive automatically</div>
+      </div>
+      <div id="modal-step4-row" class="modal-step" style="display:none;">
+        <div class="step-num">4</div>
+        <div>⚡ Apps Script auto-trigger fires within 1 min → presentation saved to <strong>New battle cards_Ai Gen</strong> folder</div>
+      </div>
+    </div>
+    <div class="modal-prompt-box" id="modal-prompt-content"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-copy" onclick="copyDrivePrompt()">📋 Copy Prompt for Claude Code</button>
+      <button class="btn-modal-close" onclick="closeDriveModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let selectedCompetitor = null;
+let selectedAnalysis = null;
+let selectedPersona = 'Sales Executive';
+
+// ── Drive resource links per competitor ────────────────────────────────────
+const RESOURCES = {
+  'Reveleer': {
+    overview: { url: 'https://docs.google.com/presentation/d/18uGczD3ueLZB9HYp1pjx2wlRncFGGNDX9GyjEmpq1X0/edit', label: '📊 Company Overview' },
+    battlecard: { url: 'https://docs.google.com/presentation/d/14sxsM4BV20B0I6eKG7V9J1B-TskSSk2qReD9lo7M-ps/edit', label: '⚔️ Battlecard' },
+    folder: { url: 'https://drive.google.com/drive/folders/1MnBhRl0NYI11zgpI5vIfMaoLXQS7PQLA', label: '📁 Drive Folder' },
+  },
+  'Stanson Health': {
+    overview: { url: 'https://docs.google.com/presentation/d/1kbhmY_fuF8SZsOfBwuB3WBxXORcCQVv72fQZ1pMN7C0/edit', label: '📊 Company Overview' },
+    battlecard: { url: 'https://docs.google.com/presentation/d/1uYLLCj-StyT3hv8NWIu8XZdKQwz9BWBpUcs8gQBkdD0/edit', label: '⚔️ Battlecard' },
+    folder: { url: 'https://drive.google.com/drive/folders/1rJt_bQgrPJffq1S1Wb9TOx4DLbBpTl2r', label: '📁 Drive Folder' },
+  },
+  'Persivia': {
+    overview: { url: 'https://docs.google.com/presentation/d/1L2gC7djpx_6r0Zk6IcYVo1g6NihH4pjO-G7NfByM6tA/edit', label: '📊 Company Overview' },
+    battlecard: { url: 'https://docs.google.com/presentation/d/1wZJ33WNko6JKA2idPZX23CW62mWTxrxsqE8yxaV7dTY/edit', label: '⚔️ Battlecard' },
+    folder: { url: 'https://drive.google.com/drive/folders/1RkT1XKM3-yc--UWEE1guA7qRIjlHhHpV', label: '📁 Drive Folder' },
+  },
+  'Foresee Medical': {
+    folder: { url: 'https://drive.google.com/drive/folders/1SHsjVw0WTyRHNadDl9S2G5X92An5J2VJ', label: '📁 Drive Folder' },
+  },
+  'Innovaccer': {
+    overview: { url: 'https://docs.google.com/presentation/d/1CwYVWAwDnn7KL9QS41PddmpQC5QI97rPZ5Cn1WkfboA/edit', label: '📊 Company Overview' },
+    folder: { url: 'https://drive.google.com/drive/folders/1an3CUSNqebu8MIR0UvuVaVhCtLW5f6G9', label: '📁 Drive Folder' },
+  },
+  'Arcadia': {
+    folder: { url: 'https://drive.google.com/drive/folders/1PtZ8_Mcgyxj758uWuGUat9dqTboUIZt7', label: '📁 Drive Folder' },
+  },
+  'Health Catalyst': {
+    folder: { url: 'https://drive.google.com/drive/folders/1iWFFr51pH2eB9NlESOjIDjF8aKFWhh71', label: '📁 Drive Folder' },
+  },
+  'Lightbeam Health': {
+    folder: { url: 'https://drive.google.com/drive/folders/1N3ewEE7YZp3-PNUXoQE8StkqdI5wBgGB', label: '📁 Drive Folder' },
+  },
+  'Abridge': {
+    battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: '⚔️ Battlecard (slide 3)' },
+    overview: { url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', label: '📊 Ambient Main Deck' },
+    folder: { url: 'https://drive.google.com/drive/folders/1hka1NsU6moYsfImGU7bL-YU-MVZmTKYj', label: '📁 Drive Folder' },
+  },
+  'Ambience Healthcare': {
+    battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: '⚔️ Ambient Battlecards' },
+    overview: { url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', label: '📊 Ambient Main Deck' },
+  },
+  'Suki': {
+    battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: '⚔️ Battlecard (slide 2)' },
+    overview: { url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', label: '📊 Ambient Main Deck' },
+    folder: { url: 'https://drive.google.com/drive/folders/1qn09suUl9ON9C-VqbpgDH5YFR-N4q3CB', label: '📁 Drive Folder' },
+  },
+  'Nuance DAX': {
+    battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: '⚔️ Ambient Battlecards' },
+    overview: { url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', label: '📊 Ambient Main Deck' },
+  },
+  'Nabla': {
+    battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: '⚔️ Ambient Battlecards' },
+    overview: { url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', label: '📊 Ambient Main Deck' },
+  },
+  'Epic Systems': {
+    overview: { url: 'https://docs.google.com/presentation/d/17ieKC-yWV69_5B6ixli1YheydnjNGztN-9GEDtGa-_o/edit', label: '📊 Company Overview' },
+    battlecard: { url: 'https://docs.google.com/presentation/d/1J4YAqbeGO3NRAWL2QeD3jxSkBlBmubPfn7isH_MjJzU/edit', label: '⚔️ Battlecard' },
+    folder: { url: 'https://drive.google.com/drive/folders/1rF2pLa7ULuAG2Ex-slbbL8dNL1poicHD', label: '📁 Drive Folder' },
+  },
+  'Athenahealth': {
+    folder: { url: 'https://drive.google.com/drive/folders/1nTEmrqTEgaNk5Fl4Vrc2QT1E2YJV02fy', label: '📁 Drive Folder' },
+  },
+  'eClinicalWorks': {
+    battlecard: { url: 'https://docs.google.com/presentation/d/1QEvD0ixBNFBjbN1C1sYemirmXjIm2UrrKen6kmFPJYc/edit', label: '⚔️ Battlecard' },
+    folder: { url: 'https://drive.google.com/drive/folders/1OTCVhQRe5aIiYswYtBk89RkG5lt6rDx2', label: '📁 Drive Folder' },
+  },
+};
+
+function selectCompetitor(el, name) {
+  document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCompetitor = name;
+  document.getElementById('competitor-display').innerHTML =
+    `<div class="selected-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>${name}</div>`;
+
+  // Show Drive resources for this competitor
+  const res = RESOURCES[name];
+  const panel = document.getElementById('resources-panel');
+  if (res) {
+    const links = Object.entries(res).map(([type, r]) =>
+      `<a href="${r.url}" target="_blank" class="resource-link ${type === 'battlecard' ? 'battlecard' : ''}">${r.label}</a>`
+    ).join('');
+    panel.innerHTML = links;
+    panel.style.display = 'flex';
+  } else {
+    panel.innerHTML = `<a href="https://drive.google.com/drive/folders/1PM6gLBjpDVhRiJIWpoIaRAVs3i3mZHj8" target="_blank" class="resource-link">📁 Competition Folder</a>`;
+    panel.style.display = 'flex';
+  }
+
+  updatePreview(); checkReady();
+}
+
+function selectAnalysis(el, type) {
+  document.querySelectorAll('.analysis-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAnalysis = type;
+  updatePreview(); checkReady();
+}
+
+function selectPersona(el, persona) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPersona = persona;
+  updatePreview();
+}
+
+function checkReady() {
+  const ready = selectedCompetitor && selectedAnalysis;
+  document.getElementById('btn-launch').disabled = !ready;
+  document.getElementById('btn-drive').disabled = !ready;
+  document.getElementById('launch-hint').style.display = ready ? 'none' : 'inline';
+}
+
+// ── Drive creation templates ───────────────────────────────────────────────
+const DRIVE_TEMPLATES = {
+  battlecard: {
+    id: '1XT35SBbUWll7I3e0oTKe2Kz7GcfLQGPy3MEkbGscERE',
+    url: 'https://docs.google.com/presentation/d/1XT35SBbUWll7I3e0oTKe2Kz7GcfLQGPy3MEkbGscERE/edit',
+    label: 'Battle card template'
+  },
+  overview: {
+    id: '1wrZj6PMt_28sCVILwhPD-MGsSXdMiWZD4h3tTvjFEF0',
+    url: 'https://docs.google.com/presentation/d/1wrZj6PMt_28sCVILwhPD-MGsSXdMiWZD4h3tTvjFEF0/edit',
+    label: 'Company overview template'
+  }
+};
+const DRIVE_OUTPUT_FOLDER = '1xTZXtUzA79xsXr7FStXXnLQonSJ4lS_v';      // main folder (input files go here)
+const DRIVE_OUTPUT_URL = 'https://drive.google.com/drive/folders/1xTZXtUzA79xsXr7FStXXnLQonSJ4lS_v';
+const DRIVE_BATTLECARD_OUTPUT_FOLDER = '1t9CPc6COFVSgzj0N8hQTYIgLuGKh5w4v'; // battlecards generated here
+const DRIVE_BATTLECARD_OUTPUT_URL = 'https://drive.google.com/drive/folders/1t9CPc6COFVSgzj0N8hQTYIgLuGKh5w4v';
+
+function getTemplateTypeForAnalysis(analysis) {
+  if (analysis === 'battlecard' || analysis === 'compare' || analysis === 'navina-wins') return 'battlecard';
+  if (analysis === 'deep-dive' || analysis === 'sw' || analysis === 'kpi') return 'overview';
+  return null;
+}
+
+function openDriveModal() {
+  if (!selectedCompetitor || !selectedAnalysis) return;
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const res = RESOURCES[selectedCompetitor] || {};
+  const analysisName = analysisLabels[selectedAnalysis];
+  const notes = document.getElementById('notes-input').value.trim();
+
+  // Show/hide existing battlecard box
+  const existingBox = document.getElementById('modal-existing-box');
+  const existingLink = document.getElementById('modal-existing-link');
+  const step4Row = document.getElementById('modal-step4-row');
+
+  if (selectedAnalysis === 'battlecard' && res.battlecard) {
+    existingBox.style.display = 'block';
+    existingLink.href = res.battlecard.url;
+  } else {
+    existingBox.style.display = 'none';
+  }
+
+  let drivePrompt;
+
+  // ── BATTLECARD: research-first workflow ──────────────────────────────────
+  if (selectedAnalysis === 'battlecard') {
+    step4Row.style.display = 'flex';
+    document.getElementById('modal-step3-text').innerHTML =
+      'Paste in Claude Code → Claude researches + writes <strong>navina-battlecard-input.txt</strong> to Drive → Apps Script auto-generates the presentation';
+    document.getElementById('modal-sub').textContent =
+      `Will generate: "${selectedCompetitor} - Battlecard - ${today}" via research + Apps Script`;
+
+    drivePrompt =
+`BATTLECARD GENERATION REQUEST — ${selectedCompetitor}
+
+You are Navina's Competitive Intelligence Analyst. Follow this exact workflow:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — RESEARCH (internal sources first, then web)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Internal Drive sources:
+${res.battlecard ? `• Existing battlecard: ${res.battlecard.url}` : ''}
+${res.overview ? `• Company overview deck: ${res.overview.url}` : ''}
+${res.folder ? `• Drive folder: ${res.folder.url}` : ''}
+• All battlecards: https://drive.google.com/drive/folders/1SE4MY8F3b4WaAt3nJOWPAYQxtZYdpQAD
+• Notion Ambient: https://www.notion.so/navinaai/Ambient-competitors-27e31faa1fb78039b7e8cf974377ed91
+• Notion Risk Adj: https://www.notion.so/navinaai/Risk-Adjustment-30931faa1fb780609049e81ab10d133a
+• Notion Pop Health: https://www.notion.so/navinaai/Pop-health-platforms-33931faa1fb7804b99b2e9ff0035bc4a
+
+Web search (last resort for gaps):
+Search: "${selectedCompetitor}" site:businesswire.com OR site:beckershospitalreview.com OR site:fiercehealthcare.com OR site:modernhealthcare.com
+Also check: ${selectedCompetitor}'s official website newsroom/press page
+${notes ? `\nAdditional context from user: ${notes}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — DETERMINE VALUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Based on your research, assign a value to each field.
+Rules: use ✓ / ✗ / Limited / Unknown ONLY. Keep SHORT (narrow table cells).
+Be honest — never assume ✓ without evidence.
+
+SLIDE 1 — Essential functionality for VBC success:
+S1R0 = ${selectedCompetitor}
+S1R1 = ? → Consolidates longitudinal EHR + external + unstructured data (claims, HIE, imaging, notes)
+S1R2 = ? → Reconciles longitudinal patient data with ambient visit conversational data
+S1R3 = ? → GenAI generates MEAT documentation for accepted diagnosis
+S1R4 = ? → Explainable AI — links each insight to original clinical evidence
+S1R5 = ? → Superior suspecting engine — finds 43% more conditions than recapture alone
+S1R6 = ? → Supports CMS-HCC, HHS-HCC, RxHCC, ESRD risk models
+S1R7 = ? → Surfaces open care gaps at PoC with CPT + Order push to EHR
+S1R8 = ? → 9min time saved per chart review (AAFP-validated)
+S1R9 = ? → 86% weekly active provider engagement rate
+S1R10 = ? → 90% address rate of clinical insights
+S1R11 = ? → 77% acceptance rate of HCC diagnoses
+
+SLIDE 2 — Purpose built for RAF and HEDIS results:
+SLIDE2_TITLE = Navina vs ${selectedCompetitor}: for VBC
+S2R0 = ${selectedCompetitor}
+S2R1 = ? → HCC suspect generation (finds net new HCCs provider missed)
+S2R2 = ? → HCC acceptance rate (AI→clinician coding acceptance workflow)
+S2R3 = ? → Patient population: CMS-HCC, HHS-HCC, RxHCC, ESRD support
+S2R4 = ? → Care gap satisfaction (AI-powered open gap closure)
+S2R5 = ? → Care gap exclusion (automatic exclusion candidate identification)
+S2R6 = ? → Back office workflow (coder + quality team dedicated workflows)
+S2R7 = ? → VBC analytics & reporting (provider scorecards, RAF trending)
+
+SLIDE 3 — AI built for high clinician engagement:
+SLIDE3_TITLE = Navina vs ${selectedCompetitor}: for clinicians
+S3R0 = ${selectedCompetitor}
+S3R1 = ? → Full patient context (from external sources: claims, HIE, hospital data)
+S3R2 = ? → Clinical domain expertise (VBC/primary care-specialized AI, not general NLP)
+S3R3 = ? → AI-first approach (NLP on unstructured text, voice, ambient)
+S3R4 = ? → Clinician usage (EHR-native, frictionless, high adoption rate)
+S3R5 = ? → Clinically grounded evidence (links each insight to source in patient record)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — CREATE INPUT FILE IN DRIVE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Using Google Drive MCP, create a plain text file:
+• Filename: navina-battlecard-input.txt
+• Folder ID: ${DRIVE_OUTPUT_FOLDER}
+• Folder URL: ${DRIVE_OUTPUT_URL}
+
+File content must be EXACTLY this format (no headers, no markdown, just key=value):
+COMPANY=${selectedCompetitor}
+SLIDE2_TITLE=Navina vs ${selectedCompetitor}: for VBC
+SLIDE3_TITLE=Navina vs ${selectedCompetitor}: for clinicians
+S1R0=${selectedCompetitor}
+S1R1=[your researched value]
+S1R2=[your researched value]
+S1R3=[your researched value]
+S1R4=[your researched value]
+S1R5=[your researched value]
+S1R6=[your researched value]
+S1R7=[your researched value]
+S1R8=[your researched value]
+S1R9=[your researched value]
+S1R10=[your researched value]
+S1R11=[your researched value]
+S2R0=${selectedCompetitor}
+S2R1=[your researched value]
+S2R2=[your researched value]
+S2R3=[your researched value]
+S2R4=[your researched value]
+S2R5=[your researched value]
+S2R6=[your researched value]
+S2R7=[your researched value]
+S3R0=${selectedCompetitor}
+S3R1=[your researched value]
+S3R2=[your researched value]
+S3R3=[your researched value]
+S3R4=[your researched value]
+S3R5=[your researched value]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — RETURN TO USER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+After creating the file:
+1. Share the direct link to navina-battlecard-input.txt
+2. Show a summary table of all 26 values with 1-line evidence for each
+3. Flag any values marked Unknown and suggest where to find the data
+4. Tell user: "✅ Input file ready. The Apps Script auto-trigger is running every minute — your battlecard presentation will appear automatically in: ${DRIVE_BATTLECARD_OUTPUT_URL}"
+   No manual script run needed.`;
+
+  } else {
+    // ── OTHER ANALYSIS TYPES: keep original behavior ────────────────────────
+    step4Row.style.display = 'none';
+    document.getElementById('modal-step3-text').textContent =
+      'Paste the prompt — Claude Code will create and save the file in Drive automatically';
+
+    const templateType = getTemplateTypeForAnalysis(selectedAnalysis);
+    const template = templateType ? DRIVE_TEMPLATES[templateType] : null;
+    const fileName = `${selectedCompetitor} - ${analysisName} - ${today}`;
+    document.getElementById('modal-sub').textContent = `Will create: "${fileName}" in Drive`;
+
+    if (template) {
+      drivePrompt =
+`Using your Google Drive MCP, please do the following:
+
+1. Copy this template file:
+   Template: ${template.url}
+   Template file ID: ${template.id}
+
+2. Save the copy to this folder:
+   Folder: ${DRIVE_OUTPUT_URL}
+   Folder ID: ${DRIVE_OUTPUT_FOLDER}
+
+3. Name it exactly: "${fileName}"
+
+4. After creating the file, generate the content for a "${analysisName}" on ${selectedCompetitor} (stakeholder: ${selectedPersona}) using:
+${res.battlecard ? `   - Existing battlecard: ${res.battlecard.url}` : ''}
+${res.overview ? `   - Company overview: ${res.overview.url}` : ''}
+${res.folder ? `   - Drive folder: ${res.folder.url}` : ''}
+   - Battlecards folder: https://drive.google.com/drive/folders/1SE4MY8F3b4WaAt3nJOWPAYQxtZYdpQAD
+   - Notion: https://www.notion.so/navinaai/Competition-30931faa1fb7808abdc7d2158a0a5445
+${notes ? `   - Additional context: ${notes}` : ''}
+
+5. Return the direct link to the newly created file.`;
+    } else {
+      drivePrompt =
+`Using your Google Drive MCP, create a new Google Slides presentation in this folder:
+   Folder: ${DRIVE_OUTPUT_URL}
+   Folder ID: ${DRIVE_OUTPUT_FOLDER}
+   Name: "${fileName}"
+
+Generate content for "${analysisName}" on ${selectedCompetitor} (stakeholder: ${selectedPersona}) using:
+${res.overview ? `   - Company overview: ${res.overview.url}` : ''}
+${res.folder ? `   - Drive folder: ${res.folder.url}` : ''}
+   - Notion: https://www.notion.so/navinaai/Competition-30931faa1fb7808abdc7d2158a0a5445
+${notes ? `   - Context: ${notes}` : ''}
+
+Return the direct link to the newly created file.`;
+    }
+  }
+
+  document.getElementById('modal-prompt-content').textContent = drivePrompt;
+  document.getElementById('drive-modal').classList.add('show');
+}
+
+function closeDriveModal(e) {
+  if (!e || e.target === document.getElementById('drive-modal')) {
+    document.getElementById('drive-modal').classList.remove('show');
+  }
+}
+
+function copyDrivePrompt() {
+  const text = document.getElementById('modal-prompt-content').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✓ Prompt copied — paste it in Claude Code');
+    setTimeout(() => closeDriveModal(), 1200);
+  });
+}
+
+// ── Prompts per analysis type ──────────────────────────────────────────────
+
+const NAVINA_CORE = `You are Navina's Competitive Intelligence Analyst. Navina is a clinician-first AI platform for value-based care — NLP on unstructured clinical data, HCC risk adjustment, care gap closure, EHR-native workflows.
+
+Navina confirmed KPIs: 77% HCC acceptance rate (market: ~40%) · 86% weekly active provider engagement · 9 min saved per chart review · 43% more conditions identified · #1 Best in KLAS Clinician Digital Workflow · 1,300+ clinics · 20K+ clinicians · 3.5M+ lives.`;
+
+function driveContext(c) {
+  const res = RESOURCES[c];
+  let lines = ['INTERNAL SOURCES — check these first:'];
+  if (res?.battlecard) lines.push(`• Existing battlecard: ${res.battlecard.url}`);
+  if (res?.overview) lines.push(`• Company overview deck: ${res.overview.url}`);
+  if (res?.folder) lines.push(`• Drive folder: ${res.folder.url}`);
+  lines.push('• All battlecards: https://drive.google.com/drive/folders/1SE4MY8F3b4WaAt3nJOWPAYQxtZYdpQAD');
+  lines.push('• Notion hub: https://www.notion.so/navinaai/Competition-30931faa1fb7808abdc7d2158a0a5445');
+  return lines.join('\n');
+}
+
+const PROMPTS = {
+  'battlecard': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: Generate a battlecard — Navina vs ${c}
+STAKEHOLDER: ${persona}
+
+Use Navina's standard battlecard format (based on existing slides):
+
+SECTION 1 — COMPETITOR SNAPSHOT (3 bullets: founded, size, funding/ownership, key product)
+
+SECTION 2 — NAVINA POSITIONING HEADLINE
+One bold sentence: "Navina — [key differentiator vs ${c}]"
+
+SECTION 3 — COMPARISON TABLE
+Format exactly like this:
+| Key factor for VBC success | Navina | ${c} |
+Use these rows:
+- Value-based expertise & primary care focus
+- Consolidates external & unstructured patient data (Claims, HIE, imaging, hospital notes, lab results)
+- Ingests historical patient data & reconciles ambient visit data
+- Identifies new suspect conditions & suggests accurate HCC coding
+- Surfaces open care gaps at the point of care
+- Explainable AI — links each insight to original clinical evidence
+- Real-time analytics and reporting
+Mark each cell: ✓ / ✗ / Limited (with 1-line note) / Unknown
+
+SECTION 4 — WHERE NAVINA WINS (3 bullets, each with a KPI proof point)
+
+SECTION 5 — OBJECTION HANDLING (table: Objection | Navina response | Proof point — 3 rows max)
+
+SECTION 6 — DISCOVERY QUESTIONS (5 questions for sales)
+
+SECTION 7 — TRAP-SETTING QUESTIONS (3 questions)
+
+SECTION 8 — TALK TRACK (4 sentences max)
+
+Be concise. No filler. Use only verified information — mark anything uncertain as "Unknown".${notes ? `\n\nContext: ${notes}` : ''}`,
+
+  'deep-dive': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: Competitor deep dive — ${c}
+STAKEHOLDER: ${persona}
+
+Cover: company info · product overview · target customers · key modules · integrations · top customers · published KPIs · pricing signals · recent news · strengths · weaknesses · where Navina wins · strategic implications.
+
+Be concise. 3 bullets max per section. Link to sources where known.${notes ? `\n\nContext: ${notes}` : ''}`,
+
+  'compare': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: Side-by-side comparison — Navina vs ${c}
+STAKEHOLDER: ${persona}
+
+Create a capability comparison table across these dimensions:
+HCC/Risk Adjustment · Ambient/Copilot · Quality/HEDIS · EHR Integration · AI/NLP depth · Implementation speed · Provider UX · Proven outcomes · Market presence
+
+For each dimension: rate as Strong / Moderate / Limited / Unknown. Add 1-line note.
+End with: 3 bullets on where Navina has clear advantage, 2 bullets where ${c} may win.${notes ? `\n\nContext: ${notes}` : ''}`,
+
+  'sw': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: Strengths & weaknesses analysis — ${c}
+STAKEHOLDER: ${persona}
+
+Analyze across: Product · Clinical depth · Workflow fit · Data & integrations · AI/ML · UX · Implementation · Market traction · Customer proof · Strategic risk to Navina.
+
+For each dimension: 1-line strength, 1-line weakness. Flag the top 3 exploitable gaps.${notes ? `\n\nContext: ${notes}` : ''}`,
+
+  'news': (c, persona, notes) =>
+`TASK: Latest news and signals for ${c} — last 6 months.
+
+Search these sources in order:
+1. ${c} official website newsroom/press page
+2. BusinessWire: businesswire.com
+3. Becker's Hospital Review: beckershospitalreview.com
+4. Fierce Healthcare: fiercehealthcare.com
+5. Modern Healthcare: modernhealthcare.com
+6. PRNewswire: prnewswire.com
+
+For each item found, provide:
+• Date
+• Headline
+• 1-sentence summary
+• Why it matters for Navina (1 sentence)
+• Source URL
+
+Format as a table. Only include items with verifiable sources. Do not invent news. If nothing found, say so.${notes ? `\n\nFocus on: ${notes}` : ''}`,
+
+  'roadmap': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: Roadmap signals for ${c}
+STAKEHOLDER: ${persona}
+
+Separate into 4 tiers:
+• Confirmed — announced, in beta, or shipped
+• Strong signal — job postings, partnerships, demo content
+• Weak signal — executive quotes, conference themes
+• Speculative — inferred from strategy
+
+For each item: evidence · reasoning · confidence (High/Medium/Low) · implication for Navina.${notes ? `\n\nContext: ${notes}` : ''}`,
+
+  'kpi': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: KPI comparison — ${c} vs Navina
+STAKEHOLDER: ${persona}
+
+Create a table: Company · Metric · Value · Context · Source · Date · Confidence · Notes on comparability.
+
+Include Navina's confirmed KPIs. Only include ${c} KPIs that are publicly stated — never invent.
+End with: overall read on whose proof points are stronger and why.${notes ? `\n\nContext: ${notes}` : ''}`,
+
+  'exec-brief': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: Executive brief — ${c}
+MAX LENGTH: 400 words total.
+
+Structure:
+1. Strategic implication for Navina (2 sentences — lead with the risk or opportunity)
+2. Key facts (3 bullets)
+3. Where ${c} threatens Navina (2 bullets)
+4. Where Navina has the advantage (2 bullets)
+5. Recommended actions (2 bullets)
+
+No filler. No section should exceed 2 bullets.${notes ? `\n\nContext: ${notes}` : ''}`,
+
+  'navina-wins': (c, persona, notes) =>
+`${NAVINA_CORE}
+
+${driveContext(c)}
+
+TASK: Where Navina wins vs ${c} — for use in deals and pitches.
+STAKEHOLDER: ${persona}
+
+For each win, provide:
+• The dimension (e.g. HCC acceptance rate, implementation speed)
+• Navina's position with proof point or KPI
+• ${c}'s position (honest)
+• The one-liner to use in a pitch
+
+Then: 3 discovery questions to uncover where ${c} is weak.
+And: 2 things NOT to say.${notes ? `\n\nContext: ${notes}` : ''}`,
+};
+
+const analysisLabels = {
+  'battlecard':'Battlecard','deep-dive':'Deep Dive','compare':'Compare',
+  'sw':'S&W Analysis','news':'Latest News','roadmap':'Roadmap Signals',
+  'kpi':'KPI Comparison','exec-brief':'Exec Brief','navina-wins':'Where Navina Wins'
+};
+
+function buildPrompt() {
+  if (!selectedCompetitor || !selectedAnalysis) return '';
+  const notes = document.getElementById('notes-input').value.trim();
+  return PROMPTS[selectedAnalysis](selectedCompetitor, selectedPersona, notes);
+}
+
+function updatePreview() {
+  const box = document.getElementById('preview-box');
+  if (!selectedCompetitor || !selectedAnalysis) {
+    box.textContent = 'Select a competitor and analysis type to preview the prompt...';
+    return;
+  }
+  const notes = document.getElementById('notes-input').value.trim();
+  box.innerHTML =
+    `<span class="tag">${analysisLabels[selectedAnalysis]}</span>` +
+    `<span class="tag">${selectedCompetitor}</span>` +
+    `<span class="tag">${selectedPersona}</span>` +
+    (notes ? `<span class="tag">+ context</span>` : '') +
+    `\n\nPrompt ready — click "Open in Claude.ai" to launch`;
+}
+
+function launch() {
+  const prompt = buildPrompt();
+  if (!prompt) return;
+  navigator.clipboard.writeText(prompt)
+    .then(() => {
+      window.open('https://claude.ai/new', '_blank');
+      showToast('✓ Prompt copied — paste it in Claude.ai (⌘V)');
+    })
+    .catch(() => {
+      window.open('https://claude.ai/new', '_blank');
+      showToast('Claude.ai opened — copy the prompt manually');
+    });
+}
+
+function copyPrompt() {
+  const prompt = buildPrompt();
+  if (!prompt) { showToast('Select a competitor and analysis type first'); return; }
+  navigator.clipboard.writeText(prompt).then(() => showToast('✓ Prompt copied to clipboard'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+checkReady();
+</script>
+</body>
+</html>
