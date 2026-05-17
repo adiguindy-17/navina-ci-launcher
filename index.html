@@ -4,6 +4,61 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Navina CI Launcher</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+
+  /* ── Auth Overlay ── */
+  #auth-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .auth-card {
+    background: #fff; border-radius: 24px;
+    padding: 48px 44px; width: 380px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    text-align: center;
+  }
+  .auth-logo {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 24px; color: #fff;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(79,70,229,0.35);
+  }
+  .auth-title {
+    font-size: 22px; font-weight: 800; color: #111827;
+    margin-bottom: 6px; letter-spacing: -0.4px;
+  }
+  .auth-subtitle {
+    font-size: 13px; color: #6b7280; margin-bottom: 28px; line-height: 1.5;
+  }
+  .auth-divider {
+    width: 100%; height: 1px; background: #f3f4f6; margin-bottom: 28px;
+  }
+  .auth-restricted {
+    font-size: 11px; font-weight: 600; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .auth-restricted::before, .auth-restricted::after {
+    content: ''; flex: 1; height: 1px; background: #e5e7eb;
+  }
+  #google-signin-btn { margin-bottom: 16px; }
+  .auth-error {
+    font-size: 12px; color: #dc2626; background: #fef2f2;
+    border: 1px solid #fecaca; border-radius: 8px;
+    padding: 10px 14px; margin-top: 4px; line-height: 1.5;
+    display: none; width: 100%; text-align: left;
+  }
+  .auth-footer {
+    font-size: 11px; color: #d1d5db; margin-top: 20px;
+  }
+</style>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -355,6 +410,20 @@
 </head>
 <body>
 
+<!-- Auth Overlay -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">N</div>
+    <div class="auth-title">Navina CI</div>
+    <div class="auth-subtitle">Competitive Intelligence Platform<br>Sign in to access your workspace</div>
+    <div class="auth-divider"></div>
+    <div class="auth-restricted">Navina team only</div>
+    <div id="google-signin-btn"></div>
+    <div id="auth-error" class="auth-error"></div>
+    <div class="auth-footer">🔒 Restricted to @navina.ai accounts</div>
+  </div>
+</div>
+
 <!-- Header -->
 <header class="header">
   <div class="logo">N</div>
@@ -363,6 +432,8 @@
   <span class="header-sub">Competitive Intelligence Launcher</span>
   <div class="header-right">
     <div class="header-badge">✓ No API · Opens in Claude.ai</div>
+    <div id="user-badge" style="display:none;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#374151;margin-left:8px;"></div>
+    <button id="signout-btn" onclick="signOut()" style="display:none;padding:5px 12px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;" title="Sign out">Sign out</button>
   </div>
 </header>
 
@@ -1157,8 +1228,68 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// ── Google Auth ───────────────────────────────────────────────────────────────
+const GOOGLE_CLIENT_ID = '775970374877-af8iqopbq5qirl730q240quv9s207uud.apps.googleusercontent.com';
+const ALLOWED_DOMAIN   = 'navina.ai';
+
+function initAuth() {
+  // Already signed in this session?
+  const saved = sessionStorage.getItem('navina_user');
+  if (saved) { showApp(JSON.parse(saved)); return; }
+
+  // Wait for Google GSI to load, then render button
+  const interval = setInterval(() => {
+    if (window.google?.accounts?.id) {
+      clearInterval(interval);
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredential,
+        auto_select: false,
+        ux_mode: 'popup',
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('google-signin-btn'),
+        { type: 'standard', theme: 'outline', size: 'large',
+          text: 'signin_with', shape: 'rectangular', width: 280 }
+      );
+    }
+  }, 100);
+}
+
+function handleCredential(response) {
+  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  const { email, name, picture } = payload;
+  const errEl = document.getElementById('auth-error');
+
+  if (!email.endsWith('@' + ALLOWED_DOMAIN)) {
+    errEl.textContent = `⛔ Access restricted to @${ALLOWED_DOMAIN} accounts.\nYou signed in as: ${email}`;
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  const user = { email, name, picture };
+  sessionStorage.setItem('navina_user', JSON.stringify(user));
+  showApp(user);
+}
+
+function showApp(user) {
+  document.getElementById('auth-overlay').style.display = 'none';
+  const badge = document.getElementById('user-badge');
+  const signoutBtn = document.getElementById('signout-btn');
+  badge.innerHTML = `<img src="${user.picture}" style="width:24px;height:24px;border-radius:50%;border:1.5px solid #e5e7eb"> ${user.name.split(' ')[0]}`;
+  badge.style.display = 'flex';
+  signoutBtn.style.display = 'block';
+}
+
+function signOut() {
+  sessionStorage.removeItem('navina_user');
+  if (window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
+  location.reload();
+}
+
 // Init
 checkReady();
+initAuth();
 </script>
 </body>
 </html>
