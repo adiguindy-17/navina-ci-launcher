@@ -2516,41 +2516,73 @@ For each gap: what it is · why it matters to ${persona} · how Navina should co
 ## OVERALL THREAT LEVEL TO NAVINA
 High / Medium / Low — with reasoning.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
-  'news': (c, persona, notes) =>
-`${newsContext(c)}
+  'news': (c, persona, notes) => {
+    const res = RESOURCES[c];
+    const base = res?.website?.url?.replace(/\/$/, '') || '';
+    const officialSources = base
+      ? `- ${base}: check /news, /newsroom, /press, /blog, /resources, /case-studies\n- LinkedIn: search "${c}" company page → Posts tab`
+      : `- Search "${c}" official website: /news, /newsroom, /press, /blog, /resources\n- LinkedIn: search "${c}" company page → Posts tab`;
+    return `## ROLE
+You are a senior competitive intelligence analyst at Navina.
+You are preparing a briefing for a **${persona}** who needs current intelligence on **${c}**.
 
-TASK: Executive-ready news brief on ${c} — act as a senior competitive intelligence analyst.
-Scope: last 4–8 weeks primarily; up to 3 months for major strategic items.
-Goal: identify strategically significant developments, not generic news aggregation.
+## TASK
+Find the 4–6 most relevant recent developments about **${c}**.
 
-## WHAT TO LOOK FOR (prioritize in this order)
-1. Strategic partnerships — new integrations, ecosystem plays, co-sell agreements
-2. New customers or client wins — named accounts, health systems, health plans
-3. Product launches, updates, or feature announcements
-4. Fundraising, valuation, investors, financial momentum
-5. Executive appointments, leadership changes, key hires
-6. M&A activity — acquisitions, divestitures, acquisition rumors
-7. Major media coverage, analyst reports, KLAS ratings
-8. Conference appearances, keynotes, thought leadership
-9. Implementations, rollouts, large-scale deployments
+Timeframe: last 6–8 weeks.
+Extend to 90 days only for major announcements — always show the date.
 
-## FOR EACH ITEM FOUND — report in this format:
-| Date | Category | Headline | Summary (1–2 sentences) | Strategic significance for Navina | Source URL |
+Prioritize by persona:
+- **Product Manager** → product launches, new features, integrations, platform changes, roadmap signals
+- **Sales** → customer wins, named logos, enterprise deals, pricing signals, ROI claims
+- **Marketing** → analyst recognition, partnerships, customer stories, category positioning, media momentum
+- **Executive** → funding, M&A, leadership changes, strategic pivots, market expansion
 
-## REQUIREMENTS
-- Use only recent, reliable, official sources (press releases, partner announcements, regulatory filings, reputable healthcare media, official LinkedIn)
-- Include a source link for every claim
-- Separate confirmed facts from interpretation
-- Highlight the 6–8 most strategically relevant items
-- Do not include generic company background unless needed to explain why a development matters
-- If nothing found in a category, explicitly state that
+Skip: generic thought leadership, vague AI messaging, event appearances, announcements without concrete details.
 
-## END WITH
-**Executive Summary** — 3 sentences: what's the overall picture of ${c} right now?
-**Key Takeaways** — 3 bullets: what should Navina know immediately?
-**Strategic Implications** — how does this affect Navina's positioning, pipeline, or roadmap?
-**Signals to Monitor Next** — what to watch in the coming weeks?
-**Gaps** — categories where no recent public information was found${notes ? `\n\n## FOCUS AREA\n${notes}` : ''}`,
+## SOURCES
+
+Official sources first:
+${officialSources}
+
+Then search each of these for **${c}**:
+- beckershospitalreview.com
+- fiercehealthcare.com
+- healthcareitnews.com
+- modernhealthcare.com
+- hitconsultant.net
+- mobihealthnews.com
+- medcitynews.com
+- statnews.com
+- businesswire.com
+- prnewswire.com
+- globenewswire.com
+- klasresearch.com
+- crunchbase.com
+
+## OUTPUT
+
+No intro. Start immediately.
+
+### [Month DD] — [Headline]
+1–2 sentences. Facts only: names, numbers, products, customers, integrations.
+Source: [URL — only if confirmed. If uncertain, write: "via [domain]"]
+
+Repeat for each item. Max 2 items per category.
+
+---
+
+### Bottom line
+- Biggest development in the last 60 days — one sentence
+- One thing to watch this week — one sentence
+
+## RULES
+- No filler, no adjectives, no consulting language
+- No vague AI language ("transformative", "innovative", "robust")
+- Every item must contain at least one concrete detail
+- Never construct or guess a URL
+- If fewer than 4 strong items exist, return fewer — do not pad${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`;
+  },
 
   'roadmap': (c, persona, notes) =>
 `${driveContext(c)}
