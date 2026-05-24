@@ -1643,7 +1643,7 @@ function copyMsgText(btn, text) {
 function buildFullPrompt() {
   const c = selectedCompetitor;
   const notes = document.getElementById('notes-input').value.trim();
-  const context = driveContext(c);
+  const context = driveContext(c, selectedAnalysis);
   const promptFn = PROMPTS[selectedAnalysis];
   if (!promptFn) return `Analyze ${c} for ${selectedPersona}.`;
   return promptFn(c, selectedPersona, notes, context);
@@ -2322,21 +2322,31 @@ vs. EHR tools (Epic CDS): Purpose-built for VBC. Unstructured NLP. Evidence-link
 • KLAS Top 20 Emerging Solutions · SOC2 Type II + HIPAA · ISO 27001:2022`;
 
 
-function driveContext(c) {
+function driveContext(c, analysis = '') {
   const res = RESOURCES[c];
-  let lines = ['INTERNAL SOURCES — check these first:'];
-  const researchPriority = ['notion', 'overview', 'battlecard', 'demo_summary', 'folder', 'demo_recording'];
+  const links = [];
+
   if (res) {
-    researchPriority.forEach(type => {
-      if (res[type]) lines.push(`• ${res[type].label}: ${res[type].url}`);
-    });
-    if (res.website) lines.push(`• Website: ${res.website.url}`);
+    // Always include: text-readable content only
+    if (res.notion)       links.push(`• ${res.notion.label}: ${res.notion.url}`);
+    if (res.overview)     links.push(`• ${res.overview.label}: ${res.overview.url}`);
+    if (res.demo_summary) links.push(`• ${res.demo_summary.label}: ${res.demo_summary.url}`);
+    // Battlecard only for head-to-head use cases
+    const needsBattlecard = ['battlecard', 'compare', 'navina-wins', 'kpi'];
+    if (res.battlecard && needsBattlecard.includes(analysis)) {
+      links.push(`• ${res.battlecard.label}: ${res.battlecard.url}`);
+    }
   }
-  lines.push('• Competition main Drive folder: https://drive.google.com/drive/folders/1PM6gLBjpDVhRiJIWpoIaRAVs3i3mZHj8');
-  lines.push('• All battlecards folder: https://drive.google.com/drive/folders/1SE4MY8F3b4WaAt3nJOWPAYQxtZYdpQAD');
-  lines.push('• Notion competition hub: https://www.notion.so/navinaai/Competition-30931faa1fb7808abdc7d2158a0a5445');
-  lines.push('• Monthly overview deck: https://docs.google.com/presentation/d/19bwTYobI0z4EB0KnCMww0CW8vyamryYIuMqxZ7ORMKU/edit');
-  return lines.join('\n');
+
+  if (links.length === 0) return '';
+
+  return `RESEARCH PROCESS — follow in order:
+1. Open and read all internal materials listed below.
+2. Search the web for current information.
+3. Synthesize both into one integrated response — do not treat them separately.
+
+INTERNAL MATERIALS:
+${links.join('\n')}`;
 }
 
 function newsContext(c) {
@@ -2373,7 +2383,7 @@ function newsContext(c) {
 const PROMPTS = {
 
   'battlecard': (c, persona, notes) =>
-`${driveContext(c)}
+`${driveContext(c, 'battlecard')}
 
 You are a senior CI analyst at Navina preparing a sales battlecard for ${persona}.
 
@@ -2417,7 +2427,7 @@ Mark anything unverified as "Unknown".${notes ? `\n\n## CONTEXT\n${notes}` : ''}
     const newsUrl = base
       ? `${base} (/news, /newsroom, /press, /blog), beckershospitalreview.com, fiercehealthcare.com, healthcareitnews.com, businesswire.com, prnewswire.com`
       : `"${c}" official website news section, beckershospitalreview.com, fiercehealthcare.com, healthcareitnews.com, businesswire.com`;
-    return `${driveContext(c)}
+    return `${driveContext(c, 'deep-dive')}
 
 You are a senior CI analyst at Navina. Build a comprehensive profile of ${c} for ${persona}.
 Search the web for current information. Use internal Drive materials where available.
@@ -2456,7 +2466,7 @@ Mark unverified information as "Unconfirmed".${notes ? `\n\n## CONTEXT\n${notes}
   },
 
   'compare': (c, persona, notes) =>
-`${driveContext(c)}
+`${driveContext(c, 'compare')}
 
 You are a senior CI analyst at Navina. Build a sharp side-by-side comparison for ${persona}.
 
@@ -2486,7 +2496,7 @@ Strong / Moderate / Limited / Unknown + 1-line note. Edge: Navina / ${c} / Tie.
 2 bullets: the most relevant differences for this specific role and what to do with them.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'sw': (c, persona, notes) =>
-`${driveContext(c)}
+`${driveContext(c, 'sw')}
 
 You are a senior CI analyst at Navina. Analyze ${c} for ${persona}.
 Use internal materials, web search, and any published case studies or reviews.
@@ -2574,7 +2584,7 @@ Repeat for each item. Max 2 items per category.
     const newsUrl = base
       ? `${base} (/news, /blog, /resources), beckershospitalreview.com, fiercehealthcare.com, businesswire.com`
       : `"${c}" official website, beckershospitalreview.com, fiercehealthcare.com, businesswire.com`;
-    return `${driveContext(c)}
+    return `${driveContext(c, 'roadmap')}
 
 You are a senior CI analyst at Navina. Map the product direction and roadmap signals of ${c} for ${persona}.
 Search: job postings · product pages · press releases · demo videos · conference talks · LinkedIn · executive interviews · partner announcements.
@@ -2600,7 +2610,7 @@ Search: ${newsUrl}
   },
 
   'kpi': (c, persona, notes) =>
-`${driveContext(c)}
+`${driveContext(c, 'kpi')}
 
 You are a senior CI analyst at Navina. Compare verified proof points — Navina vs ${c} — for ${persona}.
 
@@ -2631,7 +2641,7 @@ Never invent — mark gaps as "No public data."
     const newsUrl = base
       ? `${base} (/news, /newsroom, /press), businesswire.com, prnewswire.com, beckershospitalreview.com`
       : `"${c}" official website news section, businesswire.com, prnewswire.com, beckershospitalreview.com`;
-    return `${driveContext(c)}
+    return `${driveContext(c, 'exec-brief')}
 
 You are a senior CI analyst at Navina. Write a tight executive brief on ${c}. No fluff — every sentence must add information.
 
@@ -2654,7 +2664,7 @@ Include source URL. Skip section if nothing material found.
   },
 
   'navina-wins': (c, persona, notes) =>
-`${driveContext(c)}
+`${driveContext(c, 'navina-wins')}
 
 You are a senior CI analyst at Navina. Build a win-against playbook for ${persona} competing with ${c}.
 
