@@ -502,6 +502,41 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+
+  /* ── KB General Resources (bottom of KB panel, small/muted) ── */
+  .kb-general-section {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px dashed #e5e7eb;
+  }
+  .kb-general-label {
+    font-size: 10px; font-weight: 700; color: #d1d5db;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .kb-general-links {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .kb-general-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    background: #f9fafb; border: 1px solid #e5e7eb;
+    border-radius: 8px; font-size: 12px; font-weight: 500;
+    color: #9ca3af; text-decoration: none;
+    transition: all 0.15s;
+  }
+  .kb-general-link:hover {
+    background: #f3f4f6; border-color: #d1d5db; color: #6b7280;
+  }
+  .kb-no-internal {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 6px; padding: 20px 22px;
+    background: #fafafa; border: 1.5px dashed #e5e7eb;
+    border-radius: 12px; margin-bottom: 4px;
+    color: #d1d5db;
+  }
+  .kb-no-internal-title { font-size: 13px; font-weight: 600; color: #9ca3af; }
+  .kb-no-internal-sub { font-size: 12px; color: #d1d5db; line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -543,7 +578,6 @@
       <div class="category-header"><span class="category-dot" style="background:#ef4444"></span>HCC / Risk Adj.</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Reveleer')">Reveleer</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Stanson Health')">Stanson Health</div>
-      <div class="competitor-item" onclick="selectCompetitor(this,'Persivia')">Persivia</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Foresee Medical')">Foresee Medical</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Keebler Health')">Keebler Health</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Evidently')">Evidently</div>
@@ -553,6 +587,7 @@
     <div class="category-group">
       <div class="category-header"><span class="category-dot" style="background:#3b82f6"></span>Pop Health</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Innovaccer')">Innovaccer</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Persivia')">Persivia</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Arcadia')">Arcadia</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'The Garage')">The Garage</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Health Catalyst')">Health Catalyst</div>
@@ -590,6 +625,8 @@
     <div class="category-group">
       <div class="category-header"><span class="category-dot" style="background:#6b7280"></span>Other</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Doximity')">Doximity</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'ELCAT')">ELCAT</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Notable Health')">Notable Health</div>
     </div>
   </nav>
 
@@ -840,6 +877,7 @@ const RESOURCES = {
     folder:         { url: 'https://drive.google.com/drive/folders/1an3CUSNqebu8MIR0UvuVaVhCtLW5f6G9', label: 'Drive Folder' },
     demo_recording: { url: 'https://drive.google.com/file/d/1h5_m0fyYA0ChhrW2C-IngnmUlvQVjGng/view', label: 'Demo Recording' },
     demo_summary:   { url: 'https://drive.google.com/file/d/1geWKT_-JaPz38Xi9DvnF8spdrWedlzAt/view', label: 'Demo Summary' },
+    website:        { url: 'https://innovaccer.com/', label: 'Website' },
   },
 
   'Arcadia': {
@@ -858,11 +896,13 @@ const RESOURCES = {
   },
 
   'Health Catalyst': {
-    folder: { url: 'https://drive.google.com/drive/folders/1iWFFr51pH2eB9NlESOjIDjF8aKFWhh71', label: 'Drive Folder' },
+    folder:   { url: 'https://drive.google.com/drive/folders/1iWFFr51pH2eB9NlESOjIDjF8aKFWhh71', label: 'Drive Folder' },
+    website:  { url: 'https://www.healthcatalyst.com/', label: 'Website' },
   },
 
   'Lightbeam Health': {
-    folder: { url: 'https://drive.google.com/drive/folders/1N3ewEE7YZp3-PNUXoQE8StkqdI5wBgGB', label: 'Drive Folder' },
+    folder:   { url: 'https://drive.google.com/drive/folders/1N3ewEE7YZp3-PNUXoQE8StkqdI5wBgGB', label: 'Drive Folder' },
+    website:  { url: 'https://lightbeamhealth.com/', label: 'Website' },
   },
 
   // ── Ambient Scribes ────────────────────────────────────────────────────────
@@ -871,12 +911,14 @@ const RESOURCES = {
     overview:   { url: 'https://docs.google.com/presentation/d/1rd8GWpVmjF32Og0oob42JDxo9eb4pOYfkGeHp-z20Qk/edit', label: 'Company Overview Deck' },
     battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: 'Battlecard (slide 3)' },
     folder:     { url: 'https://drive.google.com/drive/folders/1hka1NsU6moYsfImGU7bL-YU-MVZmTKYj', label: 'Drive Folder' },
+    website:    { url: 'https://www.abridge.com/', label: 'Website' },
   },
 
   'Ambience Healthcare': {
     notion:     { url: 'https://www.notion.so/navinaai/Ambience-AI-28631faa1fb78029b3c6da5ef1d23c25', label: 'Notion Page' },
     overview:   { url: 'https://docs.google.com/presentation/d/1WlKDGPBZO9u7lrOp53t-rANFdGu98dfjfHMItNX7New/edit', label: 'Company Overview Deck' },
     battlecard: { url: 'https://docs.google.com/presentation/d/1r1I8oDdFoMWXhva73OGWM3lEgRWdz4xuwr46uElGHgk/edit', label: 'Battlecard' },
+    website:    { url: 'https://www.ambiencehealthcare.com/', label: 'Website' },
   },
 
   'Suki': {
@@ -887,22 +929,26 @@ const RESOURCES = {
     demo_recording: { url: 'https://drive.google.com/file/d/1jdSMdYdmNad_JP67-NV4qZhT_DC-dICo/view', label: 'Demo Recording' },
     demo_summary:   { url: 'https://drive.google.com/file/d/1KyLVcAJjy1wUkWm_bCm-sCSu2-aAVnuL/view', label: 'Demo Summary' },
     pricing:        { url: 'https://drive.google.com/file/d/1clb0EVl2FYCI0KfoPjArSWyhPYDiArG9/view', label: 'Pricing PDF' },
+    website:        { url: 'https://www.suki.ai/', label: 'Website' },
   },
 
   'Nuance DAX': {
     overview:   { url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', label: 'Ambient Main Deck' },
     battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: 'Ambient Battlecards' },
+    website:    { url: 'https://www.microsoft.com/en-us/health-solutions/clinical-workflow/dragon-copilot', label: 'Website' },
   },
 
   'Nabla': {
     overview:   { url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', label: 'Ambient Main Deck' },
     battlecard: { url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', label: 'Ambient Battlecards' },
+    website:    { url: 'https://www.nabla.com/', label: 'Website' },
   },
 
   'Heidi': {
     notion:         { url: 'https://www.notion.so/navinaai/Heidi-Health-29931faa1fb7803a813ed9531ca63707', label: 'Notion Page' },
     demo_recording: { url: 'https://drive.google.com/file/d/1CusxPDx86IgdBs0u50VsjbDiMT7IfWCT/view', label: 'Demo Recording' },
     demo_summary:   { url: 'https://drive.google.com/file/d/1YOjyn6oOnrJUDjPViYWhDCLX7L0y_Bxj/view', label: 'Demo Summary' },
+    website:        { url: 'https://www.heidihealth.com/', label: 'Website' },
   },
 
   'Marvix AI': {
@@ -914,6 +960,7 @@ const RESOURCES = {
   'Freed AI': {
     notion:   { url: 'https://www.notion.so/navinaai/Freed-AI-29531faa1fb780dbb17bf4e0d273d317', label: 'Notion Page' },
     overview: { url: 'https://docs.google.com/presentation/d/1QgHi1aObL5Xc-frkYhWK1FPbtJXpMlhtXTK6pnGmbZk/edit', label: 'Company Overview Deck' },
+    website:  { url: 'https://freed.ai/', label: 'Website' },
   },
 
   // ── EHRs ───────────────────────────────────────────────────────────────────
@@ -922,6 +969,7 @@ const RESOURCES = {
     overview:   { url: 'https://docs.google.com/presentation/d/17ieKC-yWV69_5B6ixli1YheydnjNGztN-9GEDtGa-_o/edit', label: 'Company Overview Deck' },
     battlecard: { url: 'https://docs.google.com/presentation/d/1PpvAYsS4KxxgM99kbfMAKZyOEJGMGDfyvDz0TcxS_wY/edit', label: 'Battlecard (KP deck)' },
     folder:     { url: 'https://drive.google.com/drive/folders/1rF2pLa7ULuAG2Ex-slbbL8dNL1poicHD', label: 'Drive Folder' },
+    website:    { url: 'https://www.epic.com/', label: 'Website' },
   },
 
   'Athenahealth': {
@@ -941,20 +989,35 @@ const RESOURCES = {
 
   // ── Payer Solutions ────────────────────────────────────────────────────────
   'Raapid': {
-    notion: { url: 'https://www.notion.so/navinaai/Raapid-35f31faa1fb780059808dbfe97f97d68', label: 'Notion Page' },
+    notion:   { url: 'https://www.notion.so/navinaai/Raapid-35f31faa1fb780059808dbfe97f97d68', label: 'Notion Page' },
+    website:  { url: 'https://www.raapidinc.com/', label: 'Website' },
   },
 
-  'Vertexa Health':    {},
-  'Pareto Intelligence': {},
-  'GeBBS':             {},
+  'Vertexa Health':      { website: { url: 'https://www.vertexahealth.com/', label: 'Website' } },
+  'Pareto Intelligence': { website: { url: 'https://paretointel.com/', label: 'Website' } },
+  'GeBBS':               { website: { url: 'https://gebbs.com/', label: 'Website' } },
 
   // ── Other ──────────────────────────────────────────────────────────────────
+  'ELCAT': {
+    website: { url: 'https://evaire.com/', label: 'Website' },
+  },
+
+  'Notable Health': {
+    website: { url: 'https://www.notablehealth.com/', label: 'Website' },
+  },
+
   'Doximity': {
     notion:  { url: 'https://www.notion.so/navinaai/Doximity-36331faa1fb78097887de22863a9e109', label: 'Notion Page' },
     website: { url: 'https://www.doximity.com/', label: 'Website' },
   },
 
-  'Inferscience': {},
+  'Inferscience': {
+    website: { url: 'https://www.inferscience.com/', label: 'Website' },
+  },
+
+  'Azara Healthcare': {
+    website: { url: 'https://www.azarahealthcare.com/', label: 'Website' },
+  },
 };
 
 function switchTab(tabId) {
@@ -979,11 +1042,12 @@ const KB_TYPE_META = {
 function renderKBCards(name) {
   const res = RESOURCES[name];
   const container = document.getElementById('kb-content');
-  let cards = [];
 
+  // Company-specific cards
+  let cards = [];
   if (res) {
     cards = Object.entries(res).map(([type, r]) => {
-      const meta = KB_TYPE_META[type] || { icon: '🔗', label: r.label, typeLabel: 'Resource', cssClass: '' };
+      const meta = KB_TYPE_META[type] || { icon: '🔗', typeLabel: 'Resource', cssClass: '' };
       return `
         <a href="${r.url}" target="_blank" class="kb-card ${meta.cssClass}">
           <div class="kb-card-icon">${meta.icon}</div>
@@ -994,23 +1058,28 @@ function renderKBCards(name) {
     });
   }
 
-  // Always add Notion + all battlecards as resources
-  cards.push(`
-    <a href="https://www.notion.so/navinaai/Competition-30931faa1fb7808abdc7d2158a0a5445" target="_blank" class="kb-card" style="border-color:#e9d5ff;background:#fdf9ff">
-      <div class="kb-card-icon">📓</div>
-      <div class="kb-card-label">Notion — Competition Hub</div>
-      <div class="kb-card-type">Full CI knowledge base</div>
-      <div class="kb-card-arrow">Open ↗</div>
-    </a>`);
-  cards.push(`
-    <a href="https://drive.google.com/drive/folders/1SE4MY8F3b4WaAt3nJOWPAYQxtZYdpQAD" target="_blank" class="kb-card" style="border-color:#d1fae5;background:#fafffe">
-      <div class="kb-card-icon">📁</div>
-      <div class="kb-card-label">All Battlecards Folder</div>
-      <div class="kb-card-type">Drive — all competitors</div>
-      <div class="kb-card-arrow">Open ↗</div>
-    </a>`);
+  // General CI resources section (always shown, small & muted at the bottom)
+  const generalSection = `
+    <div class="kb-general-section">
+      <div class="kb-general-label">General CI Resources</div>
+      <div class="kb-general-links">
+        <a href="https://www.notion.so/navinaai/Competition-30931faa1fb7808abdc7d2158a0a5445" target="_blank" class="kb-general-link">📓 Notion — Competition Hub</a>
+        <a href="https://drive.google.com/drive/folders/1SE4MY8F3b4WaAt3nJOWPAYQxtZYdpQAD" target="_blank" class="kb-general-link">📁 All Battlecards Folder</a>
+        <a href="https://drive.google.com/drive/folders/1PM6gLBjpDVhRiJIWpoIaRAVs3i3mZHj8" target="_blank" class="kb-general-link">📂 Main Competition Drive Folder</a>
+        <a href="https://docs.google.com/presentation/d/19bwTYobI0z4EB0KnCMww0CW8vyamryYIuMqxZ7ORMKU/edit" target="_blank" class="kb-general-link">📊 Monthly Competition Overview Deck</a>
+      </div>
+    </div>`;
 
-  container.innerHTML = `<div class="kb-grid">${cards.join('')}</div>`;
+  if (cards.length > 0) {
+    container.innerHTML = `<div class="kb-grid">${cards.join('')}</div>${generalSection}`;
+  } else {
+    container.innerHTML = `
+      <div class="kb-no-internal">
+        <div class="kb-no-internal-title">No internal materials yet for ${name}</div>
+        <div class="kb-no-internal-sub">Use "Generate Intel" tab to create AI-powered analysis, or check the general resources below.</div>
+      </div>
+      ${generalSection}`;
+  }
 }
 
 function selectCompetitor(el, name) {
