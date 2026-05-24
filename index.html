@@ -401,6 +401,90 @@
   .resource-link.battlecard { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
   .resource-link.battlecard:hover { background: #fee2e2; border-color: #fca5a5; }
 
+  /* ── Pillar Tabs ── */
+  .pillar-tabs {
+    display: flex; gap: 4px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 28px; margin-top: 8px;
+  }
+  .pillar-tab {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 12px 22px 14px;
+    border: none; background: transparent; cursor: pointer;
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    text-align: left; transition: all 0.15s; font-family: inherit;
+    border-radius: 8px 8px 0 0;
+    gap: 2px;
+  }
+  .pillar-tab:hover { background: #f9fafb; }
+  .pillar-tab-icon { font-size: 16px; margin-bottom: 2px; }
+  .pillar-tab-name { font-size: 13px; font-weight: 700; color: #6b7280; }
+  .pillar-tab-desc { font-size: 11px; color: #d1d5db; }
+  .pillar-tab.active { border-bottom-color: #4f46e5; background: transparent; }
+  .pillar-tab.active .pillar-tab-name { color: #4338ca; }
+  .pillar-tab.active .pillar-tab-desc { color: #a5b4fc; }
+
+  /* ── Tab panels ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Knowledge Base cards ── */
+  .kb-empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 64px 20px; gap: 12px; color: #d1d5db; text-align: center;
+  }
+  .kb-empty-icon { font-size: 40px; opacity: 0.4; }
+  .kb-empty-text { font-size: 14px; font-weight: 500; }
+  .kb-empty-sub { font-size: 12px; color: #e5e7eb; }
+  .kb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 14px;
+  }
+  .kb-card {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 20px 20px 18px;
+    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 14px;
+    text-decoration: none; color: inherit;
+    transition: all 0.15s; cursor: pointer;
+  }
+  .kb-card:hover {
+    border-color: #a5b4fc;
+    box-shadow: 0 4px 20px rgba(79,70,229,0.1);
+    transform: translateY(-2px);
+  }
+  .kb-card.type-battlecard { border-color: #fecaca; background: #fffafa; }
+  .kb-card.type-battlecard:hover { border-color: #f87171; box-shadow: 0 4px 20px rgba(239,68,68,0.1); }
+  .kb-card.type-overview { border-color: #bfdbfe; background: #fafcff; }
+  .kb-card.type-overview:hover { border-color: #60a5fa; box-shadow: 0 4px 20px rgba(59,130,246,0.1); }
+  .kb-card.type-folder { border-color: #d1fae5; background: #fafffe; }
+  .kb-card.type-folder:hover { border-color: #34d399; box-shadow: 0 4px 20px rgba(16,185,129,0.1); }
+  .kb-card-icon { font-size: 22px; line-height: 1; }
+  .kb-card-label { font-size: 13px; font-weight: 700; color: #1f2937; }
+  .kb-card-type { font-size: 11px; color: #9ca3af; font-weight: 500; }
+  .kb-card-arrow {
+    margin-top: auto; font-size: 11px; color: #d1d5db;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .kb-card:hover .kb-card-arrow { color: #4f46e5; }
+
+  /* ── Generate Intel sections ── */
+  .gen-section { margin-bottom: 28px; }
+  .gen-label {
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* ── Competitor header ── */
+  .competitor-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px; padding-bottom: 20px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .competitor-header-left { display: flex; flex-direction: column; gap: 4px; }
+  .competitor-header-title { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.08em; }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -488,102 +572,129 @@
 
   <!-- Main -->
   <main class="main">
+
     <div class="page-header">
-      <div class="page-title">Build a CI Request</div>
-      <div class="page-sub">Select a competitor, choose what you need, and launch directly in Claude.ai — your prompt is built automatically.</div>
+      <div class="page-title">Navina CI Platform</div>
+      <div class="page-sub">Your competitive intelligence workspace — browse existing materials or generate new AI-powered analysis.</div>
     </div>
 
-    <!-- Step 1: Competitor -->
-    <div class="section">
-      <div class="section-label">Step 1 — Competitor</div>
-      <div class="competitor-display-area">
+    <!-- Competitor Header -->
+    <div class="competitor-header">
+      <div class="competitor-header-left">
+        <div class="competitor-header-title">Selected Competitor</div>
         <div id="competitor-display" class="placeholder-chip">
           <span>←</span> Select a competitor from the sidebar
         </div>
       </div>
-      <div id="resources-panel" class="resources-panel" style="display:none"></div>
     </div>
 
-    <!-- Step 2: Analysis Type -->
-    <div class="section">
-      <div class="section-label">Step 2 — Analysis Type</div>
-      <div class="analysis-grid">
-        <div class="analysis-card" onclick="selectAnalysis(this,'battlecard')">
-          <div class="analysis-icon">⚔️</div>
-          <div class="analysis-name">Battlecard</div>
-          <div class="analysis-desc">Sales win/loss card with objections & talk track</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'deep-dive')">
-          <div class="analysis-icon">🔍</div>
-          <div class="analysis-name">Deep Dive</div>
-          <div class="analysis-desc">Full company overview, product, customers</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'compare')">
-          <div class="analysis-icon">⚖️</div>
-          <div class="analysis-name">Compare</div>
-          <div class="analysis-desc">Side-by-side capability table vs Navina</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'sw')">
-          <div class="analysis-icon">±</div>
-          <div class="analysis-name">S&W Analysis</div>
-          <div class="analysis-desc">Strengths & exploitable weaknesses</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'news')">
-          <div class="analysis-icon">📰</div>
-          <div class="analysis-name">Latest News</div>
-          <div class="analysis-desc">Recent updates, funding, launches + sources</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'roadmap')">
-          <div class="analysis-icon">🗺️</div>
-          <div class="analysis-name">Roadmap Signals</div>
-          <div class="analysis-desc">What they're building — confirmed vs speculative</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'kpi')">
-          <div class="analysis-icon">📊</div>
-          <div class="analysis-name">KPI Comparison</div>
-          <div class="analysis-desc">Their metrics vs Navina's proof points</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'exec-brief')">
-          <div class="analysis-icon">📋</div>
-          <div class="analysis-name">Exec Brief</div>
-          <div class="analysis-desc">400-word strategic summary for leadership</div>
-        </div>
-        <div class="analysis-card" onclick="selectAnalysis(this,'navina-wins')">
-          <div class="analysis-icon">🏆</div>
-          <div class="analysis-name">Where Navina Wins</div>
-          <div class="analysis-desc">Differentiation + proof points to use in deals</div>
+    <!-- Pillar Tabs -->
+    <div class="pillar-tabs">
+      <button class="pillar-tab active" id="tab-kb" onclick="switchTab('kb')">
+        <span class="pillar-tab-icon">📚</span>
+        <span class="pillar-tab-name">Knowledge Base</span>
+        <span class="pillar-tab-desc">Existing materials & resources</span>
+      </button>
+      <button class="pillar-tab" id="tab-gen" onclick="switchTab('gen')">
+        <span class="pillar-tab-icon">⚡</span>
+        <span class="pillar-tab-name">Generate Intel</span>
+        <span class="pillar-tab-desc">New AI-powered analysis</span>
+      </button>
+    </div>
+
+    <!-- Tab 1: Knowledge Base -->
+    <div id="panel-kb" class="tab-panel active">
+      <div id="kb-content">
+        <div class="kb-empty-state">
+          <div class="kb-empty-icon">📂</div>
+          <div class="kb-empty-text">Select a competitor to see existing materials</div>
+          <div class="kb-empty-sub">Battlecards, overviews, Drive folders & Notion pages</div>
         </div>
       </div>
     </div>
 
-    <!-- Step 3: Persona -->
-    <div class="section">
-      <div class="section-label">Step 3 — Your Role</div>
-      <div class="pills">
-        <div class="pill persona-sales selected" onclick="selectPersona(this,'Sales Executive')">🎯 Sales</div>
-        <div class="pill persona-product" onclick="selectPersona(this,'Product Manager')">🛠 Product</div>
-        <div class="pill persona-clinical" onclick="selectPersona(this,'Clinical Manager')">🏥 Clinical</div>
-        <div class="pill persona-executive" onclick="selectPersona(this,'Executive')">⚡ Executive</div>
-        <div class="pill persona-marketing" onclick="selectPersona(this,'Marketing / Strategy')">📣 Marketing</div>
-        <div class="pill persona-analyst" onclick="selectPersona(this,'CI Analyst')">🔬 CI Analyst</div>
-      </div>
-    </div>
+    <!-- Tab 2: Generate Intel -->
+    <div id="panel-gen" class="tab-panel">
 
-    <!-- Step 4: Context -->
-    <div class="section">
-      <div class="section-label">Step 4 — Additional Context <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#d1d5db">(optional)</span></div>
-      <textarea class="notes-input" id="notes-input"
-        placeholder="e.g. We're in a competitive deal in Texas, they're using Epic. Focus on their recent partnership announcements."
-        oninput="updatePreview()"></textarea>
-    </div>
-
-    <!-- Preview -->
-    <div class="section">
-      <div class="section-label">Prompt Preview</div>
-      <div class="preview-box" id="preview-box">
-        Select a competitor and analysis type to preview the prompt...
+      <div class="gen-section">
+        <div class="gen-label">Analysis Type</div>
+        <div class="analysis-grid">
+          <div class="analysis-card" onclick="selectAnalysis(this,'battlecard')">
+            <div class="analysis-icon">⚔️</div>
+            <div class="analysis-name">Battlecard</div>
+            <div class="analysis-desc">Sales win/loss card with objections & talk track</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'deep-dive')">
+            <div class="analysis-icon">🔍</div>
+            <div class="analysis-name">Deep Dive</div>
+            <div class="analysis-desc">Full company overview, product, customers</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'compare')">
+            <div class="analysis-icon">⚖️</div>
+            <div class="analysis-name">Compare</div>
+            <div class="analysis-desc">Side-by-side capability table vs Navina</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'sw')">
+            <div class="analysis-icon">±</div>
+            <div class="analysis-name">S&W Analysis</div>
+            <div class="analysis-desc">Strengths & exploitable weaknesses</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'news')">
+            <div class="analysis-icon">📰</div>
+            <div class="analysis-name">Latest News</div>
+            <div class="analysis-desc">Recent updates, funding, launches + sources</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'roadmap')">
+            <div class="analysis-icon">🗺️</div>
+            <div class="analysis-name">Roadmap Signals</div>
+            <div class="analysis-desc">What they're building — confirmed vs speculative</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'kpi')">
+            <div class="analysis-icon">📊</div>
+            <div class="analysis-name">KPI Comparison</div>
+            <div class="analysis-desc">Their metrics vs Navina's proof points</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'exec-brief')">
+            <div class="analysis-icon">📋</div>
+            <div class="analysis-name">Exec Brief</div>
+            <div class="analysis-desc">400-word strategic summary for leadership</div>
+          </div>
+          <div class="analysis-card" onclick="selectAnalysis(this,'navina-wins')">
+            <div class="analysis-icon">🏆</div>
+            <div class="analysis-name">Where Navina Wins</div>
+            <div class="analysis-desc">Differentiation + proof points to use in deals</div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div class="gen-section">
+        <div class="gen-label">Your Role</div>
+        <div class="pills">
+          <div class="pill persona-sales selected" onclick="selectPersona(this,'Sales Executive')">🎯 Sales</div>
+          <div class="pill persona-product" onclick="selectPersona(this,'Product Manager')">🛠 Product</div>
+          <div class="pill persona-clinical" onclick="selectPersona(this,'Clinical Manager')">🏥 Clinical</div>
+          <div class="pill persona-executive" onclick="selectPersona(this,'Executive')">⚡ Executive</div>
+          <div class="pill persona-marketing" onclick="selectPersona(this,'Marketing / Strategy')">📣 Marketing</div>
+          <div class="pill persona-analyst" onclick="selectPersona(this,'CI Analyst')">🔬 CI Analyst</div>
+        </div>
+      </div>
+
+      <div class="gen-section">
+        <div class="gen-label">Additional Context <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#d1d5db">(optional)</span></div>
+        <textarea class="notes-input" id="notes-input"
+          placeholder="e.g. We're in a competitive deal in Texas, they're using Epic. Focus on their recent partnership announcements."
+          oninput="updatePreview()"></textarea>
+      </div>
+
+      <div class="gen-section">
+        <div class="gen-label">Prompt Preview</div>
+        <div class="preview-box" id="preview-box">
+          Select a competitor and analysis type to preview the prompt...
+        </div>
+      </div>
+
+    </div><!-- /panel-gen -->
+
   </main>
 </div>
 
@@ -715,6 +826,56 @@ const RESOURCES = {
   },
 };
 
+function switchTab(tabId) {
+  document.querySelectorAll('.pillar-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  document.getElementById('panel-' + tabId).classList.add('active');
+}
+
+const KB_TYPE_META = {
+  battlecard: { icon: '⚔️', label: 'Battlecard',      typeLabel: 'Sales battlecard',      cssClass: 'type-battlecard' },
+  overview:   { icon: '📊', label: 'Company Overview', typeLabel: 'Overview deck',          cssClass: 'type-overview'   },
+  folder:     { icon: '📁', label: 'Drive Folder',     typeLabel: 'All files & materials',  cssClass: 'type-folder'     },
+};
+
+function renderKBCards(name) {
+  const res = RESOURCES[name];
+  const container = document.getElementById('kb-content');
+  let cards = [];
+
+  if (res) {
+    cards = Object.entries(res).map(([type, r]) => {
+      const meta = KB_TYPE_META[type] || { icon: '🔗', label: r.label, typeLabel: 'Resource', cssClass: '' };
+      return `
+        <a href="${r.url}" target="_blank" class="kb-card ${meta.cssClass}">
+          <div class="kb-card-icon">${meta.icon}</div>
+          <div class="kb-card-label">${r.label}</div>
+          <div class="kb-card-type">${meta.typeLabel}</div>
+          <div class="kb-card-arrow">Open ↗</div>
+        </a>`;
+    });
+  }
+
+  // Always add Notion + all battlecards as resources
+  cards.push(`
+    <a href="https://www.notion.so/navinaai/Competition-30931faa1fb7808abdc7d2158a0a5445" target="_blank" class="kb-card" style="border-color:#e9d5ff;background:#fdf9ff">
+      <div class="kb-card-icon">📓</div>
+      <div class="kb-card-label">Notion — Competition Hub</div>
+      <div class="kb-card-type">Full CI knowledge base</div>
+      <div class="kb-card-arrow">Open ↗</div>
+    </a>`);
+  cards.push(`
+    <a href="https://drive.google.com/drive/folders/1SE4MY8F3b4WaAt3nJOWPAYQxtZYdpQAD" target="_blank" class="kb-card" style="border-color:#d1fae5;background:#fafffe">
+      <div class="kb-card-icon">📁</div>
+      <div class="kb-card-label">All Battlecards Folder</div>
+      <div class="kb-card-type">Drive — all competitors</div>
+      <div class="kb-card-arrow">Open ↗</div>
+    </a>`);
+
+  container.innerHTML = `<div class="kb-grid">${cards.join('')}</div>`;
+}
+
 function selectCompetitor(el, name) {
   document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('selected'));
   el.classList.add('selected');
@@ -722,20 +883,8 @@ function selectCompetitor(el, name) {
   document.getElementById('competitor-display').innerHTML =
     `<div class="selected-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>${name}</div>`;
 
-  // Show Drive resources for this competitor
-  const res = RESOURCES[name];
-  const panel = document.getElementById('resources-panel');
-  if (res) {
-    const links = Object.entries(res).map(([type, r]) =>
-      `<a href="${r.url}" target="_blank" class="resource-link ${type === 'battlecard' ? 'battlecard' : ''}">${r.label}</a>`
-    ).join('');
-    panel.innerHTML = links;
-    panel.style.display = 'flex';
-  } else {
-    panel.innerHTML = `<a href="https://drive.google.com/drive/folders/1PM6gLBjpDVhRiJIWpoIaRAVs3i3mZHj8" target="_blank" class="resource-link">📁 Competition Folder</a>`;
-    panel.style.display = 'flex';
-  }
-
+  renderKBCards(name);
+  switchTab('kb');
   updatePreview(); checkReady();
 }
 
