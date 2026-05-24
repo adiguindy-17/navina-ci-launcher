@@ -1462,6 +1462,7 @@ async function callClaudeAPI(messages) {
       model: 'claude-opus-4-5',
       max_tokens: 4096,
       system: NAVINA_CORE,
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
       messages: messages,
     }),
   });
@@ -1471,6 +1472,10 @@ async function callClaudeAPI(messages) {
   }
   const data = await res.json();
   if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+  // Extract all text blocks (web search returns multiple content blocks)
+  if (Array.isArray(data.content)) {
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n\n');
+  }
   return data.content?.[0]?.text || '';
 }
 
