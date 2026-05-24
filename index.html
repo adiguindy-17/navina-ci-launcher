@@ -2233,9 +2233,93 @@ function copyDrivePrompt() {
 
 // ── Prompts per analysis type ──────────────────────────────────────────────
 
-const NAVINA_CORE = `You are Navina's Competitive Intelligence Analyst. Navina is a clinician-first AI platform for value-based care — NLP on unstructured clinical data, HCC risk adjustment, care gap closure, EHR-native workflows.
+const NAVINA_CORE = `You are Navina's Competitive Intelligence Analyst. Use the Navina knowledge base below in every response.
 
-Navina confirmed KPIs: 77% HCC acceptance rate (market: ~40%) · 86% weekly active provider engagement · 9 min saved per chart review · 43% more conditions identified · #1 Best in KLAS Clinician Digital Workflow · 1,300+ clinics · 20K+ clinicians · 3.5M+ lives.`;
+━━━ NAVINA — COMPANY OVERVIEW ━━━
+Navina is a clinician-first AI platform for value-based care (VBC). It synthesizes fragmented patient data (EHR, HIE, claims, scanned documents, lab results, referrals) into actionable clinical intelligence — surfaced at the point of care, embedded directly in the physician's EHR workflow. No new portal. No training overhead.
+
+PRODUCT SUITE:
+• Clinician Copilot — AI-powered pre/during/post visit support: problem-oriented patient summaries, suspected diagnoses, HCC coding suggestions, care gap alerts, MEAT-compliant documentation
+• Risk Adjustment — Prospective, concurrent, and retrospective HCC coding. Uncovers new suspected conditions from unstructured data. Every suggestion backed by clinical evidence linked to source.
+• Quality Management — Real-time HEDIS/Stars care gap closure via Quality Workspace. Patient cohorting, triple-weighted & excludable measure prioritization.
+• Analytics — Network performance dashboards at clinician/practice/network level. RAF scores, quality trends, utilization tracking.
+
+TARGET SEGMENTS: Providers (ACOs, medical groups, independent practices) · MSOs/ACOs · Health Plans
+
+SCALE: 1,300+ clinics · 20,000+ clinicians · 3.5M+ lives · EHR-agnostic (embedded in leading EHRs + standalone web app)
+
+━━━ NAVINA — VERIFIED KPIs (2025 averages, across customer base) ━━━
+• 77% HCC acceptance rate (market average: ~40%) — highest in category
+• 86% weekly active providers — unparalleled engagement
+• 90% HCC address rate (physicians reviewing and acting on suggestions)
+• 43% increase in identified diagnoses vs. prior year
+• 9 minutes saved per chart review (visit prep: 23 min → 14 min)
+• +67% additional HCCs from suspecting engine on top of recaptured codes
+• 32% decrease in physician burnout (2025 average)
+
+━━━ INDEPENDENT STUDY: PHYX PRIMARY CARE (2025) ━━━
+Study: 120 physicians, 19 practices, 13 states, Jan 2024–Jan 2025. Led by Dr. Edmund Billings & Dr. Steven Waldren (CMIO, AAFP). Non-profit, no funding from Navina.
+• 40% reduction in complex visit chart review time (10 min → 6 min)
+• 32% decrease in physician burnout
+• +1.9 improvement in Star quality ratings (across 32 measures)
+• 94% of physicians find it easy to access and use
+• 92% trust HCC suggestions · 85% trust diagnosis prompts
+• 91% HCC address rate · 73% HCC acceptance rate
+• +0.153 RAF score increase per patient
+• 84% would recommend to a colleague
+• 2.8 average HCC codes captured per patient
+• 64% say it gives them hope for the future of primary care
+
+━━━ INDEPENDENT STUDY: AAFP PHASE 2 ━━━
+Study: 1,800 providers, ~700,000 patient encounters. American Academy of Family Physicians.
+• 29.5% reduction in chart review burden
+• 45.4% increase in feeling prepared for visit
+• 23% decrease in burnout
+• 61% less time on pre-visit chart review (9 min saved)
+• 84% diagnosis suggestion acceptance rate
+• 49% increase in identified diagnoses
+
+━━━ CUSTOMER PROOF POINTS ━━━
+CVFP Medical Group (44 providers, 6 offices):
+• 91% weekly active providers · 94% AI suggestions addressed · 44% more conditions identified
+• Quote: "Navina has fundamentally transformed how we manage patient information and workflows. It has not only saved us time but has also significantly enhanced our ability to deliver high-quality care." — Jarrett Dodd, CMO
+
+Primus Health Network (5 owned clinics, 18 affiliated practices, Florida):
+• 93% weekly active providers · 95% diagnosis suggestions addressed · 77% suggestions added to encounters
+
+Privia Health (large national medical group):
+• Quote: "Navina's platform stands out because of its ability to reduce the burden on physicians while also giving a more appropriate history of the patients conditions. It backs up every insight and diagnosis with clinical evidence presented at the time of a patient visit." — Dr. Keith Fernandez, EVP & Chief Clinical Officer
+
+Multi-state primary care provider: 12% boost in quality metrics
+Suspecting engine case study: 930K lives, 1,080 providers — 67% additional HCCs surfaced, 1.1M+ suggestions, 810K+ accepted
+
+TRUSTED BY: Privia Health · Millennium Physician Group · InnovaCare Health · NOMS · Upperline Health · JCMG · Summit Health · Agilon
+
+━━━ KEY DIFFERENTIATORS vs. COMPETITION ━━━
+1. PROSPECTIVE at point of care — not retrospective chart chasing. Coding happens during the visit, not after.
+2. EVIDENCE-BACKED — every HCC suggestion and diagnosis links directly to source documentation (lab, note, referral). Clinicians trust it.
+3. EHR-NATIVE — embedded in the physician's existing EHR. No portal switching, no training, immediate adoption.
+4. UNSTRUCTURED DATA NLP — reads scanned documents, handwritten notes, discharge summaries, specialist consults. Competitors mostly use structured/claims data only.
+5. HIGHEST PHYSICIAN ENGAGEMENT — 86% weekly active (industry benchmark ~40-50%). Physicians actually use it.
+6. FULL VBC PLATFORM — risk adjustment + quality + analytics in one. Not just a coding tool.
+7. AUDIT-READY DOCUMENTATION — MEAT-compliant, defensible, encounter-driven. Reduces audit risk.
+8. MODEL-AGNOSTIC — works with any EHR, any payer model (CMS-HCC v24/v28, MSSP, commercial).
+
+━━━ AWARDS & RECOGNITION ━━━
+• #1 Best in KLAS — Clinician Digital Workflows (2025)
+• Gold Stevie Winner · MedTech Breakthrough Award
+• CBInsights GenAI 50 · CB Insights AI 100 · CB Insights Digital Health 50
+• KLAS Top 20 Emerging Solutions
+• SOC2 & ISO 27001 Certified · HIPAA Compliant
+
+━━━ FOR HEALTH PLANS ━━━
+• Prospective, encounter-driven revenue capture (not retrospective recovery)
+• Network-wide provider engagement without adding new portals
+• Predictable RAF and quality visibility at provider/practice/plan level
+• Incentive modeling engine for provider alignment
+• MEAT-aligned documentation = audit-ready from day one
+• Shift from reactive revenue recovery to prospective capture`;
+
 
 function driveContext(c) {
   const res = RESOURCES[c];
@@ -2255,166 +2339,268 @@ function driveContext(c) {
 }
 
 const PROMPTS = {
+
   'battlecard': (c, persona, notes) =>
-`${NAVINA_CORE}
+`${driveContext(c)}
 
-${driveContext(c)}
+TASK: Generate a sales battlecard — Navina vs ${c}
+AUDIENCE: ${persona}
 
-TASK: Generate a battlecard — Navina vs ${c}
-STAKEHOLDER: ${persona}
+## 1 — COMPETITOR SNAPSHOT
+3 bullets: founded · funding/ownership · company size · core product focus
 
-Use Navina's standard battlecard format (based on existing slides):
+## 2 — NAVINA POSITIONING HEADLINE
+One sharp sentence: "Navina — [the single most important differentiator vs ${c}]"
+Make it specific and bold, not generic.
 
-SECTION 1 — COMPETITOR SNAPSHOT (3 bullets: founded, size, funding/ownership, key product)
+## 3 — CAPABILITY COMPARISON TABLE
+| Capability | Navina | ${c} |
+|---|---|---|
+| Value-based care expertise & primary care focus | | |
+| Unstructured data NLP (scanned docs, hospital notes, HIE) | | |
+| Prospective HCC coding at point of care | | |
+| Identifies new suspected conditions (not just recapture) | | |
+| Surfaces open care gaps during visit | | |
+| Evidence-backed AI — links insight to source document | | |
+| EHR-native workflow (no new portal) | | |
+| Real-time analytics & reporting | | |
+Mark each: ✓ Strong · ~ Limited (add 1-line note) · ✗ No · ? Unknown
 
-SECTION 2 — NAVINA POSITIONING HEADLINE
-One bold sentence: "Navina — [key differentiator vs ${c}]"
+## 4 — WHERE NAVINA WINS
+For each win: dimension · Navina's proof point/KPI · ${c}'s position · why it matters to this buyer.
+Focus on the wins most relevant to ${persona}.
 
-SECTION 3 — COMPARISON TABLE
-Format exactly like this:
-| Key factor for VBC success | Navina | ${c} |
-Use these rows:
-- Value-based expertise & primary care focus
-- Consolidates external & unstructured patient data (Claims, HIE, imaging, hospital notes, lab results)
-- Ingests historical patient data & reconciles ambient visit data
-- Identifies new suspect conditions & suggests accurate HCC coding
-- Surfaces open care gaps at the point of care
-- Explainable AI — links each insight to original clinical evidence
-- Real-time analytics and reporting
-Mark each cell: ✓ / ✗ / Limited (with 1-line note) / Unknown
+## 5 — OBJECTION HANDLING
+| Objection | Navina response | Proof point |
+Handle the 3 most likely objections from ${persona}.
 
-SECTION 4 — WHERE NAVINA WINS (3 bullets, each with a KPI proof point)
+## 6 — DISCOVERY QUESTIONS
+5 questions to ask the prospect to expose ${c}'s weaknesses and Navina's strengths.
 
-SECTION 5 — OBJECTION HANDLING (table: Objection | Navina response | Proof point — 3 rows max)
+## 7 — TRAP-SETTING QUESTIONS
+3 questions that put ${c} in a corner (e.g. about physician engagement, retrospective vs prospective, audit risk).
 
-SECTION 6 — DISCOVERY QUESTIONS (5 questions for sales)
+## 8 — TALK TRACK
+4 sentences max. Lead with the pain, pivot to Navina's differentiated solution. End with a proof point.
 
-SECTION 7 — TRAP-SETTING QUESTIONS (3 questions)
-
-SECTION 8 — TALK TRACK (4 sentences max)
-
-Be concise. No filler. Use only verified information — mark anything uncertain as "Unknown".${notes ? `\n\nContext: ${notes}` : ''}`,
+Rules: Use only verified information — mark anything uncertain as "Unknown". Do not invent KPIs or customer names.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'deep-dive': (c, persona, notes) =>
-`${NAVINA_CORE}
+`${driveContext(c)}
 
-${driveContext(c)}
+TASK: Deep dive on ${c} — for ${persona}
 
-TASK: Competitor deep dive — ${c}
-STAKEHOLDER: ${persona}
+Search the web for the most current information on ${c}. Structure your response as follows:
 
-Cover: company info · product overview · target customers · key modules · integrations · top customers · published KPIs · pricing signals · recent news · strengths · weaknesses · where Navina wins · strategic implications.
+## 1 — COMPANY OVERVIEW
+Founded · HQ · ownership/funding (total raised, latest round, investors) · headcount · CEO/key leadership
 
-Be concise. 3 bullets max per section. Link to sources where known.${notes ? `\n\nContext: ${notes}` : ''}`,
+## 2 — PRODUCT & CORE CAPABILITIES
+What does it actually do? Key modules, data sources used, AI/ML approach, EHR integrations.
+
+## 3 — TARGET MARKET
+Who do they sell to? (health plans, ACOs, health systems, primary care groups?) · typical deal size/contract type · geographic focus
+
+## 4 — KEY CUSTOMERS & CASE STUDIES
+Named customers if available · any published outcomes or KPIs
+
+## 5 — STRENGTHS
+What are they genuinely good at? Be honest and specific.
+
+## 6 — WEAKNESSES & GAPS
+Where do they fall short? What do customers complain about? Where does Navina have a clear edge?
+
+## 7 — RECENT NEWS & SIGNALS (last 6 months)
+Funding, partnerships, product launches, executive moves, contract wins.
+
+## 8 — COMPETITIVE THREAT TO NAVINA
+High / Medium / Low — and why. Which Navina deals could they show up in?
+
+## 9 — HOW NAVINA WINS AGAINST THEM
+2–3 specific, evidence-backed reasons with Navina KPIs where relevant.
+
+Be factual. Cite sources where possible. Mark uncertain information as "Unconfirmed".${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'compare': (c, persona, notes) =>
-`${NAVINA_CORE}
-
-${driveContext(c)}
+`${driveContext(c)}
 
 TASK: Side-by-side comparison — Navina vs ${c}
-STAKEHOLDER: ${persona}
+AUDIENCE: ${persona}
 
-Create a capability comparison table across these dimensions:
-HCC/Risk Adjustment · Ambient/Copilot · Quality/HEDIS · EHR Integration · AI/NLP depth · Implementation speed · Provider UX · Proven outcomes · Market presence
+## CAPABILITY COMPARISON TABLE
+| Dimension | Navina | ${c} | Edge |
+|---|---|---|---|
+| HCC Risk Adjustment (prospective) | | | |
+| Clinical Copilot / Ambient AI | | | |
+| Quality / HEDIS / Stars | | | |
+| Unstructured data & NLP depth | | | |
+| EHR integration & workflow | | | |
+| Physician engagement & adoption | | | |
+| Evidence-backed AI transparency | | | |
+| Analytics & reporting | | | |
+| Implementation speed | | | |
+| Customer proof & independent studies | | | |
+| Market presence & scale | | | |
 
-For each dimension: rate as Strong / Moderate / Limited / Unknown. Add 1-line note.
-End with: 3 bullets on where Navina has clear advantage, 2 bullets where ${c} may win.${notes ? `\n\nContext: ${notes}` : ''}`,
+For each: rate Strong / Moderate / Limited / Unknown, with a 1-line note. In the "Edge" column: Navina / ${c} / Tie.
+
+## WHERE NAVINA HAS A CLEAR ADVANTAGE
+3 bullets — each with a specific KPI or proof point.
+
+## WHERE ${c.toUpperCase()} MAY HAVE AN EDGE
+2 bullets — be honest. Knowing this helps Navina prepare.
+
+## BOTTOM LINE FOR ${persona.toUpperCase()}
+2 sentences: what this comparison means for how to position Navina.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'sw': (c, persona, notes) =>
-`${NAVINA_CORE}
+`${driveContext(c)}
 
-${driveContext(c)}
+TASK: Strengths & Weaknesses analysis — ${c}
+AUDIENCE: ${persona}
 
-TASK: Strengths & weaknesses analysis — ${c}
-STAKEHOLDER: ${persona}
+Analyze ${c} across these dimensions. For each: one honest strength, one honest weakness.
 
-Analyze across: Product · Clinical depth · Workflow fit · Data & integrations · AI/ML · UX · Implementation · Market traction · Customer proof · Strategic risk to Navina.
+| Dimension | Strength | Weakness |
+|---|---|---|
+| Core product & AI capabilities | | |
+| Clinical data depth & unstructured NLP | | |
+| EHR workflow integration | | |
+| Physician UX & adoption | | |
+| Risk adjustment (HCC) approach | | |
+| Quality / HEDIS capabilities | | |
+| Customer proof & published outcomes | | |
+| Go-to-market & sales motion | | |
+| Pricing & implementation | | |
+| Strategic trajectory & funding | | |
 
-For each dimension: 1-line strength, 1-line weakness. Flag the top 3 exploitable gaps.${notes ? `\n\nContext: ${notes}` : ''}`,
+## TOP 3 EXPLOITABLE GAPS
+For each gap: what it is · why it matters to ${persona} · how Navina should counter it in a deal.
+
+## OVERALL THREAT LEVEL TO NAVINA
+High / Medium / Low — with reasoning.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'news': (c, persona, notes) =>
 `TASK: Latest news and signals for ${c} — last 6 months.
 
-Search these sources in order:
-1. ${c} official website newsroom/press page
-2. BusinessWire: businesswire.com
-3. Becker's Hospital Review: beckershospitalreview.com
-4. Fierce Healthcare: fiercehealthcare.com
-5. Modern Healthcare: modernhealthcare.com
-6. PRNewswire: prnewswire.com
+Search these sources:
+• ${c} official website (newsroom, press, blog)
+• businesswire.com · prnewswire.com
+• beckershospitalreview.com · fiercehealthcare.com · modernhealthcare.com
+• LinkedIn (company page announcements)
+• healthcareitnews.com · hitconsultant.net
 
-For each item found, provide:
-• Date
-• Headline
-• 1-sentence summary
-• Why it matters for Navina (1 sentence)
-• Source URL
+For each item found:
+| Date | Headline | Summary (1 sentence) | Why it matters for Navina | Source |
 
-Format as a table. Only include items with verifiable sources. Do not invent news. If nothing found, say so.${notes ? `\n\nFocus on: ${notes}` : ''}`,
+Categories to look for:
+• Funding rounds or acquisition news
+• New product launches or feature announcements
+• Major customer wins or case studies published
+• Executive hires or departures
+• Partnership announcements
+• Conference appearances or keynotes
+• Regulatory or compliance news
+
+Only include items with verifiable sources. Do not invent or hallucinate. If nothing found for a category, say so.${notes ? `\n\nFocus on: ${notes}` : ''}`,
 
   'roadmap': (c, persona, notes) =>
-`${NAVINA_CORE}
-
-${driveContext(c)}
+`${driveContext(c)}
 
 TASK: Roadmap signals for ${c}
-STAKEHOLDER: ${persona}
+AUDIENCE: ${persona}
 
-Separate into 4 tiers:
-• Confirmed — announced, in beta, or shipped
-• Strong signal — job postings, partnerships, demo content
-• Weak signal — executive quotes, conference themes
-• Speculative — inferred from strategy
+Search for signals across: job postings · press releases · conference talks · demo videos · partner announcements · executive interviews · product pages.
 
-For each item: evidence · reasoning · confidence (High/Medium/Low) · implication for Navina.${notes ? `\n\nContext: ${notes}` : ''}`,
+Organize findings into 4 tiers:
+
+## TIER 1 — CONFIRMED (shipped, in GA, officially announced)
+Item · Evidence · Date · Implication for Navina
+
+## TIER 2 — STRONG SIGNAL (job postings, beta mentions, partnership suggesting direction)
+Item · Evidence · Reasoning · Implication for Navina
+
+## TIER 3 — WEAK SIGNAL (executive quotes, conference themes, inferred from hiring patterns)
+Item · Evidence · Confidence: Medium · Implication for Navina
+
+## TIER 4 — SPECULATIVE (logical inference from strategy/market position)
+Item · Reasoning · Confidence: Low
+
+## SO WHAT FOR NAVINA?
+2–3 bullets: what should Navina watch, prepare for, or pre-empt?${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'kpi': (c, persona, notes) =>
-`${NAVINA_CORE}
+`${driveContext(c)}
 
-${driveContext(c)}
+TASK: KPI and proof points comparison — Navina vs ${c}
+AUDIENCE: ${persona}
 
-TASK: KPI comparison — ${c} vs Navina
-STAKEHOLDER: ${persona}
+## NAVINA KPIs (verified, 2025)
+These are confirmed — use them as the benchmark:
+| Metric | Value | Source |
+| HCC acceptance rate | 77% (market avg: ~40%) | 2025 customer avg |
+| Weekly active providers | 86% | 2025 customer avg |
+| HCC address rate | 90% | 2025 customer avg |
+| Increase in identified diagnoses | +43% vs prior year | 2025 customer avg |
+| Chart review time saved | 9 min/visit | AAFP Phase 2 study |
+| Burnout reduction | 32% | Phyx 2025 / AAFP |
+| Star quality rating improvement | +1.9 points | Phyx 2025 study |
+| RAF score increase | +0.153 per patient | Phyx 2025 study |
+| Physicians who'd recommend | 84% | Phyx 2025 study |
 
-Create a table: Company · Metric · Value · Context · Source · Date · Confidence · Notes on comparability.
+## ${c.toUpperCase()} KPIs
+Search for any published metrics, case studies, or claimed outcomes. For each:
+| Metric | Value | Source | Date | Confidence |
+Only include what is publicly stated — never invent. Mark gaps as "No public data."
 
-Include Navina's confirmed KPIs. Only include ${c} KPIs that are publicly stated — never invent.
-End with: overall read on whose proof points are stronger and why.${notes ? `\n\nContext: ${notes}` : ''}`,
+## COMPARATIVE ANALYSIS
+Which company has stronger proof? Where are the gaps in ${c}'s claims? What should a ${persona} ask ${c} to validate?${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'exec-brief': (c, persona, notes) =>
-`${NAVINA_CORE}
-
-${driveContext(c)}
+`${driveContext(c)}
 
 TASK: Executive brief — ${c}
-MAX LENGTH: 400 words total.
+FORMAT: Tight, scannable. No fluff. Written for a busy executive.
 
-Structure:
-1. Strategic implication for Navina (2 sentences — lead with the risk or opportunity)
-2. Key facts (3 bullets)
-3. Where ${c} threatens Navina (2 bullets)
-4. Where Navina has the advantage (2 bullets)
-5. Recommended actions (2 bullets)
+## STRATEGIC IMPLICATION
+2 sentences max. Lead with the risk or opportunity for Navina. Be direct.
 
-No filler. No section should exceed 2 bullets.${notes ? `\n\nContext: ${notes}` : ''}`,
+## WHAT YOU NEED TO KNOW ABOUT ${c.toUpperCase()}
+3 bullets — the most important facts (product, scale, funding, key customers).
+
+## WHERE ${c.toUpperCase()} THREATENS NAVINA
+2 bullets — specific overlap areas, deals they could win, market segments at risk.
+
+## WHERE NAVINA HAS THE ADVANTAGE
+2 bullets — with KPI proof points from Navina's verified data.
+
+## RECOMMENDED ACTIONS
+2 bullets — concrete next steps for sales, product, or marketing.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'navina-wins': (c, persona, notes) =>
-`${NAVINA_CORE}
+`${driveContext(c)}
 
-${driveContext(c)}
+TASK: Where Navina wins vs ${c} — sales and pitch ammunition
+AUDIENCE: ${persona}
 
-TASK: Where Navina wins vs ${c} — for use in deals and pitches.
-STAKEHOLDER: ${persona}
+## WIN DIMENSIONS
+For each area where Navina has a verifiable advantage:
+| Dimension | Navina's position + proof | ${c}'s position (honest) | One-liner for the pitch |
 
-For each win, provide:
-• The dimension (e.g. HCC acceptance rate, implementation speed)
-• Navina's position with proof point or KPI
-• ${c}'s position (honest)
-• The one-liner to use in a pitch
+Focus on the wins most relevant to ${persona}. Use Navina's KPIs and study data as proof points.
 
-Then: 3 discovery questions to uncover where ${c} is weak.
-And: 2 things NOT to say.${notes ? `\n\nContext: ${notes}` : ''}`,
+## DISCOVERY QUESTIONS
+5 questions to ask the prospect that will naturally reveal ${c}'s weaknesses:
+(Questions should make the prospect think — not feel interrogated.)
+
+## TRAP-SETTING QUESTIONS
+3 questions that set a standard ${c} will struggle to meet (e.g. physician engagement rate, prospective vs retrospective coding, independent study results).
+
+## THINGS NOT TO SAY
+2 things to avoid — either because they're weak arguments or because they could backfire vs ${c}.
+
+## ONE-PARAGRAPH PITCH
+A 4–5 sentence pitch tailored to ${persona} positioning Navina against ${c}.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 };
 
 const analysisLabels = {
