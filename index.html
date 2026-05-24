@@ -503,6 +503,125 @@
   ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
 
+  /* ── Admin Panel ── */
+  .admin-wrap { max-width: 960px; }
+  .admin-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .admin-title { font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.4px; }
+  .admin-refresh-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; background: #fff; border: 1.5px solid #e5e7eb;
+    border-radius: 8px; font-size: 12px; font-weight: 600; color: #6b7280;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .admin-refresh-btn:hover { background: #f9fafb; border-color: #d1d5db; }
+  .admin-stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-bottom: 36px;
+  }
+  .admin-stat-card {
+    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 14px;
+    padding: 20px 20px 18px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .admin-stat-icon { font-size: 18px; line-height: 1; margin-bottom: 4px; }
+  .admin-stat-value { font-size: 28px; font-weight: 800; color: #111827; letter-spacing: -0.5px; }
+  .admin-stat-label { font-size: 12px; color: #9ca3af; font-weight: 500; }
+  .admin-stat-card.accent-blue  { border-color: #bfdbfe; background: #eff6ff; }
+  .admin-stat-card.accent-purple { border-color: #e9d5ff; background: #faf5ff; }
+  .admin-stat-card.accent-green { border-color: #d1fae5; background: #f0fdf4; }
+  .admin-stat-card.accent-amber { border-color: #fde68a; background: #fffbeb; }
+  .admin-stat-card.accent-blue   .admin-stat-value  { color: #2563eb; }
+  .admin-stat-card.accent-purple .admin-stat-value  { color: #7c3aed; }
+  .admin-stat-card.accent-green  .admin-stat-value  { color: #16a34a; }
+  .admin-stat-card.accent-amber  .admin-stat-value  { color: #d97706; }
+  .admin-section {
+    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 16px;
+    padding: 24px 24px 20px; margin-bottom: 20px;
+  }
+  .admin-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .admin-section-title {
+    font-size: 14px; font-weight: 700; color: #111827;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .admin-section-count {
+    font-size: 11px; font-weight: 600; color: #9ca3af;
+    background: #f3f4f6; padding: 2px 8px; border-radius: 20px;
+  }
+  .admin-export-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .admin-export-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; background: #fff; border: 1.5px solid #d1fae5;
+    border-radius: 8px; font-size: 12px; font-weight: 600; color: #16a34a;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .admin-export-btn:hover { background: #f0fdf4; border-color: #86efac; }
+  /* Chart */
+  .admin-chart {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 100px; margin-bottom: 6px;
+  }
+  .admin-chart-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+  .admin-chart-bar-wrap { flex: 1; display: flex; align-items: flex-end; width: 100%; }
+  .admin-chart-bar {
+    width: 100%; border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, #818cf8 0%, #4f46e5 100%);
+    min-height: 2px; transition: height 0.3s;
+  }
+  .admin-chart-label { font-size: 9px; color: #9ca3af; white-space: nowrap; }
+  .admin-chart-count { font-size: 10px; font-weight: 700; color: #4f46e5; }
+  /* Bar list */
+  .admin-bar-list { display: flex; flex-direction: column; gap: 10px; }
+  .admin-bar-row { display: flex; align-items: center; gap: 12px; }
+  .admin-bar-label { font-size: 12px; font-weight: 600; color: #374151; min-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .admin-bar-track { flex: 1; height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; }
+  .admin-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #4f46e5, #7c3aed); transition: width 0.4s; }
+  .admin-bar-count { font-size: 12px; font-weight: 700; color: #6b7280; min-width: 28px; text-align: right; }
+  /* Table */
+  .admin-table-wrap { overflow-x: auto; margin-top: 16px; }
+  .admin-table {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+  }
+  .admin-table th {
+    text-align: left; padding: 8px 12px;
+    font-size: 10px; font-weight: 700; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1.5px solid #f3f4f6; white-space: nowrap;
+  }
+  .admin-table td {
+    padding: 10px 12px; border-bottom: 1px solid #f9fafb;
+    color: #374151; vertical-align: middle;
+  }
+  .admin-table tr:last-child td { border-bottom: none; }
+  .admin-table tr:hover td { background: #f9fafb; }
+  .admin-td-email { color: #6b7280; font-size: 11px; }
+  .admin-td-time { color: #9ca3af; font-size: 11px; white-space: nowrap; }
+  .admin-chip {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; background: #eef2ff; color: #4338ca;
+  }
+  .admin-empty {
+    text-align: center; padding: 40px 20px; color: #d1d5db; font-size: 13px;
+  }
+  .admin-loading {
+    text-align: center; padding: 60px 20px; color: #9ca3af;
+    font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .admin-loading-spinner {
+    width: 28px; height: 28px; border: 3px solid #e5e7eb;
+    border-top-color: #4f46e5; border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .admin-two-col { grid-template-columns: 1fr; } .admin-stats-grid { grid-template-columns: repeat(2,1fr); } }
+
   /* ── KB General Resources (bottom of KB panel, small/muted) ── */
   .kb-general-section {
     margin-top: 32px;
@@ -660,6 +779,11 @@
         <span class="pillar-tab-name">Generate Intel</span>
         <span class="pillar-tab-desc">New AI-powered analysis</span>
       </button>
+      <button class="pillar-tab" id="tab-admin" onclick="openAdminTab()" style="display:none;margin-left:auto;border-left:1px solid #f3f4f6;border-radius:0 8px 0 0">
+        <span class="pillar-tab-icon">🔧</span>
+        <span class="pillar-tab-name">Admin</span>
+        <span class="pillar-tab-desc">Analytics dashboard</span>
+      </button>
     </div>
 
     <!-- Tab 1: Knowledge Base -->
@@ -755,6 +879,22 @@
 
     </div><!-- /panel-gen -->
 
+    <!-- Tab 3: Admin Panel (adi.guindy@navina.ai only) -->
+    <div id="panel-admin" class="tab-panel">
+      <div class="admin-wrap">
+        <div class="admin-topbar">
+          <div class="admin-title">📊 Analytics Dashboard</div>
+          <button class="admin-refresh-btn" onclick="loadAdminData()">↻ Refresh</button>
+        </div>
+        <div id="admin-body">
+          <div class="admin-loading">
+            <div class="admin-loading-spinner"></div>
+            Loading analytics...
+          </div>
+        </div>
+      </div>
+    </div><!-- /panel-admin -->
+
   </main>
 </div>
 
@@ -813,6 +953,11 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ── Analytics & Admin ─────────────────────────────────────────────────────
+const WORKER_URL  = 'https://navina-ci-proxy.adi-guindy.workers.dev';
+const ADMIN_EMAIL = 'adi.guindy@navina.ai';
+let   adminData   = null; // cached { logins, usage }
+
 let selectedCompetitor = null;
 let selectedAnalysis = null;
 let selectedPersona = 'Sales Executive';
@@ -1025,6 +1170,283 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tabId).classList.add('active');
   document.getElementById('panel-' + tabId).classList.add('active');
+}
+
+function openAdminTab() {
+  switchTab('admin');
+  loadAdminData();
+}
+
+// ── Event logging (fire-and-forget) ─────────────────────────────────────────
+async function logLogin(user) {
+  if (sessionStorage.getItem('navina_login_logged')) return;
+  sessionStorage.setItem('navina_login_logged', '1');
+  try {
+    await fetch(WORKER_URL + '/log-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, name: user.name }),
+    });
+  } catch (e) { /* silent */ }
+}
+
+async function logUsage() {
+  if (!selectedCompetitor || !selectedAnalysis) return;
+  const user = JSON.parse(sessionStorage.getItem('navina_user') || '{}');
+  if (!user.email) return;
+  try {
+    await fetch(WORKER_URL + '/log-usage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: user.email,
+        name: user.name,
+        competitor: selectedCompetitor,
+        analysisType: selectedAnalysis,
+        persona: selectedPersona,
+      }),
+    });
+  } catch (e) { /* silent */ }
+}
+
+// ── Admin data fetching ──────────────────────────────────────────────────────
+async function loadAdminData() {
+  const user = JSON.parse(sessionStorage.getItem('navina_user') || '{}');
+  if (user.email !== ADMIN_EMAIL) return;
+
+  const body = document.getElementById('admin-body');
+  body.innerHTML = `<div class="admin-loading"><div class="admin-loading-spinner"></div>Loading analytics...</div>`;
+
+  try {
+    const res  = await fetch(`${WORKER_URL}/admin-data?email=${encodeURIComponent(ADMIN_EMAIL)}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    adminData = await res.json();
+    renderAdminPanel(adminData);
+  } catch (e) {
+    body.innerHTML = `<div class="admin-empty">⚠️ Could not load data: ${e.message}<br><small>Make sure the Cloudflare Worker is updated and KV binding is active.</small></div>`;
+  }
+}
+
+// ── Render full admin panel ──────────────────────────────────────────────────
+function renderAdminPanel({ logins, usage }) {
+  const body = document.getElementById('admin-body');
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
+  const now     = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const weekAgo  = new Date(now - 7 * 86400000).toISOString().split('T')[0];
+
+  const uniqueUsers   = [...new Set(logins.map(e => e.email))].length;
+  const loginsToday   = logins.filter(e => e.date === todayStr).length;
+  const loginsWeek    = logins.filter(e => e.date >= weekAgo).length;
+  const topCompMap    = {};
+  usage.forEach(e => { topCompMap[e.competitor] = (topCompMap[e.competitor] || 0) + 1; });
+  const topComp = Object.entries(topCompMap).sort((a,b) => b[1]-a[1])[0];
+
+  // ── Daily chart data (last 14 days) ─────────────────────────────────────
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now - i * 86400000);
+    const str = d.toISOString().split('T')[0];
+    const label = (i === 0) ? 'Today' : (i === 1) ? 'Yest.' : d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    days.push({ str, label, count: logins.filter(e => e.date === str).length });
+  }
+  const maxDay = Math.max(...days.map(d => d.count), 1);
+
+  // ── Top competitors ──────────────────────────────────────────────────────
+  const topComps = Object.entries(topCompMap).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const maxComp  = topComps[0]?.[1] || 1;
+
+  // ── Top analysis types ───────────────────────────────────────────────────
+  const analysisLabelsMap = {
+    battlecard:'Battlecard', 'deep-dive':'Deep Dive', compare:'Compare',
+    sw:'S&W Analysis', news:'Latest News', roadmap:'Roadmap Signals',
+    kpi:'KPI Comparison', 'exec-brief':'Exec Brief', 'navina-wins':'Where Navina Wins',
+  };
+  const topAnalMap = {};
+  usage.forEach(e => {
+    const label = analysisLabelsMap[e.analysisType] || e.analysisType;
+    topAnalMap[label] = (topAnalMap[label] || 0) + 1;
+  });
+  const topAnals  = Object.entries(topAnalMap).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const maxAnal   = topAnals[0]?.[1] || 1;
+
+  // ── Logins table rows ───────────────────────────────────────────────────
+  const loginRows = [...logins].reverse().map((e,i) => {
+    const dt = new Date(e.timestamp);
+    const dateStr = dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const timeStr = dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td style="color:#d1d5db;font-size:11px">${logins.length - i}</td>
+      <td><strong>${escHtml(e.name||'—')}</strong></td>
+      <td class="admin-td-email">${escHtml(e.email)}</td>
+      <td class="admin-td-time">${dateStr}</td>
+      <td class="admin-td-time">${timeStr}</td>
+    </tr>`;
+  }).join('');
+
+  // ── Usage table rows ────────────────────────────────────────────────────
+  const usageRows = [...usage].reverse().map((e,i) => {
+    const dt = new Date(e.timestamp);
+    const dateStr = dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const timeStr = dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const aLabel  = analysisLabelsMap[e.analysisType] || e.analysisType;
+    return `<tr>
+      <td style="color:#d1d5db;font-size:11px">${usage.length - i}</td>
+      <td class="admin-td-time">${dateStr} ${timeStr}</td>
+      <td><strong>${escHtml(e.name||'—')}</strong><br><span class="admin-td-email">${escHtml(e.email)}</span></td>
+      <td><span class="admin-chip">${escHtml(e.competitor||'—')}</span></td>
+      <td>${escHtml(aLabel)}</td>
+      <td style="color:#9ca3af;font-size:11px">${escHtml(e.persona||'—')}</td>
+    </tr>`;
+  }).join('');
+
+  body.innerHTML = `
+    <!-- Stats -->
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card accent-blue">
+        <div class="admin-stat-icon">🔐</div>
+        <div class="admin-stat-value">${logins.length}</div>
+        <div class="admin-stat-label">Total Sessions</div>
+      </div>
+      <div class="admin-stat-card accent-purple">
+        <div class="admin-stat-icon">👤</div>
+        <div class="admin-stat-value">${uniqueUsers}</div>
+        <div class="admin-stat-label">Unique Users</div>
+      </div>
+      <div class="admin-stat-card accent-green">
+        <div class="admin-stat-icon">📅</div>
+        <div class="admin-stat-value">${loginsWeek}</div>
+        <div class="admin-stat-label">This Week</div>
+      </div>
+      <div class="admin-stat-card accent-amber">
+        <div class="admin-stat-icon">📋</div>
+        <div class="admin-stat-value">${usage.length}</div>
+        <div class="admin-stat-label">Prompts Copied</div>
+      </div>
+    </div>
+
+    <!-- Login analytics -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <div class="admin-section-title">🔐 Login Analytics <span class="admin-section-count">${logins.length} sessions · ${uniqueUsers} users</span></div>
+      </div>
+
+      <!-- Daily chart -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Daily activity — last 14 days</div>
+        <div class="admin-chart">
+          ${days.map(d => `
+            <div class="admin-chart-col">
+              <div class="admin-chart-count">${d.count > 0 ? d.count : ''}</div>
+              <div class="admin-chart-bar-wrap">
+                <div class="admin-chart-bar" style="height:${Math.round((d.count/maxDay)*80)+4}px;opacity:${d.count>0?1:0.15}"></div>
+              </div>
+              <div class="admin-chart-label">${d.label}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Login table -->
+      <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">All login sessions</div>
+      ${logins.length === 0 ? '<div class="admin-empty">No logins recorded yet</div>' : `
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Date</th><th>Time</th></tr></thead>
+          <tbody>${loginRows}</tbody>
+        </table>
+      </div>`}
+      <div class="admin-export-row">
+        <button class="admin-export-btn" onclick="exportCSV('logins')">⬇️ Export Logins CSV</button>
+      </div>
+    </div>
+
+    <!-- Usage analytics -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <div class="admin-section-title">📋 Usage Analytics <span class="admin-section-count">${usage.length} prompts copied</span></div>
+      </div>
+
+      <div class="admin-two-col" style="margin-bottom:20px">
+        <!-- Top competitors -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Top Competitors</div>
+          ${topComps.length === 0 ? '<div class="admin-empty" style="padding:20px">No data yet</div>' :
+            `<div class="admin-bar-list">${topComps.map(([label,count]) => `
+              <div class="admin-bar-row">
+                <div class="admin-bar-label" title="${escHtml(label)}">${escHtml(label)}</div>
+                <div class="admin-bar-track"><div class="admin-bar-fill" style="width:${Math.round((count/maxComp)*100)}%"></div></div>
+                <div class="admin-bar-count">${count}</div>
+              </div>`).join('')}</div>`}
+        </div>
+        <!-- Top analysis types -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Top Analysis Types</div>
+          ${topAnals.length === 0 ? '<div class="admin-empty" style="padding:20px">No data yet</div>' :
+            `<div class="admin-bar-list">${topAnals.map(([label,count]) => `
+              <div class="admin-bar-row">
+                <div class="admin-bar-label" title="${escHtml(label)}">${escHtml(label)}</div>
+                <div class="admin-bar-track"><div class="admin-bar-fill" style="width:${Math.round((count/maxAnal)*100)}%;background:linear-gradient(90deg,#10b981,#059669)"></div></div>
+                <div class="admin-bar-count">${count}</div>
+              </div>`).join('')}</div>`}
+        </div>
+      </div>
+
+      <!-- Usage table -->
+      <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">All usage events</div>
+      ${usage.length === 0 ? '<div class="admin-empty">No usage recorded yet — events are logged when users click "Copy Prompt"</div>' : `
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>#</th><th>Date / Time</th><th>User</th><th>Competitor</th><th>Analysis</th><th>Persona</th></tr></thead>
+          <tbody>${usageRows}</tbody>
+        </table>
+      </div>`}
+      <div class="admin-export-row">
+        <button class="admin-export-btn" onclick="exportCSV('usage')">⬇️ Export Usage CSV</button>
+        <button class="admin-export-btn" onclick="exportCSV('all')" style="border-color:#bfdbfe;color:#2563eb">⬇️ Export All Data</button>
+      </div>
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── CSV Export ───────────────────────────────────────────────────────────────
+function exportCSV(type) {
+  if (!adminData) return;
+  let csv = '', filename = '';
+
+  if (type === 'logins' || type === 'all') {
+    csv += 'LOGINS\n';
+    csv += 'Name,Email,Date,Time,Full Timestamp\n';
+    adminData.logins.forEach(e => {
+      const dt = new Date(e.timestamp);
+      csv += `"${e.name||''}","${e.email||''}","${e.date||''}","${dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}","${e.timestamp}"\n`;
+    });
+    if (type === 'all') csv += '\n';
+    filename = 'navina-ci-logins.csv';
+  }
+
+  if (type === 'usage' || type === 'all') {
+    if (type === 'all') csv += 'USAGE\n';
+    csv += 'Name,Email,Date,Time,Competitor,Analysis Type,Persona,Full Timestamp\n';
+    adminData.usage.forEach(e => {
+      const dt = new Date(e.timestamp);
+      csv += `"${e.name||''}","${e.email||''}","${e.date||''}","${dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}","${e.competitor||''}","${e.analysisType||''}","${e.persona||''}","${e.timestamp}"\n`;
+    });
+    if (type !== 'all') filename = 'navina-ci-usage.csv';
+    else filename = 'navina-ci-analytics.csv';
+  }
+
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('✓ Downloaded ' + filename);
 }
 
 const KB_TYPE_META = {
@@ -1579,6 +2001,7 @@ function launch() {
 function copyPrompt() {
   const prompt = buildPrompt();
   if (!prompt) { showToast('Select a competitor and analysis type first'); return; }
+  logUsage();
   navigator.clipboard.writeText(prompt).then(() => showToast('✓ Prompt copied to clipboard'));
 }
 
@@ -1635,6 +2058,10 @@ function handleCredential(response) {
 
 function showApp(user) {
   document.getElementById('auth-overlay').style.display = 'none';
+  logLogin(user);
+  if (user.email === ADMIN_EMAIL) {
+    document.getElementById('tab-admin').style.display = 'flex';
+  }
   const badge = document.getElementById('user-badge');
   const signoutBtn = document.getElementById('signout-btn');
   badge.innerHTML = `<img src="${user.picture}" style="width:24px;height:24px;border-radius:50%;border:1.5px solid #e5e7eb"> ${user.name.split(' ')[0]}`;
