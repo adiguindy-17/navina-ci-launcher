@@ -2339,6 +2339,37 @@ function driveContext(c) {
   return lines.join('\n');
 }
 
+function newsContext(c) {
+  const res = RESOURCES[c];
+  const base = res?.website?.url?.replace(/\/$/, '') || '';
+  const lines = [];
+
+  // Company-specific news sources
+  if (base) {
+    lines.push(`COMPANY-SPECIFIC SOURCES — check these first:`);
+    lines.push(`• Official website: ${base}`);
+    lines.push(`• Likely newsroom/press page: ${base}/news OR ${base}/newsroom OR ${base}/press-releases OR ${base}/press OR ${base}/blog`);
+    lines.push(`• LinkedIn company page: search LinkedIn for "${c}" company page → Posts and Activity tab`);
+  }
+
+  lines.push(`\nTOP HEALTHCARE NEWS SOURCES — search all of these:`);
+  lines.push(`• Becker's Hospital Review: beckershospitalreview.com — search "${c}"`);
+  lines.push(`• Fierce Healthcare: fiercehealthcare.com — search "${c}"`);
+  lines.push(`• Healthcare IT News: healthcareitnews.com — search "${c}"`);
+  lines.push(`• Modern Healthcare: modernhealthcare.com — search "${c}"`);
+  lines.push(`• HIT Consultant: hitconsultant.net — search "${c}"`);
+  lines.push(`• MobiHealthNews: mobihealthnews.com — search "${c}"`);
+  lines.push(`• STAT News: statnews.com — search "${c}"`);
+  lines.push(`• Health Leaders Media: healthleadersmedia.com — search "${c}"`);
+  lines.push(`• PR Newswire: prnewswire.com — search "${c}"`);
+  lines.push(`• BusinessWire: businesswire.com — search "${c}"`);
+  lines.push(`• GlobeNewswire: globenewswire.com — search "${c}"`);
+  lines.push(`• KLAS Research: klasresearch.com — search "${c}"`);
+  lines.push(`• Crunchbase: crunchbase.com — for funding and company data`);
+
+  return lines.join('\n');
+}
+
 const PROMPTS = {
 
   'battlecard': (c, persona, notes) =>
@@ -2388,6 +2419,7 @@ Rules: Use only verified information — mark anything uncertain as "Unknown". D
 
   'deep-dive': (c, persona, notes) =>
 `${driveContext(c)}
+${newsContext(c)}
 
 TASK: Deep dive on ${c} — for ${persona}
 
@@ -2411,8 +2443,11 @@ What are they genuinely good at? Be honest and specific.
 ## 6 — WEAKNESSES & GAPS
 Where do they fall short? What do customers complain about? Where does Navina have a clear edge?
 
-## 7 — RECENT NEWS & SIGNALS (last 6 months)
-Funding, partnerships, product launches, executive moves, contract wins.
+## 7 — RECENT NEWS & SIGNALS (last 6–8 weeks)
+Search the news sources listed above. Report in this format:
+| Date | Category | Headline | Strategic significance for Navina | Source URL |
+Categories: partnerships · customer wins · product launches · fundraising · leadership · M&A · media/analyst coverage · deployments
+If nothing found in a category, state it explicitly.
 
 ## 8 — COMPETITIVE THREAT TO NAVINA
 High / Medium / Low — and why. Which Navina deals could they show up in?
@@ -2482,53 +2517,69 @@ For each gap: what it is · why it matters to ${persona} · how Navina should co
 High / Medium / Low — with reasoning.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'news': (c, persona, notes) =>
-`TASK: Latest news and signals for ${c} — last 6 months.
+`${newsContext(c)}
 
-Search these sources:
-• ${c} official website (newsroom, press, blog)
-• businesswire.com · prnewswire.com
-• beckershospitalreview.com · fiercehealthcare.com · modernhealthcare.com
-• LinkedIn (company page announcements)
-• healthcareitnews.com · hitconsultant.net
+TASK: Executive-ready news brief on ${c} — act as a senior competitive intelligence analyst.
+Scope: last 4–8 weeks primarily; up to 3 months for major strategic items.
+Goal: identify strategically significant developments, not generic news aggregation.
 
-For each item found:
-| Date | Headline | Summary (1 sentence) | Why it matters for Navina | Source |
+## WHAT TO LOOK FOR (prioritize in this order)
+1. Strategic partnerships — new integrations, ecosystem plays, co-sell agreements
+2. New customers or client wins — named accounts, health systems, health plans
+3. Product launches, updates, or feature announcements
+4. Fundraising, valuation, investors, financial momentum
+5. Executive appointments, leadership changes, key hires
+6. M&A activity — acquisitions, divestitures, acquisition rumors
+7. Major media coverage, analyst reports, KLAS ratings
+8. Conference appearances, keynotes, thought leadership
+9. Implementations, rollouts, large-scale deployments
 
-Categories to look for:
-• Funding rounds or acquisition news
-• New product launches or feature announcements
-• Major customer wins or case studies published
-• Executive hires or departures
-• Partnership announcements
-• Conference appearances or keynotes
-• Regulatory or compliance news
+## FOR EACH ITEM FOUND — report in this format:
+| Date | Category | Headline | Summary (1–2 sentences) | Strategic significance for Navina | Source URL |
 
-Only include items with verifiable sources. Do not invent or hallucinate. If nothing found for a category, say so.${notes ? `\n\nFocus on: ${notes}` : ''}`,
+## REQUIREMENTS
+- Use only recent, reliable, official sources (press releases, partner announcements, regulatory filings, reputable healthcare media, official LinkedIn)
+- Include a source link for every claim
+- Separate confirmed facts from interpretation
+- Highlight the 6–8 most strategically relevant items
+- Do not include generic company background unless needed to explain why a development matters
+- If nothing found in a category, explicitly state that
+
+## END WITH
+**Executive Summary** — 3 sentences: what's the overall picture of ${c} right now?
+**Key Takeaways** — 3 bullets: what should Navina know immediately?
+**Strategic Implications** — how does this affect Navina's positioning, pipeline, or roadmap?
+**Signals to Monitor Next** — what to watch in the coming weeks?
+**Gaps** — categories where no recent public information was found${notes ? `\n\n## FOCUS AREA\n${notes}` : ''}`,
 
   'roadmap': (c, persona, notes) =>
 `${driveContext(c)}
+${newsContext(c)}
 
 TASK: Roadmap signals for ${c}
 AUDIENCE: ${persona}
 
-Search for signals across: job postings · press releases · conference talks · demo videos · partner announcements · executive interviews · product pages.
-
-Organize findings into 4 tiers:
+Search across: job postings · press releases · conference talks · demo videos · partner announcements · executive interviews · product pages · LinkedIn posts.
 
 ## TIER 1 — CONFIRMED (shipped, in GA, officially announced)
-Item · Evidence · Date · Implication for Navina
+| Item | Evidence | Date | Implication for Navina |
 
 ## TIER 2 — STRONG SIGNAL (job postings, beta mentions, partnership suggesting direction)
-Item · Evidence · Reasoning · Implication for Navina
+| Item | Evidence | Reasoning | Implication for Navina |
 
-## TIER 3 — WEAK SIGNAL (executive quotes, conference themes, inferred from hiring patterns)
-Item · Evidence · Confidence: Medium · Implication for Navina
+## TIER 3 — WEAK SIGNAL (executive quotes, conference themes, hiring patterns)
+| Item | Evidence | Confidence | Implication for Navina |
 
 ## TIER 4 — SPECULATIVE (logical inference from strategy/market position)
-Item · Reasoning · Confidence: Low
+| Item | Reasoning | Confidence: Low |
+
+## RECENT NEWS CONTEXT
+Search the news sources listed above. For each relevant item found:
+| Date | Category | Development | Why it matters for roadmap signals |
+Focus on: product launches, partnership announcements, job postings in new areas, executive hires signaling new direction.
 
 ## SO WHAT FOR NAVINA?
-2–3 bullets: what should Navina watch, prepare for, or pre-empt?${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+3 bullets: what should Navina watch, prepare for, or pre-empt?${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
 
   'kpi': (c, persona, notes) =>
 `${driveContext(c)}
@@ -2559,6 +2610,7 @@ Which company has stronger proof? Where are the gaps in ${c}'s claims? What shou
 
   'exec-brief': (c, persona, notes) =>
 `${driveContext(c)}
+${newsContext(c)}
 
 TASK: Executive brief — ${c}
 FORMAT: Tight, scannable. No fluff. Written for a busy executive.
@@ -2568,6 +2620,9 @@ FORMAT: Tight, scannable. No fluff. Written for a busy executive.
 
 ## WHAT YOU NEED TO KNOW ABOUT ${c.toUpperCase()}
 3 bullets — the most important facts (product, scale, funding, key customers).
+
+## RECENT DEVELOPMENTS (last 4–8 weeks)
+Search the news sources listed above. 2–3 bullets on the most strategically relevant recent items only — funding, partnerships, product moves, key hires. Include source URL. Skip if nothing material found.
 
 ## WHERE ${c.toUpperCase()} THREATENS NAVINA
 2 bullets — specific overlap areas, deals they could win, market segments at risk.
