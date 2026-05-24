@@ -2375,146 +2375,130 @@ const PROMPTS = {
   'battlecard': (c, persona, notes) =>
 `${driveContext(c)}
 
-TASK: Generate a sales battlecard — Navina vs ${c}
-AUDIENCE: ${persona}
+You are a senior CI analyst at Navina preparing a sales battlecard for ${persona}.
 
-## 1 — COMPETITOR SNAPSHOT
-3 bullets: founded · funding/ownership · company size · core product focus
+## ${c.toUpperCase()} — SNAPSHOT
+3 bullets: founded · funding & ownership · headcount · core product in one line
 
-## 2 — NAVINA POSITIONING HEADLINE
-One sharp sentence: "Navina — [the single most important differentiator vs ${c}]"
-Make it specific and bold, not generic.
-
-## 3 — CAPABILITY COMPARISON TABLE
+## CAPABILITY TABLE — NAVINA vs ${c.toUpperCase()}
 | Capability | Navina | ${c} |
 |---|---|---|
-| Value-based care expertise & primary care focus | | |
-| Unstructured data NLP (scanned docs, hospital notes, HIE) | | |
 | Prospective HCC coding at point of care | | |
+| Unstructured data & NLP (scanned docs, hospital notes, HIE) | | |
 | Identifies new suspected conditions (not just recapture) | | |
 | Surfaces open care gaps during visit | | |
 | Evidence-backed AI — links insight to source document | | |
+| Ambient documentation / clinical copilot | | |
 | EHR-native workflow (no new portal) | | |
-| Real-time analytics & reporting | | |
-Mark each: ✓ Strong · ~ Limited (add 1-line note) · ✗ No · ? Unknown
+| Value-based care & primary care focus | | |
+| Quality / HEDIS / Stars support | | |
+| Independent clinical studies | | |
+✓ Strong · ~ Limited (add 1-line note) · ✗ No · ? Unknown
 
-## 4 — WHERE NAVINA WINS
-For each win: dimension · Navina's proof point/KPI · ${c}'s position · why it matters to this buyer.
-Focus on the wins most relevant to ${persona}.
+## WHERE NAVINA WINS
+3–4 bullets. Each: dimension + specific KPI or proof point.
 
-## 5 — OBJECTION HANDLING
+## OBJECTIONS & RESPONSES
 | Objection | Navina response | Proof point |
-Handle the 3 most likely objections from ${persona}.
+3 most likely objections from ${persona}.
 
-## 6 — DISCOVERY QUESTIONS
-5 questions to ask the prospect to expose ${c}'s weaknesses and Navina's strengths.
+## QUESTIONS TO ASK
+3 discovery questions that expose ${c}'s gaps.
+2 trap-setting questions ${c} will struggle to answer (e.g. physician engagement rate, prospective vs retrospective, audit risk, independent studies).
 
-## 7 — TRAP-SETTING QUESTIONS
-3 questions that put ${c} in a corner (e.g. about physician engagement, retrospective vs prospective, audit risk).
+## TALK TRACK
+4 sentences max: pain → Navina solution → proof point → call to action. Tailored to ${persona}.
 
-## 8 — TALK TRACK
-4 sentences max. Lead with the pain, pivot to Navina's differentiated solution. End with a proof point.
+Mark anything unverified as "Unknown".${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
-Rules: Use only verified information — mark anything uncertain as "Unknown". Do not invent KPIs or customer names.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+  'deep-dive': (c, persona, notes) => {
+    const res = RESOURCES[c];
+    const base = res?.website?.url?.replace(/\/$/, '') || '';
+    const newsUrl = base
+      ? `${base} (/news, /newsroom, /press, /blog), beckershospitalreview.com, fiercehealthcare.com, healthcareitnews.com, businesswire.com, prnewswire.com`
+      : `"${c}" official website news section, beckershospitalreview.com, fiercehealthcare.com, healthcareitnews.com, businesswire.com`;
+    return `${driveContext(c)}
 
-  'deep-dive': (c, persona, notes) =>
-`${driveContext(c)}
-${newsContext(c)}
+You are a senior CI analyst at Navina. Build a comprehensive profile of ${c} for ${persona}.
+Search the web for current information. Use internal Drive materials where available.
 
-TASK: Deep dive on ${c} — for ${persona}
+## COMPANY OVERVIEW
+Founded · HQ · total funding raised · latest round (amount, date, investors, valuation) · headcount · CEO
 
-Search the web for the most current information on ${c}. Structure your response as follows:
+## PRODUCT & CAPABILITIES
+Core function · key modules · AI/ML approach · data sources ingested · EHR integrations · target workflow
 
-## 1 — COMPANY OVERVIEW
-Founded · HQ · ownership/funding (total raised, latest round, investors) · headcount · CEO/key leadership
+## TARGET MARKET
+Buyer type (health plans / ACOs / health systems / primary care) · contract type · geographic focus
 
-## 2 — PRODUCT & CORE CAPABILITIES
-What does it actually do? Key modules, data sources used, AI/ML approach, EHR integrations.
+## CUSTOMERS & OUTCOMES
+Named customers · published KPIs or case study results · deployment scale
 
-## 3 — TARGET MARKET
-Who do they sell to? (health plans, ACOs, health systems, primary care groups?) · typical deal size/contract type · geographic focus
+## STRENGTHS
+4–5 bullets — specific product capabilities, market position, or execution advantages
 
-## 4 — KEY CUSTOMERS & CASE STUDIES
-Named customers if available · any published outcomes or KPIs
+## WEAKNESSES
+4–5 bullets — product gaps, missing capabilities, customer complaints, structural limitations
 
-## 5 — STRENGTHS
-What are they genuinely good at? Be honest and specific.
+## RECENT NEWS (last 6–8 weeks)
+Search: ${newsUrl}
+For each item: **[Month DD]** — Headline. 1 sentence of context. Source: [confirmed URL or "via [domain]"]
 
-## 6 — WEAKNESSES & GAPS
-Where do they fall short? What do customers complain about? Where does Navina have a clear edge?
+## ROADMAP SIGNALS
+- Confirmed (shipped/announced): [item + source]
+- Strong signals (job postings, beta, partnerships): [item + evidence]
+- Speculative (exec quotes, hiring patterns): [item + basis]
 
-## 7 — RECENT NEWS & SIGNALS (last 6–8 weeks)
-Search the news sources listed above. Report in this format:
-| Date | Category | Headline | Strategic significance for Navina | Source URL |
-Categories: partnerships · customer wins · product launches · fundraising · leadership · M&A · media/analyst coverage · deployments
-If nothing found in a category, state it explicitly.
+## COMPETITIVE THREAT TO NAVINA
+High / Medium / Low — 2 sentences. Which deal types or segments are at risk?
 
-## 8 — COMPETITIVE THREAT TO NAVINA
-High / Medium / Low — and why. Which Navina deals could they show up in?
-
-## 9 — HOW NAVINA WINS AGAINST THEM
-2–3 specific, evidence-backed reasons with Navina KPIs where relevant.
-
-Be factual. Cite sources where possible. Mark uncertain information as "Unconfirmed".${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+Mark unverified information as "Unconfirmed".${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+  },
 
   'compare': (c, persona, notes) =>
 `${driveContext(c)}
 
-TASK: Side-by-side comparison — Navina vs ${c}
-AUDIENCE: ${persona}
+You are a senior CI analyst at Navina. Build a sharp side-by-side comparison for ${persona}.
 
-## CAPABILITY COMPARISON TABLE
+## NAVINA vs ${c.toUpperCase()}
 | Dimension | Navina | ${c} | Edge |
 |---|---|---|---|
-| HCC Risk Adjustment (prospective) | | | |
-| Clinical Copilot / Ambient AI | | | |
-| Quality / HEDIS / Stars | | | |
+| Prospective HCC at point of care | | | |
 | Unstructured data & NLP depth | | | |
+| Identifies new conditions (not just recapture) | | | |
+| Ambient documentation / clinical copilot | | | |
+| Quality / HEDIS / Stars | | | |
 | EHR integration & workflow | | | |
 | Physician engagement & adoption | | | |
 | Evidence-backed AI transparency | | | |
-| Analytics & reporting | | | |
+| Independent clinical studies | | | |
 | Implementation speed | | | |
-| Customer proof & independent studies | | | |
-| Market presence & scale | | | |
+| Customer scale & market presence | | | |
+Strong / Moderate / Limited / Unknown + 1-line note. Edge: Navina / ${c} / Tie.
 
-For each: rate Strong / Moderate / Limited / Unknown, with a 1-line note. In the "Edge" column: Navina / ${c} / Tie.
+## NAVINA ADVANTAGES
+3 bullets — each with a specific KPI or proof point from verified data.
 
-## WHERE NAVINA HAS A CLEAR ADVANTAGE
-3 bullets — each with a specific KPI or proof point.
+## WHERE ${c.toUpperCase()} HAS AN EDGE
+2 bullets — be honest.
 
-## WHERE ${c.toUpperCase()} MAY HAVE AN EDGE
-2 bullets — be honest. Knowing this helps Navina prepare.
-
-## BOTTOM LINE FOR ${persona.toUpperCase()}
-2 sentences: what this comparison means for how to position Navina.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+## FOR ${persona.toUpperCase()}
+2 bullets: the most relevant differences for this specific role and what to do with them.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'sw': (c, persona, notes) =>
 `${driveContext(c)}
 
-TASK: Strengths & Weaknesses analysis — ${c}
-AUDIENCE: ${persona}
+You are a senior CI analyst at Navina. Analyze ${c} for ${persona}.
+Use internal materials, web search, and any published case studies or reviews.
 
-Analyze ${c} across these dimensions. For each: one honest strength, one honest weakness.
+## STRENGTHS — what ${c} is genuinely good at
+4–5 bullets. Be specific: product capability, market position, customer proof, or execution advantage.
 
-| Dimension | Strength | Weakness |
-|---|---|---|
-| Core product & AI capabilities | | |
-| Clinical data depth & unstructured NLP | | |
-| EHR workflow integration | | |
-| Physician UX & adoption | | |
-| Risk adjustment (HCC) approach | | |
-| Quality / HEDIS capabilities | | |
-| Customer proof & published outcomes | | |
-| Go-to-market & sales motion | | |
-| Pricing & implementation | | |
-| Strategic trajectory & funding | | |
+## WEAKNESSES — where ${c} falls short
+4–5 bullets. Be specific: product gaps, missing capabilities, customer complaints, structural limitations.
 
-## TOP 3 EXPLOITABLE GAPS
-For each gap: what it is · why it matters to ${persona} · how Navina should counter it in a deal.
-
-## OVERALL THREAT LEVEL TO NAVINA
-High / Medium / Low — with reasoning.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+## COMPETITIVE THREAT TO NAVINA
+High / Medium / Low — 2 sentences. Which Navina segments or deal types are most at risk?${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'news': (c, persona, notes) => {
     const res = RESOURCES[c];
@@ -2584,111 +2568,109 @@ Repeat for each item. Max 2 items per category.
 - If fewer than 4 strong items exist, return fewer — do not pad${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`;
   },
 
-  'roadmap': (c, persona, notes) =>
-`${driveContext(c)}
-${newsContext(c)}
+  'roadmap': (c, persona, notes) => {
+    const res = RESOURCES[c];
+    const base = res?.website?.url?.replace(/\/$/, '') || '';
+    const newsUrl = base
+      ? `${base} (/news, /blog, /resources), beckershospitalreview.com, fiercehealthcare.com, businesswire.com`
+      : `"${c}" official website, beckershospitalreview.com, fiercehealthcare.com, businesswire.com`;
+    return `${driveContext(c)}
 
-TASK: Roadmap signals for ${c}
-AUDIENCE: ${persona}
+You are a senior CI analyst at Navina. Map the product direction and roadmap signals of ${c} for ${persona}.
+Search: job postings · product pages · press releases · demo videos · conference talks · LinkedIn · executive interviews · partner announcements.
 
-Search across: job postings · press releases · conference talks · demo videos · partner announcements · executive interviews · product pages · LinkedIn posts.
+## CONFIRMED — shipped or officially announced
+| Item | Source | Date |
 
-## TIER 1 — CONFIRMED (shipped, in GA, officially announced)
-| Item | Evidence | Date | Implication for Navina |
+## STRONG SIGNAL — beta, job postings, partnerships implying direction
+| Item | Evidence |
 
-## TIER 2 — STRONG SIGNAL (job postings, beta mentions, partnership suggesting direction)
-| Item | Evidence | Reasoning | Implication for Navina |
+## WEAK SIGNAL — exec quotes, hiring patterns, conference themes
+| Item | Evidence |
 
-## TIER 3 — WEAK SIGNAL (executive quotes, conference themes, hiring patterns)
-| Item | Evidence | Confidence | Implication for Navina |
+## SPECULATIVE — logical inference from strategy
+| Item | Reasoning |
 
-## TIER 4 — SPECULATIVE (logical inference from strategy/market position)
-| Item | Reasoning | Confidence: Low |
+## RECENT LAUNCHES & ANNOUNCEMENTS (last 8 weeks)
+Search: ${newsUrl}
+**[Month DD]** — What launched or was announced. Source: [confirmed URL or "via [domain]"]
 
-## RECENT NEWS CONTEXT
-Search the news sources listed above. For each relevant item found:
-| Date | Category | Development | Why it matters for roadmap signals |
-Focus on: product launches, partnership announcements, job postings in new areas, executive hires signaling new direction.
-
-## SO WHAT FOR NAVINA?
-3 bullets: what should Navina watch, prepare for, or pre-empt?${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+## WATCH LIST
+3 bullets: most important things to monitor about ${c} in the next 90 days.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+  },
 
   'kpi': (c, persona, notes) =>
 `${driveContext(c)}
 
-TASK: KPI and proof points comparison — Navina vs ${c}
-AUDIENCE: ${persona}
+You are a senior CI analyst at Navina. Compare verified proof points — Navina vs ${c} — for ${persona}.
 
-## NAVINA KPIs (verified, 2025)
-These are confirmed — use them as the benchmark:
+## NAVINA — VERIFIED KPIs (2025)
 | Metric | Value | Source |
-| HCC acceptance rate | 77% (market avg: ~40%) | 2025 customer avg |
+|---|---|---|
+| HCC acceptance rate | 77% (market avg ~40%) | 2025 customer avg |
 | Weekly active providers | 86% | 2025 customer avg |
 | HCC address rate | 90% | 2025 customer avg |
-| Increase in identified diagnoses | +43% vs prior year | 2025 customer avg |
+| New diagnoses identified | +43% vs prior year | 2025 customer avg |
 | Chart review time saved | 9 min/visit | AAFP Phase 2 study |
 | Burnout reduction | 32% | Phyx 2025 / AAFP |
-| Star quality rating improvement | +1.9 points | Phyx 2025 study |
-| RAF score increase | +0.153 per patient | Phyx 2025 study |
+| Star quality rating improvement | +1.9 pts | Phyx 2025 study |
+| RAF score increase | +0.153/patient | Phyx 2025 study |
 | Physicians who'd recommend | 84% | Phyx 2025 study |
 
-## ${c.toUpperCase()} KPIs
-Search for any published metrics, case studies, or claimed outcomes. For each:
+## ${c.toUpperCase()} — PUBLISHED METRICS
+Search for any case studies, outcome claims, or ROI data. Include source and date.
 | Metric | Value | Source | Date | Confidence |
-Only include what is publicly stated — never invent. Mark gaps as "No public data."
+Never invent — mark gaps as "No public data."
 
-## COMPARATIVE ANALYSIS
-Which company has stronger proof? Where are the gaps in ${c}'s claims? What should a ${persona} ask ${c} to validate?${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+## PROOF GAP ANALYSIS
+2 bullets: where ${c}'s claims lack evidence, and what a ${persona} should ask to pressure-test them.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
-  'exec-brief': (c, persona, notes) =>
-`${driveContext(c)}
-${newsContext(c)}
+  'exec-brief': (c, persona, notes) => {
+    const res = RESOURCES[c];
+    const base = res?.website?.url?.replace(/\/$/, '') || '';
+    const newsUrl = base
+      ? `${base} (/news, /newsroom, /press), businesswire.com, prnewswire.com, beckershospitalreview.com`
+      : `"${c}" official website news section, businesswire.com, prnewswire.com, beckershospitalreview.com`;
+    return `${driveContext(c)}
 
-TASK: Executive brief — ${c}
-FORMAT: Tight, scannable. No fluff. Written for a busy executive.
+You are a senior CI analyst at Navina. Write a tight executive brief on ${c}. No fluff — every sentence must add information.
 
-## STRATEGIC IMPLICATION
-2 sentences max. Lead with the risk or opportunity for Navina. Be direct.
+## ${c.toUpperCase()} — KEY FACTS
+3 bullets: core product · funding & scale · key customers or market position
 
-## WHAT YOU NEED TO KNOW ABOUT ${c.toUpperCase()}
-3 bullets — the most important facts (product, scale, funding, key customers).
+## RECENT DEVELOPMENTS (last 6–8 weeks)
+Search: ${newsUrl}
+2–3 bullets on material developments only: funding, acquisitions, major product launches, key hires.
+Include source URL. Skip section if nothing material found.
 
-## RECENT DEVELOPMENTS (last 4–8 weeks)
-Search the news sources listed above. 2–3 bullets on the most strategically relevant recent items only — funding, partnerships, product moves, key hires. Include source URL. Skip if nothing material found.
+## WHERE THEY COMPETE WITH NAVINA
+2 bullets: specific product overlap, deal types, or market segments.
 
-## WHERE ${c.toUpperCase()} THREATENS NAVINA
-2 bullets — specific overlap areas, deals they could win, market segments at risk.
+## WHERE NAVINA HAS THE EDGE
+2 bullets — use Navina's verified KPIs as proof.
 
-## WHERE NAVINA HAS THE ADVANTAGE
-2 bullets — with KPI proof points from Navina's verified data.
-
-## RECOMMENDED ACTIONS
-2 bullets — concrete next steps for sales, product, or marketing.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+## ACTIONS
+2 bullets: what sales, product, or marketing should do based on this.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+  },
 
   'navina-wins': (c, persona, notes) =>
 `${driveContext(c)}
 
-TASK: Where Navina wins vs ${c} — sales and pitch ammunition
-AUDIENCE: ${persona}
+You are a senior CI analyst at Navina. Build a win-against playbook for ${persona} competing with ${c}.
 
-## WIN DIMENSIONS
-For each area where Navina has a verifiable advantage:
-| Dimension | Navina's position + proof | ${c}'s position (honest) | One-liner for the pitch |
+## WHERE NAVINA WINS
+| Dimension | Navina | ${c} | Pitch line |
+5–6 rows covering the strongest, most verifiable advantages. Use Navina KPIs and study data as proof. Focus on what matters most to ${persona}.
 
-Focus on the wins most relevant to ${persona}. Use Navina's KPIs and study data as proof points.
+## QUESTIONS TO UNCOVER ${c.toUpperCase()}'S GAPS
+3 discovery questions — make the prospect think, not feel interrogated.
+2 trap-setting questions — a standard ${c} will struggle to meet (e.g. physician engagement, prospective vs retrospective, independent study results).
 
-## DISCOVERY QUESTIONS
-5 questions to ask the prospect that will naturally reveal ${c}'s weaknesses:
-(Questions should make the prospect think — not feel interrogated.)
+## WHAT NOT TO SAY
+2 bullets: arguments that are weak or could backfire specifically against ${c}.
 
-## TRAP-SETTING QUESTIONS
-3 questions that set a standard ${c} will struggle to meet (e.g. physician engagement rate, prospective vs retrospective coding, independent study results).
-
-## THINGS NOT TO SAY
-2 things to avoid — either because they're weak arguments or because they could backfire vs ${c}.
-
-## ONE-PARAGRAPH PITCH
-A 4–5 sentence pitch tailored to ${persona} positioning Navina against ${c}.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`,
+## PITCH — ${persona.toUpperCase()}
+4–5 sentences: pain → Navina vs ${c} → proof point → close.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 };
 
 const analysisLabels = {
