@@ -211,11 +211,11 @@
   /* ── Persona pills ── */
   .pills { display: flex; flex-wrap: wrap; gap: 8px; }
   .pill {
-    padding: 7px 16px;
+    padding: 5px 14px;
     background: #fff;
     border: 1.5px solid #e5e7eb;
     border-radius: 20px;
-    font-size: 13px; font-weight: 500; color: #6b7280;
+    font-size: 12px; font-weight: 500; color: #6b7280;
     cursor: pointer;
     transition: all 0.15s;
   }
@@ -652,7 +652,7 @@
   }
   .chat-action-btn:hover { background: #f3f4f6; border-color: #d1d5db; color: #374151; }
   .chat-messages {
-    padding: 28px 40px 12px;
+    padding: 24px 32px 12px;
     flex: 1;
     overflow-y: auto;
     display: flex; flex-direction: column; gap: 24px;
@@ -736,9 +736,9 @@
 
   /* ── Gen options bar ── */
   .gen-options-bar {
-    flex-shrink: 0; padding: 14px 40px 12px;
+    flex-shrink: 0; padding: 10px 32px 10px;
     border-bottom: 1px solid #f3f4f6; background: #fff;
-    display: flex; flex-direction: column; gap: 9px;
+    display: flex; flex-direction: column; gap: 7px;
   }
   .gen-opt-row { display: flex; align-items: center; gap: 12px; }
   .gen-opt-label {
@@ -762,7 +762,7 @@
   }
   .gen-welcome {
     flex: 1; display: flex; flex-direction: column;
-    padding: 32px 40px 20px; overflow-y: auto;
+    padding: 28px 32px 20px; overflow-y: auto;
   }
   /* ── Joey intro ── */
   .joey-intro { max-width: 600px; }
@@ -1114,14 +1114,6 @@
             </div>
             <div class="joey-greeting">Hi! I'm Joey, your competitive intelligence assistant at Navina. 👋</div>
             <div class="joey-sub">Ask me anything about competitors — or select a company, use case, and role above for a structured analysis.</div>
-            <div class="joey-caps">
-              <span class="joey-cap">⚔️ Battlecards</span>
-              <span class="joey-cap">🔍 Deep Dives</span>
-              <span class="joey-cap">📰 Latest News</span>
-              <span class="joey-cap">🏆 Win Strategies</span>
-              <span class="joey-cap">⚖️ Comparisons</span>
-              <span class="joey-cap">± S&amp;W Analysis</span>
-            </div>
           </div>
         </div>
         <div class="chat-messages" id="chat-messages" style="display:none"></div>
@@ -2332,10 +2324,13 @@ async function handleComposerSend() {
   // First message
   const text = document.getElementById('notes-input').value.trim();
   if (!text && !selectedAnalysis) { showToast('Type a question or select a use case'); return; }
-  if (selectedAnalysis && selectedCompetitor) {
-    await generateWithAI();
+  if (!text && selectedAnalysis && !selectedCompetitor) { showToast('← Select a competitor from the sidebar first'); return; }
+  // If text is present, always treat as free-form (text takes priority over template chips)
+  if (text) {
+    await generateFreeForm(text);
   } else {
-    await generateFreeForm(text || '');
+    // No text → use template (requires competitor + analysis, already guarded above)
+    await generateWithAI();
   }
 }
 
@@ -2408,8 +2403,8 @@ function selectPersona(el, persona) {
 function checkReady() {
   const hasComp = allSelectedCompetitors().length > 0;
   const hasText = (document.getElementById('notes-input')?.value.trim().length > 0);
-  // Send is enabled whenever there's text — no competitor required
-  const canSend = hasText;
+  // Send enabled when: text present (free-form), OR competitor + use case selected (template mode)
+  const canSend = hasText || !!(hasComp && selectedAnalysis);
   const sendBtn = document.getElementById('gen-composer-send');
   if (sendBtn) sendBtn.disabled = !canSend;
   const launchReady = !!(hasComp && selectedAnalysis);
