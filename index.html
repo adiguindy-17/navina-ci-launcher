@@ -1368,8 +1368,9 @@ async function generateWithAI() {
   // Switch to Generate Intel tab
   switchTab('gen');
 
-  // Build prompt
-  const prompt = buildFullPrompt();
+  // Build prompt + pre-fetch internal content
+  const rawPrompt = buildFullPrompt();
+  const prompt = await enrichPromptWithContent(rawPrompt);
   chatHistory = [{ role: 'user', content: prompt }];
 
   // Update context label
@@ -1647,6 +1648,51 @@ function buildFullPrompt() {
   const promptFn = PROMPTS[selectedAnalysis];
   if (!promptFn) return `Analyze ${c} for ${selectedPersona}.`;
   return promptFn(c, selectedPersona, notes, context);
+}
+
+// ── URL content pre-fetcher ───────────────────────────────────────────────────
+async function fetchURLContent(url) {
+  try {
+    const res = await fetch(WORKER_URL + '/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.error || !data.content) return null;
+    // Strip HTML tags → clean readable text
+    return data.content
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  } catch {
+    return null;
+  }
+}
+
+async function enrichPromptWithContent(prompt) {
+  // Extract URLs from INTERNAL MATERIALS section only
+  const urlPattern = /https:\/\/(www\.notion\.so|docs\.google\.com|drive\.google\.com)[^\s\n)\"]+/g;
+  const urls = [...new Set(prompt.match(urlPattern) || [])];
+  if (urls.length === 0) return prompt;
+
+  const sections = [];
+  await Promise.all(urls.map(async url => {
+    const content = await fetchURLContent(url);
+    if (content && content.length > 300) {
+      const label = url.includes('notion') ? 'Notion Page'
+                  : url.includes('presentation') ? 'Overview Deck'
+                  : url.includes('document') ? 'Document'
+                  : 'Drive File';
+      sections.push(`### ${label}\n${content.slice(0, 3500)}`);
+    }
+  }));
+
+  if (sections.length === 0) return prompt;
+  return prompt + '\n\n---\n## PRE-FETCHED INTERNAL CONTENT (read this first)\n' + sections.join('\n\n');
 }
 
 async function logUsage() {
