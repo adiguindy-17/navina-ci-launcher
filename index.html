@@ -1531,6 +1531,8 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tabId).classList.add('active');
   document.getElementById('panel-' + tabId).classList.add('active');
+  // Refresh KB cards whenever the KB tab is opened
+  if (tabId === 'kb' && selectedCompetitor) renderKBCards(selectedCompetitor);
 }
 
 function openAdminTab() {
@@ -2308,6 +2310,8 @@ function selectCompetitor(el, name) {
       if (n === selectedCompetitor) i.classList.add('selected');
       else if (extraCompetitors.includes(n)) i.classList.add('multi-selected');
     });
+    // Refresh KB cards for primary competitor even in multi-mode
+    if (selectedCompetitor) renderKBCards(selectedCompetitor);
   } else {
     // Single-select mode
     extraCompetitors = [];
