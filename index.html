@@ -818,15 +818,15 @@
   .btn-generate:active { transform: translateY(0); }
   .btn-generate:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: none; cursor: not-allowed; transform: none; opacity: 1; }
   /* Markdown styles inside chat */
-  .md-p { margin: 0 0 12px; }
+  .md-p { margin: 0 0 8px; }
   .md-p:last-child { margin-bottom: 0; }
-  .md-h2 { font-size: 17px; font-weight: 800; margin: 20px 0 8px; color: #111827; letter-spacing: -0.3px; border-bottom: 1px solid #f3f4f6; padding-bottom: 6px; }
-  .md-h3 { font-size: 15px; font-weight: 700; margin: 16px 0 6px; color: #111827; }
-  .md-h4 { font-size: 14px; font-weight: 700; margin: 12px 0 5px; color: #374151; }
-  .md-h5 { font-size: 13px; font-weight: 600; margin: 10px 0 4px; color: #4b5563; }
-  .md-hr { border: none; border-top: 1px solid #e5e7eb; margin: 16px 0; }
-  .md-ul, .md-ol { padding-left: 22px; margin: 8px 0 12px; }
-  .md-li { margin: 5px 0; line-height: 1.65; }
+  .md-h2 { font-size: 16px; font-weight: 800; margin: 18px 0 6px; color: #111827; letter-spacing: -0.3px; border-bottom: 1px solid #f3f4f6; padding-bottom: 5px; }
+  .md-h3 { font-size: 14px; font-weight: 700; margin: 14px 0 4px; color: #111827; }
+  .md-h4 { font-size: 13.5px; font-weight: 700; margin: 10px 0 3px; color: #374151; }
+  .md-h5 { font-size: 13px; font-weight: 600; margin: 8px 0 3px; color: #4b5563; }
+  .md-hr { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+  .md-ul, .md-ol { padding-left: 20px; margin: 4px 0 8px; }
+  .md-li { margin: 3px 0; line-height: 1.6; }
   .md-code-block { background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 10px; font-family: 'SF Mono','Fira Code',monospace; font-size: 12.5px; overflow-x: auto; margin: 12px 0; line-height: 1.6; }
   .md-inline-code { background: #f1f5f9; color: #3730a3; padding: 2px 7px; border-radius: 5px; font-size: 12.5px; font-family: 'SF Mono','Fira Code',monospace; }
   .md-table-wrap { overflow-x: auto; margin: 12px 0; border-radius: 10px; border: 1px solid #e5e7eb; }
@@ -1732,8 +1732,22 @@ function appendChatMessage(role, content) {
 
 // ── Markdown renderer ─────────────────────────────────────────────────────────
 function renderMarkdown(text) {
-  // 1. Escape HTML entities
+  // 0. Pre-process: clean common AI formatting artifacts BEFORE HTML escaping
   let s = text
+    // Collapse 3+ consecutive blank lines to exactly 2
+    .replace(/\n{3,}/g, '\n\n')
+    // Remove lines that are just a lone dash (used as visual separator, not a list)
+    .replace(/^[ \t]*-[ \t]*$/gm, '')
+    // Convert single-cell table rows  "| Some Label |"  → just the content
+    // (real multi-column tables have at least two | in the middle)
+    .replace(/^\|[ \t]*(\*{0,2}[^|\n]+?\*{0,2})[ \t]*\|[ \t]*$/gm, '$1')
+    // Remove lines that are only pipe characters (leftover table separators)
+    .replace(/^[ \t]*\|[ \t]*$/gm, '')
+    // Trim trailing whitespace from every line
+    .replace(/[ \t]+$/gm, '');
+
+  // 1. Escape HTML entities
+  s = s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -2919,20 +2933,27 @@ Mark anything unverified as "Unknown".${notes ? `\n\n## CONTEXT\n${notes}` : ''}
       : `"${c}" official website news section, beckershospitalreview.com, fiercehealthcare.com, healthcareitnews.com, businesswire.com`;
     return `${driveContext(c, 'deep-dive')}
 
-You are a senior CI analyst at Navina. Build a comprehensive profile of ${c} for ${persona}.
+You are a senior CI analyst at Navina. Build a comprehensive profile of **${c}** for ${persona}.
 Search the web for current information. Use internal Drive materials where available.
 
+FORMATTING RULES (follow strictly):
+- Use **bold labels** followed by a colon for named fields: **CEO:** Name, **Founded:** Year
+- Use bullet points (–) for lists. Never use a lone dash "-" on its own line as a separator.
+- Only use markdown tables for truly comparative/tabular data (2+ columns). Never use | pipes for single-column content.
+- Keep sections tight — no blank lines between a label and its value.
+- Do NOT repeat the section heading as the first line of content.
+
 ## COMPANY OVERVIEW
-Founded · HQ · total funding raised · latest round (amount, date, investors, valuation) · headcount · CEO
+**Founded:** · **HQ:** · **Funding:** total raised · **Latest Round:** amount, date, investors · **Headcount:** · **CEO:**
 
 ## PRODUCT & CAPABILITIES
-Core function · key modules · AI/ML approach · data sources ingested · EHR integrations · target workflow
+**Core Function:** · **Key Modules:** · **AI/ML Approach:** · **Data Sources:** · **EHR Integrations:** · **Target Workflow:**
 
 ## TARGET MARKET
-Buyer type (health plans / ACOs / health systems / primary care) · contract type · geographic focus
+**Buyer Type:** (health plans / ACOs / health systems / primary care) · **Contract Type:** · **Geographic Focus:**
 
 ## CUSTOMERS & OUTCOMES
-Named customers · published KPIs or case study results · deployment scale
+**Named Customers:** list them. **Published KPIs:** table if available (Metric | Result | Source). **Scale:**
 
 ## STRENGTHS
 4–5 bullets — specific product capabilities, market position, or execution advantages
@@ -2942,15 +2963,15 @@ Named customers · published KPIs or case study results · deployment scale
 
 ## RECENT NEWS (last 6–8 weeks)
 Search: ${newsUrl}
-For each item: **[Month DD]** — Headline. 1 sentence of context. Source: [confirmed URL or "via [domain]"]
+Format each item: **[Month DD]** — Headline. 1 sentence of context. Source: [confirmed URL or "via [domain]"]
 
 ## ROADMAP SIGNALS
-- Confirmed (shipped/announced): [item + source]
-- Strong signals (job postings, beta, partnerships): [item + evidence]
-- Speculative (exec quotes, hiring patterns): [item + basis]
+– **Confirmed** (shipped/announced): item + source
+– **Strong signals** (job postings, beta, partnerships): item + evidence
+– **Speculative** (exec quotes, hiring patterns): item + basis
 
 ## COMPETITIVE THREAT TO NAVINA
-High / Medium / Low — 2 sentences. Which deal types or segments are at risk?
+**Level:** High / Medium / Low — 2 sentences. Which deal types or segments are at risk?
 
 Mark unverified information as "Unconfirmed".${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
@@ -2988,8 +3009,10 @@ Strong / Moderate / Limited / Unknown + 1-line note. Edge: Navina / ${c} / Tie.
   'sw': (c, persona, notes) =>
 `${driveContext(c, 'sw')}
 
-You are a senior CI analyst at Navina. Deliver a focused strengths & weaknesses analysis of ${c} for ${persona}.
+You are a senior CI analyst at Navina. Deliver a focused strengths & weaknesses analysis of **${c}** for ${persona}.
 Use web search, published case studies, customer reviews, demo observations, and product pages.
+
+FORMATTING RULES: Use bullet points (–). No lone dashes. No single-column | pipe | rows. Tight spacing.
 
 ## STRENGTHS — what ${c} is genuinely good at
 3–5 bullets. Focus only on REAL, specific capabilities:
@@ -3076,34 +3099,30 @@ Repeat for each item. Max 2 items per category.
   'product-overview': (c, persona, notes) => {
     return `${driveContext(c, 'product-overview')}
 
-You are a senior CI analyst at Navina. Build a clear product overview of ${c} for ${persona}.
+You are a senior CI analyst at Navina. Build a clear product overview of **${c}** for ${persona}.
 Search the company's website, product pages, and any published demo materials.
 
+FORMATTING RULES:
+- Use bullet points (–) for capabilities. Never use a lone "-" on its own line.
+- Use **bold labels:** for named fields. No single-column | pipe | rows.
+- Keep content tight — no extra blank lines between a label and its content.
+
 ## PRODUCT PILLARS
-Divide the product into 2–3 main pillars.
-Under each pillar: list 3–4 major products, modules, or capabilities.
-
-For each capability:
-— ONE line explanation, max 8–12 words
-— Simple, operational language — no marketing wording
-— Make the capability immediately understandable
-
-Example style:
-  "Surfaces HCC gaps during visits with supporting evidence."
-  "Automates prior authorization submission inside provider ordering workflows."
-NOT:
-  "Leverages advanced AI to transform clinical documentation experience."
+Divide the product into 2–3 main pillars. Under each pillar list 3–4 capabilities.
+Each capability: ONE line, max 12 words, plain language. No marketing speak.
+Good: "Surfaces HCC gaps during visits with supporting evidence."
+Bad: "Leverages advanced AI to transform clinical documentation experience."
 
 ## DEPLOYMENT & INTEGRATION
-- EHR integrations: [list known]
-- Workflow type: prospective / retrospective / both
-- EHR-native vs separate portal
-- Implementation timeline if known
+– **EHR Integrations:** list known integrations
+– **Workflow:** prospective / retrospective / both
+– **Access:** EHR-native vs separate portal
+– **Implementation:** timeline if known
 
 ## WHO BUYS IT
-- Primary buyer: health plans / ACOs / health systems / primary care
-- Deal size or contract model (if known)
-- Geographic focus (if known)${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+– **Primary Buyer:** health plans / ACOs / health systems / primary care
+– **Contract Model:** deal size or structure if known
+– **Geography:** focus area if known${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'kpi': (c, persona, notes) =>
