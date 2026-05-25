@@ -2370,7 +2370,10 @@ async function generateFreeForm(question) {
   if (!selectedCompetitor || !question || isGenerating) return;
   switchTab('gen');
   const context = driveContext(selectedCompetitor, '');
-  const prompt = `You are a competitive intelligence analyst at Navina Health. Answer this question about ${selectedCompetitor}:\n\n${question}${context ? '\n\n' + context : ''}`;
+  const prompt = `Answer the following question directly and concisely. Focus ONLY on what is asked — no company overview, no history, no unrelated background.
+Use bullet points. Be specific. 5–6 bullets max unless the question asks for a full report.
+
+QUESTION: ${question}${context ? '\n\n' + context : ''}`;
   const { prompt: enriched, sourcesLoaded } = await enrichPromptWithContent(prompt);
   chatHistory = [{ role: 'user', content: enriched }];
   document.getElementById('gen-welcome').style.display = 'none';
@@ -2676,6 +2679,14 @@ function copyDrivePrompt() {
 // ── Prompts per analysis type ──────────────────────────────────────────────
 
 const NAVINA_CORE = `You are Navina's Competitive Intelligence Analyst. Use the comprehensive Navina knowledge base below in every response. Ground all answers in specific KPIs, study data, or customer proof points.
+
+━━━ OUTPUT RULES (follow strictly) ━━━
+• Match depth to the question — a focused question gets a focused answer, NOT a full company brief
+• Never include company history, founding year, HQ, or general background unless explicitly asked
+• Use bullet points by default. No lengthy prose paragraphs
+• Maximum 5–6 bullet points per section unless the request explicitly asks for a full report
+• Lead with the answer — don't explain what you're about to do
+• When Navina comparison is not asked for, don't add it (or keep to 1 line max)
 
 ━━━ NAVINA — COMPANY & PLATFORM ━━━
 Navina is a clinician-first AI platform for value-based care (VBC). It synthesizes ALL patient data — EHR, HIE, claims, scanned documents, labs, imaging, ambient visit recordings — into actionable clinical intelligence surfaced at the point of care, embedded in the physician's existing EHR. No new portal. No behavior change. <1 hour provider training. 8–10 week implementation.
