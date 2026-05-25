@@ -836,8 +836,10 @@
   .md-table td { padding: 9px 14px; border-bottom: 1px solid #f3f4f6; color: #1f2937; font-size: 13px; vertical-align: top; line-height: 1.5; }
   .md-table tr:last-child td { border-bottom: none; }
   .md-table tr:hover td { background: #f9fafb; }
-  .md-a { color: #4338ca; text-decoration: underline; }
+  .md-a { color: #4338ca; text-decoration: underline; text-underline-offset: 2px; }
   .md-a:hover { color: #3730a3; }
+  .md-source-link { font-size: 12px; font-weight: 500; color: #6366f1; background: #f0f0ff; border: 1px solid #c7d2fe; border-radius: 4px; padding: 1px 6px 1px 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .md-source-link:hover { background: #e0e7ff; color: #4338ca; text-decoration: none; }
   .md-strong { font-weight: 700; color: #111827; }
 
   /* ── KB General Resources (bottom of KB panel, small/muted) ── */
@@ -1737,6 +1739,23 @@ function renderMarkdown(text) {
   // 2. Markdown links [text](url) → clickable links
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g,
     '<a class="md-a" href="$2" target="_blank" rel="noopener">$1 ↗</a>');
+
+  // 2b. Bare https:// URLs not already inside <a> tags
+  s = s.replace(/(?<![="'\/])https?:\/\/[^\s<>"'\)\],]+/g, url => {
+    const cleanUrl = url.replace(/&amp;/g, '&').replace(/[.,;:!?]+$/, '');
+    const display  = cleanUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+    const label    = display.length > 55 ? display.substring(0, 55) + '…' : display;
+    return `<a class="md-a" href="${cleanUrl}" target="_blank" rel="noopener">${label} ↗</a>`;
+  });
+
+  // 2c. "Source: [via] domain.tld[/path]" — bare domain citations (no https://)
+  s = s.replace(/\bSource:\s*(via\s+)?([a-zA-Z0-9][a-zA-Z0-9\-.]*\.[a-zA-Z]{2,}(?:\/[^\s<,;)\]]*)?)/g,
+    (match, via, domain) => {
+      const cleanDomain = domain.replace(/[.,;:!?]+$/, '');
+      const href  = `https://${cleanDomain}`;
+      const label = (via ? 'via ' : '') + cleanDomain;
+      return `Source: <a class="md-source-link" href="${href}" target="_blank" rel="noopener">🔗 ${label}</a>`;
+    });
 
   // 3. Code blocks (``` ... ```) — before inline code
   s = s.replace(/```[\w]*\n?([\s\S]*?)```/g,
