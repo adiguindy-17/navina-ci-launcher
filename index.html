@@ -915,6 +915,66 @@
   }
   .kb-no-internal-title { font-size: 13px; font-weight: 600; color: #9ca3af; }
   .kb-no-internal-sub { font-size: 12px; color: #d1d5db; line-height: 1.4; }
+
+  /* ── Sidebar drag-resize handle ── */
+  .sidebar { position: relative; }
+  .sidebar-resize-handle {
+    position: absolute; right: -3px; top: 0; bottom: 0; width: 6px;
+    cursor: col-resize; z-index: 30; background: transparent; border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .sidebar-resize-handle:hover, .sidebar-resize-handle.dragging { background: rgba(79,70,229,0.25); }
+
+  /* ── Collapsible main-header ── */
+  .main-header { position: relative; padding-bottom: 0; }
+  .main-header-collapsible {
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+    max-height: 180px; opacity: 1;
+  }
+  .main-header.collapsed .main-header-collapsible { max-height: 0; opacity: 0; }
+  .header-collapse-btn {
+    position: absolute; top: 10px; right: 12px;
+    width: 24px; height: 24px; border-radius: 6px;
+    background: #f3f4f6; border: 1px solid #e5e7eb;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: #9ca3af; transition: all 0.15s; padding: 0;
+  }
+  .header-collapse-btn:hover { background: #eef2ff; color: #4338ca; border-color: #a5b4fc; }
+  .header-collapse-btn svg { transition: transform 0.2s; }
+  .main-header.collapsed .header-collapse-btn svg { transform: rotate(180deg); }
+
+  /* ── Collapsible gen-options-bar ── */
+  .gen-options-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 32px 5px; cursor: pointer; user-select: none;
+    flex-shrink: 0;
+  }
+  .gen-options-toggle-row:hover { background: #fafafa; }
+  .gen-options-summary {
+    font-size: 10px; font-weight: 700; color: #b0b9c8;
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .gen-options-summary em { font-style: normal; color: #4338ca; font-weight: 700; }
+  .options-collapse-btn {
+    width: 20px; height: 20px; border-radius: 5px;
+    background: transparent; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #c4cdd8; transition: all 0.15s; padding: 0;
+  }
+  .options-collapse-btn:hover { background: #f3f4f6; color: #4338ca; }
+  .options-collapse-btn svg { transition: transform 0.2s; }
+  .gen-options-bar.collapsed .options-collapse-btn svg { transform: rotate(180deg); }
+  .gen-options-content {
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+    max-height: 200px; opacity: 1;
+    display: flex; flex-direction: column; gap: 7px;
+    padding: 2px 32px 10px;
+  }
+  .gen-options-bar.collapsed .gen-options-content { max-height: 0; opacity: 0; padding-bottom: 0; padding-top: 0; }
+  /* override old gen-options-bar padding since content div now handles it */
+  .gen-options-bar { padding: 0 !important; gap: 0 !important; }
 </style>
 </head>
 <body>
@@ -1009,46 +1069,55 @@
       <div class="competitor-item" onclick="selectCompetitor(this,'ELCAT')">ELCAT</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Notable Health')">Notable Health</div>
     </div>
+    <!-- Drag-to-resize handle -->
+    <div class="sidebar-resize-handle" id="sidebar-resize-handle"></div>
   </nav>
 
   <!-- Main -->
   <main class="main">
 
-    <div class="main-header">
+    <div class="main-header" id="main-header">
 
-    <div class="page-header">
-      <div class="page-title">Navina CI Platform</div>
-      <div class="page-sub">Your competitive intelligence workspace — browse existing materials or generate new AI-powered analysis.</div>
-    </div>
-
-    <!-- Competitor Header -->
-    <div class="competitor-header">
-      <div class="competitor-header-left">
-        <div class="competitor-header-title">Selected Competitor</div>
-        <div id="competitor-display" class="placeholder-chip">
-          <span>←</span> Select a competitor from the sidebar
+      <!-- Collapsible: title + competitor selector -->
+      <div class="main-header-collapsible" id="main-header-collapsible">
+        <div class="page-header">
+          <div class="page-title">Navina CI Platform</div>
+          <div class="page-sub">Your competitive intelligence workspace — browse existing materials or generate new AI-powered analysis.</div>
+        </div>
+        <!-- Competitor Header -->
+        <div class="competitor-header">
+          <div class="competitor-header-left">
+            <div class="competitor-header-title">Selected Competitor</div>
+            <div id="competitor-display" class="placeholder-chip">
+              <span>←</span> Select a competitor from the sidebar
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Pillar Tabs -->
-    <div class="pillar-tabs">
-      <button class="pillar-tab" id="tab-kb" onclick="switchTab('kb')">
-        <span class="pillar-tab-icon">📚</span>
-        <span class="pillar-tab-name">Knowledge Base</span>
-        <span class="pillar-tab-desc">Existing materials & resources</span>
+      <!-- Pillar Tabs (always visible) -->
+      <div class="pillar-tabs">
+        <button class="pillar-tab" id="tab-kb" onclick="switchTab('kb')">
+          <span class="pillar-tab-icon">📚</span>
+          <span class="pillar-tab-name">Knowledge Base</span>
+          <span class="pillar-tab-desc">Existing materials & resources</span>
+        </button>
+        <button class="pillar-tab active" id="tab-gen" onclick="switchTab('gen')">
+          <span class="pillar-tab-icon">⚡</span>
+          <span class="pillar-tab-name">Generate Intel</span>
+          <span class="pillar-tab-desc">New AI-powered analysis</span>
+        </button>
+        <button class="pillar-tab" id="tab-admin" onclick="openAdminTab()" style="display:none;margin-left:auto;border-left:1px solid #f3f4f6;border-radius:0 8px 0 0">
+          <span class="pillar-tab-icon">🔧</span>
+          <span class="pillar-tab-name">Admin</span>
+          <span class="pillar-tab-desc">Analytics dashboard</span>
+        </button>
+      </div>
+
+      <!-- Collapse toggle -->
+      <button class="header-collapse-btn" id="header-collapse-btn" onclick="toggleHeaderCollapse()" title="Collapse header">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
       </button>
-      <button class="pillar-tab active" id="tab-gen" onclick="switchTab('gen')">
-        <span class="pillar-tab-icon">⚡</span>
-        <span class="pillar-tab-name">Generate Intel</span>
-        <span class="pillar-tab-desc">New AI-powered analysis</span>
-      </button>
-      <button class="pillar-tab" id="tab-admin" onclick="openAdminTab()" style="display:none;margin-left:auto;border-left:1px solid #f3f4f6;border-radius:0 8px 0 0">
-        <span class="pillar-tab-icon">🔧</span>
-        <span class="pillar-tab-name">Admin</span>
-        <span class="pillar-tab-desc">Analytics dashboard</span>
-      </button>
-    </div>
 
     </div><!-- /.main-header -->
 
@@ -1066,37 +1135,46 @@
     <!-- Tab 2: Generate Intel -->
     <div id="panel-gen" class="tab-panel active">
 
-      <!-- Options bar -->
-      <div class="gen-options-bar">
-        <div class="gen-opt-row">
-          <span class="gen-opt-label">Use case</span>
-          <div class="gen-template-chips" id="gen-template-chips">
-
-            <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚔️ Battlecard</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'deep-dive')">🔍 Deep Dive</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'compare')">⚖️ Compare</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'sw')">± S&amp;W</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 News</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">📦 Product Overview</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'kpi')">📊 KPI</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'exec-brief')">📋 Exec Brief</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'navina-wins')">🏆 Navina Wins</div>
-          </div>
+      <!-- Options bar (collapsible) -->
+      <div class="gen-options-bar" id="gen-options-bar">
+        <!-- Toggle row - always visible -->
+        <div class="gen-options-toggle-row" onclick="toggleOptionsCollapse()">
+          <span class="gen-options-summary" id="gen-options-summary">Use Case &amp; Role</span>
+          <button class="options-collapse-btn" id="options-collapse-btn" title="Collapse filters">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
         </div>
-        <div class="gen-opt-row">
-          <span class="gen-opt-label">Your role</span>
-          <div class="pills">
-            <div class="pill persona-sales selected" onclick="selectPersona(this,'Sales Executive')">🎯 Sales</div>
-            <div class="pill persona-product" onclick="selectPersona(this,'Product Manager')">🛠 Product</div>
-            <div class="pill persona-clinical" onclick="selectPersona(this,'Clinical Manager')">🏥 Clinical</div>
-            <div class="pill persona-executive" onclick="selectPersona(this,'Executive')">⚡ Executive</div>
-            <div class="pill persona-marketing" onclick="selectPersona(this,'Marketing / Strategy')">📣 Marketing</div>
-            <div class="pill persona-analyst" onclick="selectPersona(this,'CI Analyst')">🔬 CI Analyst</div>
+        <!-- Collapsible content -->
+        <div class="gen-options-content" id="gen-options-content">
+          <div class="gen-opt-row">
+            <span class="gen-opt-label">Use case</span>
+            <div class="gen-template-chips" id="gen-template-chips">
+              <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚔️ Battlecard</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'deep-dive')">🔍 Deep Dive</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'compare')">⚖️ Compare</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'sw')">± S&amp;W</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 News</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">📦 Product Overview</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'kpi')">📊 KPI</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'exec-brief')">📋 Exec Brief</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'navina-wins')">🏆 Navina Wins</div>
+            </div>
           </div>
-          <div class="multi-select-hint" id="multi-select-hint">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-            Multi-select up to 3 competitors
-            <span class="multi-select-count" id="multi-select-count">0</span>
+          <div class="gen-opt-row">
+            <span class="gen-opt-label">Your role</span>
+            <div class="pills">
+              <div class="pill persona-sales selected" onclick="selectPersona(this,'Sales Executive')">🎯 Sales</div>
+              <div class="pill persona-product" onclick="selectPersona(this,'Product Manager')">🛠 Product</div>
+              <div class="pill persona-clinical" onclick="selectPersona(this,'Clinical Manager')">🏥 Clinical</div>
+              <div class="pill persona-executive" onclick="selectPersona(this,'Executive')">⚡ Executive</div>
+              <div class="pill persona-marketing" onclick="selectPersona(this,'Marketing / Strategy')">📣 Marketing</div>
+              <div class="pill persona-analyst" onclick="selectPersona(this,'CI Analyst')">🔬 CI Analyst</div>
+            </div>
+            <div class="multi-select-hint" id="multi-select-hint">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              Multi-select up to 3 competitors
+              <span class="multi-select-count" id="multi-select-count">0</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1477,8 +1555,9 @@ async function generateWithAI() {
   const { prompt, sourcesLoaded } = await enrichPromptWithContent(rawPrompt);
   chatHistory = [{ role: 'user', content: prompt }];
 
-  // Hide welcome, show chat
+  // Hide welcome, show chat; auto-collapse options to give chat more room
   document.getElementById('gen-welcome').style.display = 'none';
+  collapseOptionsOnChatStart();
   const messagesEl = document.getElementById('chat-messages');
   messagesEl.style.display = 'flex';
 
@@ -1732,6 +1811,9 @@ function newConversation() {
   selectedAnalysis = null;
   const hint = document.getElementById('multi-select-hint');
   if (hint) hint.classList.remove('active');
+  // Re-expand options bar
+  const bar = document.getElementById('gen-options-bar');
+  if (bar) { bar.classList.remove('collapsed'); updateOptionsSummary(); }
   checkReady();
 }
 
@@ -2244,6 +2326,7 @@ function selectTemplate(el, type) {
   }
 
   updatePreview();
+  updateOptionsSummary();
   checkReady();
 }
 
@@ -2353,6 +2436,7 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
   const { prompt: enriched, sourcesLoaded } = await enrichPromptWithContent(prompt);
   chatHistory = [{ role: 'user', content: enriched }];
   document.getElementById('gen-welcome').style.display = 'none';
+  collapseOptionsOnChatStart();
   const messagesEl = document.getElementById('chat-messages');
   messagesEl.style.display = 'flex';
   messagesEl.innerHTML = '';
@@ -2397,6 +2481,7 @@ function selectPersona(el, persona) {
   el.classList.add('selected');
   selectedPersona = persona;
   updatePreview();
+  updateOptionsSummary();
   checkReady();
 }
 
@@ -3244,6 +3329,76 @@ function signOut() {
   sessionStorage.removeItem('navina_user');
   if (window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
   location.reload();
+}
+
+// ── Panel resize / collapse ──────────────────────────────────────────────────
+
+// Sidebar drag-to-resize
+(function() {
+  const sidebar = document.querySelector('.sidebar');
+  const handle  = document.getElementById('sidebar-resize-handle');
+  if (!sidebar || !handle) return;
+  let active = false;
+  handle.addEventListener('mousedown', e => {
+    active = true;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!active) return;
+    const w = Math.max(140, Math.min(380, e.clientX));
+    sidebar.style.width = w + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    if (!active) return;
+    active = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+})();
+
+// Collapsible main-header (title + competitor selector)
+function toggleHeaderCollapse() {
+  const header = document.getElementById('main-header');
+  header.classList.toggle('collapsed');
+  const btn = document.getElementById('header-collapse-btn');
+  btn.title = header.classList.contains('collapsed') ? 'Expand header' : 'Collapse header';
+}
+
+// Collapsible gen-options-bar (use case + role chips)
+function toggleOptionsCollapse() {
+  const bar = document.getElementById('gen-options-bar');
+  bar.classList.toggle('collapsed');
+  updateOptionsSummary();
+}
+
+function updateOptionsSummary() {
+  const bar = document.getElementById('gen-options-bar');
+  const el  = document.getElementById('gen-options-summary');
+  if (!el) return;
+  if (bar && bar.classList.contains('collapsed')) {
+    const useCasePart = selectedAnalysis
+      ? `<em>${(analysisLabels[selectedAnalysis] || selectedAnalysis)}</em>`
+      : 'Use Case';
+    const rolePart = selectedPersona
+      ? `<em>${selectedPersona.split(' ')[0]}</em>`
+      : 'Role';
+    el.innerHTML = useCasePart + ' · ' + rolePart;
+  } else {
+    el.innerHTML = 'Use Case &amp; Role';
+  }
+}
+
+// Auto-collapse options when chat starts, re-expand on new chat
+function collapseOptionsOnChatStart() {
+  const bar = document.getElementById('gen-options-bar');
+  if (bar && !bar.classList.contains('collapsed')) {
+    bar.classList.add('collapsed');
+    updateOptionsSummary();
+  }
 }
 
 // Init
