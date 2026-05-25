@@ -2835,8 +2835,8 @@ function driveContext(c, analysis = '') {
     if (res.notion)       links.push(`• ${res.notion.label}: ${res.notion.url}`);
     if (res.overview)     links.push(`• ${res.overview.label}: ${res.overview.url}`);
     if (res.demo_summary) links.push(`• ${res.demo_summary.label}: ${res.demo_summary.url}`);
-    // Battlecard only for head-to-head use cases
-    const needsBattlecard = ['battlecard', 'compare', 'navina-wins', 'kpi'];
+    // Battlecard for head-to-head use cases + deep-dive (which now includes battlecard section)
+    const needsBattlecard = ['battlecard', 'compare', 'navina-wins', 'kpi', 'deep-dive'];
     if (res.battlecard && needsBattlecard.includes(analysis)) {
       links.push(`• ${res.battlecard.label}: ${res.battlecard.url}`);
     }
@@ -2928,52 +2928,170 @@ Mark anything unverified as "Unknown".${notes ? `\n\n## CONTEXT\n${notes}` : ''}
   'deep-dive': (c, persona, notes) => {
     const res = RESOURCES[c];
     const base = res?.website?.url?.replace(/\/$/, '') || '';
-    const newsUrl = base
-      ? `${base} (/news, /newsroom, /press, /blog), beckershospitalreview.com, fiercehealthcare.com, healthcareitnews.com, businesswire.com, prnewswire.com`
-      : `"${c}" official website news section, beckershospitalreview.com, fiercehealthcare.com, healthcareitnews.com, businesswire.com`;
+    const websiteScope = base
+      ? `Company website: ${base}\nReview: homepage · product pages · AI/platform pages · EHR integration pages · case studies · pricing pages · press releases · partnerships · support docs`
+      : `Search for ${c}'s official website. Review: homepage · product pages · case studies · pricing · press releases`;
+    const personaNewsFocus = persona.toLowerCase().includes('product')
+      ? 'product launches · new features · integrations · platform changes · roadmap signals'
+      : persona.toLowerCase().includes('market')
+      ? 'analyst recognition · partnerships · customer stories · category positioning · media momentum'
+      : persona.toLowerCase().includes('exec') || persona.toLowerCase().includes('ceo') || persona.toLowerCase().includes('vp')
+      ? 'funding · M&A · leadership changes · strategic pivots · market expansion'
+      : 'customer wins · named logos · enterprise deals · pricing signals · ROI claims';
     return `${driveContext(c, 'deep-dive')}
 
-You are a senior CI analyst at Navina. Build a comprehensive profile of **${c}** for ${persona}.
-Search the web for current information. Use internal Drive materials where available.
+You are a strategy analyst and competitive intelligence expert at Navina AI.
+Produce executive-level competitive intelligence on **${c}** for ${persona}.
 
-FORMATTING RULES (follow strictly):
-- Use **bold labels** followed by a colon for named fields: **CEO:** Name, **Founded:** Year
-- Use bullet points (–) for lists. Never use a lone dash "-" on its own line as a separator.
-- Only use markdown tables for truly comparative/tabular data (2+ columns). Never use | pipes for single-column content.
-- Keep sections tight — no blank lines between a label and its value.
-- Do NOT repeat the section heading as the first line of content.
+FORMATTING RULES — follow strictly:
+– Use **bold labels:** for named fields. Example: **CEO:** Name
+– Use bullet points (–) for lists. Never use a lone "-" on its own line as a separator.
+– Use markdown tables only for comparative data (2+ real columns). Never | pipes | for single-column content.
+– Each bullet: max 15 words. One concrete fact per bullet.
+– No blank lines between a label and its value.
+– Mark anything unverified: "Unconfirmed"
 
-## COMPANY OVERVIEW
-**Founded:** · **HQ:** · **Funding:** total raised · **Latest Round:** amount, date, investors · **Headcount:** · **CEO:**
+WRITING RULES:
+– Executive-ready · structured · concise · direct · fact-based · easy to scan
+– No marketing language · no buzzwords · no generic claims · no long paragraphs
+– If a capability lacks clear evidence: say "unclear" or "not publicly confirmed" — do not speculate
+– Prioritize: workflow depth · product depth · integration depth · AI capabilities · commercial relevance
 
-## PRODUCT & CAPABILITIES
-**Core Function:** · **Key Modules:** · **AI/ML Approach:** · **Data Sources:** · **EHR Integrations:** · **Target Workflow:**
+RESEARCH SCOPE:
+${websiteScope}
+External: beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · modernhealthcare.com · businesswire.com · prnewswire.com · klasresearch.com · crunchbase.com · LinkedIn company page
 
-## TARGET MARKET
-**Buyer Type:** (health plans / ACOs / health systems / primary care) · **Contract Type:** · **Geographic Focus:**
+NAVINA-RELEVANT FOCUS — identify ${c}'s PRIMARY category first, then apply matching depth:
+– Ambient AI / Documentation → ambient docs · clinical workflows · voice · EHR embedding · push-to-EHR · coding support · chart Q&A · physician adoption · specialty coverage
+– Risk Adjustment / Coding → HCC workflows · RAF · CMS-HCC/HHS-HCC/RxHCC · prospective vs retrospective · CDI · chart review · audit · provider prompts · EHR+payer integrations
+– Population Health / VBC → care gaps · HEDIS/STARS · claims+clinical data · risk stratification · outreach · care management · quality programs
+– EHR / Workflow Platform → supported EHRs · embedded vs overlay · integration depth · bidirectional data · FHIR/APIs · native UI
 
-## CUSTOMERS & OUTCOMES
-**Named Customers:** list them. **Published KPIs:** table if available (Metric | Result | Source). **Scale:**
+==
 
-## STRENGTHS
-4–5 bullets — specific product capabilities, market position, or execution advantages
+## 1. What is ${c}?
 
-## WEAKNESSES
-4–5 bullets — product gaps, missing capabilities, customer complaints, structural limitations
+Sharp 55–80 word summary (ideal: 65–70 words). Cover: what they do · main product categories · core workflows · primary customers · notable customers or partnerships · funding · year founded · headcount.
+Style: clear, direct, non-marketing. No vague language.
 
-## RECENT NEWS (last 6–8 weeks)
-Search: ${newsUrl}
-Format each item: **[Month DD]** — Headline. 1 sentence of context. Source: [confirmed URL or "via [domain]"]
+==
 
-## ROADMAP SIGNALS
-– **Confirmed** (shipped/announced): item + source
-– **Strong signals** (job postings, beta, partnerships): item + evidence
-– **Speculative** (exec quotes, hiring patterns): item + basis
+## 2. Company Overview
 
-## COMPETITIVE THREAT TO NAVINA
-**Level:** High / Medium / Low — 2 sentences. Which deal types or segments are at risk?
+### General Info
 
-Mark unverified information as "Unconfirmed".${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+| Field | Details |
+|---|---|
+| Founded | |
+| HQ | City, State |
+| Employees | ~XX |
+| Total Funding | ~$XXM |
+| Latest Investment | Round · lead investor · date |
+| CEO | Name |
+
+### Target Market & Users
+**Buyers:** list only the specific buyer types that apply to ${c}
+**End Users:** list only the specific roles that apply to ${c}
+Do not list buyer types or roles that don't apply.
+
+### Pricing & Packaging
+**Model:** PMPM / PMPY / per-seat / enterprise contract
+**Add-ons:** only if publicly available
+**Estimated pricing:** only if supported by public evidence — otherwise omit entirely
+
+==
+
+## 3. Product Overview
+
+Divide into 2–3 main pillars. Under each: 3–4 capabilities.
+Each capability: ONE line · max 8–12 words · plain operational language · no marketing.
+Good: "Surfaces HCC gaps during visits with supporting evidence."
+Bad: "Leverages advanced AI to transform clinical documentation."
+
+==
+
+## 4. Strengths & Weaknesses
+
+### Strengths
+3–5 bullets. Real, specific capabilities only: workflow depth · integration depth · ROI evidence · differentiation · buyer alignment.
+Each bullet: max 15 words. No generic praise. Write fewer if only 2–3 real strengths exist.
+
+### Weaknesses
+3–5 bullets. Real, specific gaps: missing integrations · retrospective-only · weak physician engagement · limited data depth · no independent validation · unclear deployment maturity.
+Each bullet: max 15 words. Evidence: case studies · reviews · product limitations · customer feedback. Write fewer if only 2–3 real weaknesses exist.
+
+==
+
+## 5. Case Studies
+
+Review published case studies and customer stories. Summarize 2–4 examples.
+Format: – [Customer name or type] — [measurable outcome]. Source: [domain]
+Include: ROI metrics · workflow improvements · revenue impact · coding/compliance results.
+If no published case studies exist: write "No published case studies found." then list any available customer testimonials or outcome claims.
+
+==
+
+## 6. Positioning
+
+1–2 sentence positioning summary. Then bullets with actual phrases from their website/materials.
+Cover: how they describe themselves · who they sell to · operational problems they claim to solve · core ROI narrative.
+Style: quote-heavy · sharp · structured. No paragraphs.
+
+==
+
+## 7. Latest News
+
+${newsContext(c)}
+
+Timeframe: last 6–8 weeks. Extend to 90 days only for major announcements — always show the date.
+Prioritize for ${persona}: ${personaNewsFocus}
+Skip: generic thought leadership · vague AI messaging · event appearances · no concrete details.
+
+Format each item:
+**[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [confirmed URL or "via [domain]"]
+
+If fewer than 4 strong items exist, return fewer — do not pad.
+
+==
+
+## 8. Battlecard — ${c} vs. Navina
+
+### Snapshot
+3 bullets: core product in one line · funding & ownership · headcount
+
+### Capability Comparison
+
+| Capability | Navina | ${c} |
+|---|---|---|
+| Prospective HCC coding at point of care | ✓ | |
+| Unstructured data & NLP (scanned docs, hospital notes, HIE) | ✓ | |
+| Identifies new suspected conditions (not just recapture) | ✓ | |
+| Evidence-backed AI — every insight links to source document | ✓ | |
+| EHR-native workflow (no new portal for physician) | ✓ | |
+| Ambient documentation / clinical copilot | ✓ | |
+| Quality / HEDIS / Stars support | ✓ | |
+| Independent clinical studies | ✓ | |
+| Physician adoption & engagement | ✓ | |
+
+Rating scale: ✓ Strong · ~ Limited (add 1-line note) · ✗ No · ? Unknown/Unconfirmed
+
+### Where Navina Wins
+3–4 bullets. Each: specific dimension + KPI or proof point. Use verified data only.
+
+### Objections & Responses
+
+| Likely Objection | Navina Response | Proof Point |
+|---|---|---|
+| | | |
+
+3 most likely objections from ${persona}.
+
+### Discovery Questions
+– 3 questions that expose ${c}'s gaps in workflow or data depth
+– 2 trap questions ${c} will struggle to answer (e.g. physician engagement rate · prospective vs retrospective split · independent study results · audit risk)
+
+### Talk Track
+4 sentences max: pain → Navina solution → proof point → call to action. Tailored to ${persona}.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`;
   },
 
   'compare': (c, persona, notes) =>
