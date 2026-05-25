@@ -2726,6 +2726,229 @@ function copyDrivePrompt() {
   });
 }
 
+// ── Company Knowledge Base ────────────────────────────────────────────────────
+// Pre-written competitive summaries per company.
+// Injected into prompts via driveContext() to reduce AI research burden.
+// Update when major product changes, funding rounds, or strategic shifts occur.
+
+const COMPANY_KB = {
+
+  // ── HCC / Risk Adjustment ──────────────────────────────────────────────────
+
+  'Stanson Health': {
+    category: 'Risk Adjustment / Clinical Decision Support',
+    summary: `Stanson Health is a clinical decision support (CDS) platform acquired by Premier Inc. in 2020. Now branded under Premier's technology suite. Core product: AI-powered clinical alerts embedded in EHR workflows — flags inappropriate orders, supports HCC risk coding, and surfaces evidence-based recommendations at the point of care. Primarily retrospective workflow. Sells to health systems and hospitals. No ambient documentation capability.`,
+    key_facts: `– Acquired by Premier Inc. (2020) — not independent, part of a large GPO/technology company
+– EHR integrations: Epic, Cerner, and others via HL7/FHIR
+– Workflow: primarily retrospective HCC review + CDS alerts, not prospective point-of-care suspecting
+– No ambient AI / no note generation
+– Pricing: enterprise, typically bundled with Premier membership
+– Customers: large health systems, academic medical centers`,
+    vs_navina: `– Alert follow rate: 42–64% vs. Navina 90% HCC address rate
+– Capture rate: 26–40% vs. Navina 77% acceptance rate
+– Stanson relies on structured EHR data; Navina reads unstructured docs, scanned files, HIE, ambient
+– No suspecting engine for new diagnoses — primarily recapture of known codes
+– No independent clinical validation studies (PHYX/AAFP equivalent)
+– Being part of Premier limits go-to-market agility vs. purpose-built VBC platform`,
+  },
+
+  'Reveleer': {
+    category: 'Risk Adjustment / HCC / Chart Review',
+    summary: `Reveleer is a risk adjustment and quality management platform focused on retrospective HCC coding and chart review automation. Primarily serves health plans, payers, and risk-bearing organizations. Uses AI/NLP for bulk chart review — processing large volumes of records post-visit to identify missed HCC codes. Strong in the payer market but limited in point-of-care physician workflows. Does not integrate directly into EHR at the point of care.`,
+    key_facts: `– Founded: 2016 · HQ: Alpharetta, GA
+– Funding: ~$170M raised (Series D, Warburg Pincus lead)
+– ~300–400 employees
+– Core: retrospective chart review, HCC suspecting from claims+clinical data, quality/STARS
+– EHR: reads data but no bidirectional EHR-native push to physician at point of care
+– Contracts: historically 36-month rigid contracts (reported customer friction)
+– Customers: health plans, Medicare Advantage plans, ACOs
+– No ambient documentation capability`,
+    vs_navina: `– Retrospective only: processes charts after visits, not during physician encounter
+– No point-of-care clinician workflow — stops at back office / coding teams
+– No ambient AI / no note generation
+– 36-month rigid contracts reported vs. Navina's flexibility
+– Fragmented modules: separate tools for coding, quality, analytics
+– No independent clinical studies showing physician adoption or burnout reduction
+– Navina reaches the physician; Reveleer reaches the coder`,
+  },
+
+  'Keebler Health': {
+    category: 'Risk Adjustment',
+    summary: `Keebler Health is an early-stage risk adjustment startup offering HCC coding support for value-based care organizations. Very early in development — limited public information on product depth, customers, or outcomes. No ambient AI, no quality/HEDIS module, no named customers publicly confirmed.`,
+    key_facts: `– Stage: early/seed (~$7.8M raised)
+– Employees: ~20
+– No published case studies or outcome data
+– No quality/HEDIS module
+– No ambient documentation
+– No named enterprise customers confirmed publicly`,
+    vs_navina: `– Early stage with unproven product vs. Navina's production-scale platform (1,300+ clinics, 20,000+ clinicians)
+– No quality/HEDIS capability
+– No ambient documentation
+– No independent clinical validation
+– No named customers publicly confirmed`,
+  },
+
+  'Innovaccer': {
+    category: 'Population Health / VBC Data Platform',
+    summary: `Innovaccer is a health data platform focused on population health management and value-based care analytics. Core product: unified patient data aggregation from EHRs, claims, and social determinants — presented through a care management and analytics layer. Strong in data aggregation and back-office analytics. Limited in point-of-care physician workflow. Sells to health systems, ACOs, and payers. Unicorn valuation (~$1.3B).`,
+    key_facts: `– Founded: 2014 · HQ: San Francisco, CA
+– Funding: ~$375M raised · Valuation: ~$1.3B (unicorn)
+– ~1,000+ employees
+– Core: care management platform, population analytics, data aggregation (InData platform)
+– EHR integrations: Epic, Cerner, others — primarily data ingestion, limited bidirectional push
+– Workflow: back-office care teams, care managers, quality teams — not embedded in physician workflow
+– Customers: health systems, large physician groups, payers, ACOs
+– AI: predictive analytics, risk stratification, care gap identification`,
+    vs_navina: `– Stops at back office — does not reach physician at point of care with actionable, evidence-linked suggestions
+– Data aggregation strength vs. Navina's clinical intelligence at point of care
+– Much lower physician specificity — not built for the physician encounter workflow
+– No ambient documentation
+– No prospective HCC at point of care
+– No independent clinical study on physician adoption or burnout
+– Navina reaches the moment of clinical decision; Innovaccer reaches the data warehouse`,
+  },
+
+  'Persivia': {
+    category: 'Risk Adjustment / Population Health',
+    summary: `Persivia is a value-based care platform offering risk adjustment, care management, and population health analytics. Targets ACOs, health plans, and Medicare Advantage organizations. Provides both prospective and retrospective HCC workflows. Has care management module for complex patient outreach. Mid-market positioning with competitive pricing. Lower brand recognition than Innovaccer or Arcadia.`,
+    key_facts: `– HQ: Woburn, MA
+– Core: risk adjustment (prospective + retrospective), care management, population analytics
+– Customers: ACOs, Medicare Advantage, health systems
+– Workflow: both point-of-care provider alerts and retrospective coding support
+– EHR integrations: Epic, Cerner, others
+– Mid-market pricing vs. enterprise competitors`,
+    vs_navina: `– Limited unstructured data NLP vs. Navina's full-spectrum document ingestion
+– No ambient documentation
+– Limited physician engagement tools vs. Navina's EHR-native embedded workflow
+– No independent clinical studies
+– Smaller scale and brand recognition`,
+  },
+
+  // ── Ambient AI / Scribes ───────────────────────────────────────────────────
+
+  'Abridge': {
+    category: 'Ambient AI / Clinical Documentation',
+    summary: `Abridge is an AI ambient documentation platform focused on converting physician-patient conversations into structured clinical notes. Key partnership with UPMC (health system) and deep Epic integration. Raised significant funding and positioned as a premium ambient scribe. Strong in academic medical centers and large health systems. Documentation-only platform — no HCC risk adjustment, no care gaps, no quality/HEDIS, no population health.`,
+    key_facts: `– Founded: 2018 · HQ: Pittsburgh, PA
+– Funding: ~$212M raised (Series C, Spark Capital lead)
+– ~200 employees
+– Key partnerships: UPMC (anchor), Epic (deep integration in App Orchard)
+– Workflow: pre/during/post visit ambient capture → structured note → push to Epic
+– Specialties: broad (primary care, cardiology, oncology, etc.)
+– Pricing: per-seat subscription, enterprise deals
+– Note ready time: near real-time
+– No HCC coding / no risk adjustment / no care gaps / no quality module`,
+    vs_navina: `– Documentation only vs. Navina's full VBC platform (ambient + HCC + quality + analytics)
+– No prospective HCC at point of care — purely a transcription/documentation tool
+– No care gap identification or quality workflows
+– No unstructured data NLP across historical records — captures only current visit
+– Navina: ambient + evidence-backed HCC suspecting + quality = 3 revenue streams
+– Abridge replaces the scribe; Navina replaces the chart review + scribe + coding team
+– Abridge UPMC/Epic dependency vs. Navina's EHR-agnostic approach`,
+  },
+
+  'Ambience Healthcare': {
+    category: 'Ambient AI / Clinical Documentation',
+    summary: `Ambience Healthcare is an enterprise ambient AI documentation platform targeting large health systems. Focuses on real-time clinical note generation during patient encounters. Strong in complex specialties. Received investment from OpenAI and positions itself as an AI-native clinical documentation solution. Documentation-only — no HCC coding, no risk adjustment, no quality/HEDIS.`,
+    key_facts: `– Founded: 2020 · HQ: San Francisco, CA
+– Funding: ~$100M+ raised (OpenAI investment)
+– Core: enterprise ambient documentation, specialty coverage
+– Workflow: real-time ambient capture → specialty-specific structured notes
+– Target: large health systems, academic medical centers
+– Notable investors: OpenAI, Kleiner Perkins
+– No HCC / no risk adjustment / no quality module`,
+    vs_navina: `– Documentation only — no HCC, no risk adjustment, no quality
+– Enterprise-only motion (large health systems) vs. Navina's primary care + VBC focus
+– OpenAI backing adds AI credibility but not clinical outcome evidence
+– No independent clinical studies on physician adoption or outcomes
+– Navina delivers ambient + HCC + quality in one platform`,
+  },
+
+  'Suki': {
+    category: 'Ambient AI / Voice Assistant',
+    summary: `Suki is a voice-powered AI clinical assistant and ambient documentation platform. Offers both ambient note generation and a conversational voice interface for EHR navigation and clinical queries. Google-backed. Targets physician groups, health systems, and EHR vendors via white-label partnerships. Documentation and voice navigation only — no HCC risk adjustment, no care gaps, no quality/HEDIS.`,
+    key_facts: `– Founded: 2017 · HQ: Redwood City, CA
+– Funding: ~$165M raised (Google investment)
+– Core: ambient documentation + voice assistant for EHR interaction
+– Integrations: Epic, Cerner, Athena, eClinicalWorks, and others
+– White-label partnerships with EHR vendors
+– Pricing: per-seat subscription
+– No HCC / no risk adjustment / no quality module`,
+    vs_navina: `– Voice/documentation tool vs. Navina's full VBC platform
+– No HCC coding or risk adjustment
+– No care gap or quality workflows
+– Google backing brings distribution but not clinical depth
+– EHR white-label strategy means limited brand in direct sales
+– Navina uses ambient as one component of a broader clinical intelligence platform`,
+  },
+
+  'Nuance DAX': {
+    category: 'Ambient AI / Clinical Documentation (Microsoft)',
+    summary: `Nuance DAX (Dragon Ambient eXperience) is Microsoft's ambient clinical intelligence product, evolved from Dragon Medical dictation. Market leader in clinical documentation by scale. Deep Epic integration. Now rebranded as Microsoft Dragon Copilot, integrating Azure AI and Teams. Sells to large health systems and integrated delivery networks. Documentation-focused — limited in VBC-specific workflows like HCC coding or quality gap closure.`,
+    key_facts: `– Owner: Microsoft (acquired Nuance for $19.7B in 2021)
+– Product: Dragon Copilot (formerly DAX Copilot / DAX Express)
+– Scale: largest ambient documentation footprint in US healthcare
+– Integration: Epic (deep), Cerner, others
+– Distribution: Microsoft enterprise sales + direct
+– Pricing: enterprise, large health system contracts
+– AI: Azure OpenAI-powered
+– No dedicated HCC risk adjustment module
+– No care gap / quality / population health capability`,
+    vs_navina: `– Documentation giant vs. purpose-built VBC platform
+– Microsoft scale but healthcare-specific depth is limited
+– No prospective HCC at point of care
+– No care gap or quality workflows
+– Sells to large health systems; Navina focuses on VBC-aligned primary care groups/ACOs
+– Navina's independence vs. Microsoft's bundling with Teams/Azure = different buyer motion
+– No independent clinical studies on physician outcome improvement`,
+  },
+
+  // ── Population Health / VBC ────────────────────────────────────────────────
+
+  'Arcadia': {
+    category: 'Population Health / VBC Data Platform',
+    summary: `Arcadia is a population health analytics and VBC enablement platform focused on aggregating multi-source clinical and claims data for ACOs, health systems, and payers. Core product: data aggregation, analytics, and care management workflows. Strong in large network analytics and ACO reporting. Limited in point-of-care physician engagement — primarily a back-office/analytics tool.`,
+    key_facts: `– Founded: 2002 · HQ: Burlington, VT
+– Funding: ~$67M+ raised
+– ~400 employees
+– Core: data aggregation, population analytics, ACO reporting, quality/HEDIS tracking
+– Customers: ACOs, health systems, payers, government programs
+– EHR integrations: broad (Epic, Cerner, Athena, and many others)
+– Workflow: care management teams, quality teams, administrators — not physician-facing
+– No ambient documentation`,
+    vs_navina: `– Back-office analytics vs. Navina's point-of-care clinical intelligence
+– No physician-facing workflow or embedded EHR experience
+– No ambient documentation
+– No prospective HCC at point of care
+– Strong data aggregation; Navina wins on clinical action at the point of care
+– Arcadia is an analytics/reporting platform; Navina is a clinician workflow tool`,
+  },
+
+  // ── EHRs ──────────────────────────────────────────────────────────────────
+
+  'Epic Systems': {
+    category: 'EHR Platform / Clinical Decision Support',
+    summary: `Epic Systems is the dominant EHR vendor in the US, serving large health systems, academic medical centers, and integrated delivery networks. Offers native clinical decision support (CDS) tools including BPA (Best Practice Advisories) and Cosmos data network. Has its own ambient documentation module (Aura/NoteReader) and is building AI features. Navina competes as an overlay/partner — providing deeper HCC specificity, unstructured data NLP, and independent clinical validation that Epic's native tools lack.`,
+    key_facts: `– Founded: 1979 · HQ: Verona, WI
+– Private company · Estimated revenue: ~$4–5B/year
+– ~12,000 employees
+– Market share: ~35–40% of US hospital beds
+– EHR: dominant in large health systems, academic medical centers
+– CDS: BPA alerts — but high alert fatigue, low follow rates reported
+– Ambient: Epic Aura + NoteReader (basic) + DAX Copilot partnership
+– AI: Cosmos data + AI predictive tools (Sepsis, deterioration, readmission)
+– Navina is an Epic App Orchard partner`,
+    vs_navina: `– Epic BPA alert fatigue: reported follow rates 20–50% vs. Navina 90% address rate
+– Epic CDS: primarily structured data, limited unstructured NLP
+– Epic's HCC tools: recapture-focused, not suspecting new conditions
+– Epic builds horizontal — Navina built specifically for VBC/HCC specificity
+– Navina adds value ON TOP of Epic, not competing with core EHR functionality
+– Independent PHYX/AAFP studies validate Navina in Epic-native workflows
+– Epic's ambient (DAX partnership) is documentation only — no HCC, no care gaps`,
+  },
+
+};
+
 // ── Prompts per analysis type ──────────────────────────────────────────────
 
 const NAVINA_CORE = `You are Navina's Competitive Intelligence Analyst. Use the comprehensive Navina knowledge base below in every response. Ground all answers in specific KPIs, study data, or customer proof points.
@@ -2827,30 +3050,44 @@ vs. EHR tools (Epic CDS): Purpose-built for VBC. Unstructured NLP. Evidence-link
 
 
 function driveContext(c, analysis = '') {
-  const res = RESOURCES[c];
-  const links = [];
+  const res   = RESOURCES[c];
+  const kb    = COMPANY_KB[c];
+  const parts = [];
 
+  // ── 1. Pre-written company knowledge (if available) ──────────────────────
+  if (kb) {
+    let kbBlock = `INTERNAL KNOWLEDGE — ${c} (pre-researched, use as foundation):\n`;
+    kbBlock += `Category: ${kb.category}\n\n`;
+    kbBlock += `Summary:\n${kb.summary}\n\n`;
+    if (kb.key_facts)  kbBlock += `Key Facts:\n${kb.key_facts}\n`;
+    if (kb.vs_navina)  kbBlock += `\nKnown Competitive Notes vs. Navina:\n${kb.vs_navina}`;
+    parts.push(kbBlock);
+  }
+
+  // ── 2. Internal material links ────────────────────────────────────────────
+  const links = [];
   if (res) {
-    // Always include: text-readable content only
     if (res.notion)       links.push(`• ${res.notion.label}: ${res.notion.url}`);
     if (res.overview)     links.push(`• ${res.overview.label}: ${res.overview.url}`);
     if (res.demo_summary) links.push(`• ${res.demo_summary.label}: ${res.demo_summary.url}`);
-    // Battlecard for head-to-head use cases + deep-dive (which now includes battlecard section)
     const needsBattlecard = ['battlecard', 'compare', 'navina-wins', 'kpi', 'deep-dive'];
     if (res.battlecard && needsBattlecard.includes(analysis)) {
       links.push(`• ${res.battlecard.label}: ${res.battlecard.url}`);
     }
   }
+  if (links.length > 0) {
+    parts.push(`INTERNAL MATERIALS — open and read before searching the web:\n${links.join('\n')}`);
+  }
 
-  if (links.length === 0) return '';
+  if (parts.length === 0) return '';
 
-  return `RESEARCH PROCESS — follow in order:
-1. Open and read all internal materials listed below.
-2. Search the web for current information.
-3. Synthesize both into one integrated response — do not treat them separately.
+  return `${parts.join('\n\n')}
 
-INTERNAL MATERIALS:
-${links.join('\n')}`;
+RESEARCH PROCESS:
+1. Use the internal knowledge above as your foundation.
+2. Open any internal material links for additional depth.
+3. Search the web only for recent updates (news, new products, funding, leadership changes).
+4. Synthesize all sources into one integrated response.`;
 }
 
 function newsContext(c) {
