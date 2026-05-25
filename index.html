@@ -140,6 +140,7 @@
     cursor: pointer; border-radius: 6px;
     margin: 0 6px;
     transition: background 0.1s, color 0.1s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .competitor-item:hover { background: #f3f4f6; color: #374151; }
   .competitor-item.selected {
@@ -148,7 +149,7 @@
 
   /* ── Main content ── */
   .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .main-header { padding: 16px 40px 0; flex-shrink: 0; }
+  .main-header { flex-shrink: 0; } /* padding handled per-section */
 
   .page-header { margin-bottom: 12px; }
   .page-title { font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 6px; letter-spacing: -0.5px; }
@@ -271,49 +272,7 @@
     margin-right: 6px;
   }
 
-  /* ── Launch bar ── */
-  .launch-bar {
-    position: fixed;
-    bottom: 0; left: 216px; right: 0;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid #e5e7eb;
-    padding: 14px 40px;
-    display: flex; align-items: center; gap: 12px;
-    z-index: 50;
-  }
-  .btn-launch {
-    display: flex; align-items: center; gap: 8px;
-    padding: 11px 24px;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    border: none; border-radius: 10px;
-    color: #fff; font-size: 14px; font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 2px 8px rgba(79,70,229,0.3);
-    font-family: inherit;
-  }
-  .btn-launch:hover {
-    opacity: 0.92;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(79,70,229,0.35);
-  }
-  .btn-launch:active { transform: translateY(0); }
-  .btn-launch:disabled {
-    background: #e5e7eb; color: #9ca3af;
-    box-shadow: none; cursor: not-allowed; transform: none; opacity: 1;
-  }
-  .btn-copy {
-    display: flex; align-items: center; gap: 6px;
-    padding: 11px 18px;
-    background: #fff; border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    color: #374151; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s;
-    font-family: inherit;
-  }
-  .btn-copy:hover { background: #f9fafb; border-color: #d1d5db; }
-  .launch-hint { font-size: 12px; color: #9ca3af; margin-left: 4px; }
+  /* (launch-bar CSS removed — replaced by gen-composer footer) */
 
   /* ── Toast ── */
   .toast {
@@ -430,8 +389,8 @@
   /* ── Tab panels ── */
   .tab-panel { display: none; overflow: hidden; }
   .tab-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-  #panel-kb { overflow-y: auto; padding: 0 40px 40px; }
-  #panel-admin { overflow-y: auto; }
+  #panel-kb { overflow-y: auto; padding: 20px 40px 40px; }
+  #panel-admin { overflow-y: auto; padding: 24px 40px 40px; }
 
   /* ── Knowledge Base cards ── */
   .kb-empty-state {
@@ -845,7 +804,7 @@
     display: inline-flex; align-items: center; gap: 5px;
   }
   .gen-action-btn:hover { background: #f3f4f6; border-color: #d1d5db; color: #374151; }
-  .gen-action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .gen-action-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
   /* Generate button */
   .btn-generate {
@@ -970,14 +929,14 @@
   }
   .toggle-chevron svg { transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); }
 
-  /* Summary text shown when collapsed */
+  /* Summary text — dim when expanded, full opacity when collapsed */
   .toggle-summary {
     font-size: 12px; font-weight: 600; color: #6366f1;
-    opacity: 0; transition: opacity 0.2s;
+    opacity: 0.35; transition: opacity 0.2s;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .panel-collapsed .toggle-summary { opacity: 1; }
-  .toggle-dot { color: #d1d5db; font-size: 14px; opacity: 0; transition: opacity 0.2s; }
+  .toggle-dot { color: #d1d5db; font-size: 14px; opacity: 0.35; transition: opacity 0.2s; }
   .panel-collapsed .toggle-dot { opacity: 1; }
 
   /* Rotate chevron when collapsed */
@@ -1856,6 +1815,7 @@ function newConversation() {
   selectedAnalysis = null;
   const hint = document.getElementById('multi-select-hint');
   if (hint) hint.classList.remove('active');
+  // Keep persona selection — it's a persistent preference, no reset needed
   // Re-expand both panels
   document.getElementById('main-header')?.classList.remove('panel-collapsed');
   document.getElementById('gen-options-bar')?.classList.remove('panel-collapsed');
@@ -2059,7 +2019,8 @@ function renderAdminPanel({ logins, usage }) {
   const analysisLabelsMap = {
     battlecard:'Battlecard', 'deep-dive':'Deep Dive', compare:'Compare',
     sw:'S&W Analysis', news:'Latest News', roadmap:'Roadmap Signals',
-    kpi:'KPI Comparison', 'exec-brief':'Exec Brief', 'navina-wins':'Where Navina Wins',
+    'product-overview':'Product Overview', kpi:'KPI Comparison',
+    'exec-brief':'Exec Brief', 'navina-wins':'Where Navina Wins',
   };
   const topAnalMap = {};
   usage.forEach(e => {
@@ -2364,86 +2325,26 @@ function selectTemplate(el, type) {
   const hint = document.getElementById('multi-select-hint');
   if (hint) hint.classList.toggle('active', isMulti);
 
-  // If switching to single-select mode, drop extras
+  // If switching to single-select mode, drop extras and refresh competitor display
   if (!isMulti && extraCompetitors.length > 0) {
     extraCompetitors = [];
     document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('multi-selected'));
+    // Refresh competitor display chips
     const all = allSelectedCompetitors();
+    const svg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+    document.getElementById('competitor-display').innerHTML = all.length === 0
+      ? `<div class="placeholder-chip"><span>←</span> Select a competitor from the sidebar</div>`
+      : all.map(c => `<div class="selected-chip" style="margin-right:4px">${svg}${escHtml(c)}</div>`).join('');
     const countEl = document.getElementById('multi-select-count');
     if (countEl) countEl.textContent = all.length;
+    updateHeaderSummary();
   }
 
-  updatePreview();
   updateOptionsSummary();
   checkReady();
 }
 
-// ── Suggested Questions (NotebookLM-style) ───────────────────────────────────
-const COMPETITOR_CATEGORY = {
-  'Reveleer':'hcc','Stanson Health':'hcc','Foresee Medical':'hcc','Keebler Health':'hcc',
-  'Evidently':'hcc','Inferscience':'hcc','Charta Health':'hcc','MedChartScan':'hcc',
-  'Innovaccer':'pophealth','Persivia':'pophealth','Arcadia':'pophealth','The Garage':'pophealth',
-  'Health Catalyst':'pophealth','Lightbeam Health':'pophealth','Azara Healthcare':'pophealth','Fold Health':'pophealth',
-  'Abridge':'ambient','Ambience Healthcare':'ambient','Suki':'ambient','Nuance DAX':'ambient',
-  'Nabla':'ambient','Heidi':'ambient','Marvix AI':'ambient','Freed AI':'ambient',
-  'Epic Systems':'ehr','Athenahealth':'ehr','eClinicalWorks':'ehr',
-  'Raapid':'payer','Vertexa Health':'payer','Pareto Intelligence':'payer','GeBBS':'payer',
-};
-
-const CATEGORY_QUESTIONS = {
-  hcc: c => [
-    `What are ${c}'s latest product updates in HCC coding and risk adjustment?`,
-    `How does ${c} approach retrospective vs prospective HCC coding — and how does Navina compare?`,
-    `What customers has ${c} recently won and why? Any notable win or loss patterns?`,
-    `How should a Navina sales rep handle a deal where ${c} is already the incumbent?`,
-  ],
-  pophealth: c => [
-    `What is ${c}'s approach to care gap closure and population health analytics?`,
-    `How does ${c} handle EHR integration and multi-source data ingestion?`,
-    `Which customer segments does ${c} primarily target — payers, providers, or ACOs?`,
-    `Where does Navina win against ${c} — what are the key differentiators in a head-to-head deal?`,
-  ],
-  ambient: c => [
-    `What are ${c}'s EHR integrations, specialty coverage, and accuracy claims?`,
-    `How does ${c} address AI hallucination risk and clinical documentation quality?`,
-    `What is ${c}'s business model, pricing, and typical customer profile?`,
-    `How does Navina's ambient AI approach differentiate from ${c}?`,
-  ],
-  ehr: c => [
-    `How does ${c} compete in AI-powered clinical decision support and HCC coding?`,
-    `What is ${c}'s recent AI strategy — acquisitions, partnerships, or native tools?`,
-    `What are ${c}'s key weaknesses from a Navina competitive perspective?`,
-    `How do Navina customers typically integrate alongside ${c}?`,
-  ],
-  payer: c => [
-    `What is ${c}'s core product and primary use case in the payer market?`,
-    `How does ${c}'s approach compare to Navina's payer-facing solutions?`,
-    `What are ${c}'s recent wins, partnerships, or funding events?`,
-    `What are ${c}'s biggest weaknesses that Navina can leverage in competitive deals?`,
-  ],
-  default: c => [
-    `What are ${c}'s key product strengths and primary differentiators?`,
-    `What is the latest news about ${c} — funding, product launches, or partnerships?`,
-    `What are ${c}'s biggest weaknesses that Navina can exploit in deals?`,
-    `How would you create a compelling Navina win narrative against ${c}?`,
-  ],
-  none: () => [
-    `What's the competitive landscape for HCC coding and risk adjustment in 2025?`,
-    `Compare Navina vs Innovaccer vs Arcadia in population health management`,
-    `What are the most common competitive objections Navina faces and how to handle them?`,
-    `Give me a competitive landscape of the ambient AI scribe market: Abridge, Suki, Nuance DAX, Freed AI`,
-  ],
-};
-
-function renderSuggestedQuestions() { /* removed — Joey doesn't show suggested questions */ }
-
-function selectAnalysis(el, type) {
-  document.querySelectorAll('.analysis-card').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('.gen-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedAnalysis = type;
-  updatePreview(); checkReady();
-}
+// (Suggested questions and selectAnalysis removed — Joey uses free-form + templates)
 
 async function handleComposerSend() {
   if (isGenerating) return;
@@ -2530,17 +2431,25 @@ function selectPersona(el, persona) {
 function checkReady() {
   const hasComp = allSelectedCompetitors().length > 0;
   const hasText = (document.getElementById('notes-input')?.value.trim().length > 0);
+  const hasTemplate = !!(hasComp && selectedAnalysis);
   // Send enabled when: text present (free-form), OR competitor + use case selected (template mode)
-  const canSend = hasText || !!(hasComp && selectedAnalysis);
+  const canSend = hasText || hasTemplate;
   const sendBtn = document.getElementById('gen-composer-send');
   if (sendBtn) sendBtn.disabled = !canSend;
+  // Generate button: label changes based on mode
   const genBtn = document.getElementById('btn-generate');
-  if (genBtn && !isGenerating) genBtn.disabled = !canSend;
-  const launchReady = !!(hasComp && selectedAnalysis);
+  if (genBtn && !isGenerating) {
+    genBtn.disabled = !canSend;
+    const isFreeForm = hasText && !hasTemplate;
+    genBtn.innerHTML = isFreeForm
+      ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg> Ask Joey`
+      : `${_GEN_ICON} Generate Intel`;
+  }
+  // Launch and copy enabled whenever we can send (free-form or template)
   const launchBtn = document.getElementById('btn-launch');
-  const driveBtn = document.getElementById('btn-drive');
-  if (launchBtn) launchBtn.disabled = !launchReady;
-  if (driveBtn) driveBtn.disabled = !launchReady;
+  const driveBtn  = document.getElementById('btn-drive');
+  if (launchBtn) launchBtn.disabled = !hasTemplate; // Drive/Launch still need template
+  if (driveBtn)  driveBtn.disabled  = !hasTemplate;
   // Update multi-select counter
   const countEl = document.getElementById('multi-select-count');
   if (countEl) countEl.textContent = allSelectedCompetitors().length;
@@ -3260,27 +3169,10 @@ const analysisLabels = {
   'kpi':'KPI Comparison','exec-brief':'Exec Brief','navina-wins':'Where Navina Wins'
 };
 
-function buildPrompt() {
-  if (!selectedCompetitor || !selectedAnalysis) return '';
-  const notes = document.getElementById('notes-input').value.trim();
-  return PROMPTS[selectedAnalysis](selectedCompetitor, selectedPersona, notes);
-}
+// buildPrompt is an alias for buildFullPrompt (multi-select aware)
+function buildPrompt() { return buildFullPrompt(); }
 
-function updatePreview() {
-  const box = document.getElementById('preview-box');
-  if (!box) return;
-  if (!selectedCompetitor || !selectedAnalysis) {
-    box.textContent = 'Select a competitor and analysis type to preview the prompt...';
-    return;
-  }
-  const notes = document.getElementById('notes-input').value.trim();
-  box.innerHTML =
-    `<span class="tag">${analysisLabels[selectedAnalysis]}</span>` +
-    `<span class="tag">${selectedCompetitor}</span>` +
-    `<span class="tag">${selectedPersona}</span>` +
-    (notes ? `<span class="tag">+ context</span>` : '') +
-    `\n\nPrompt ready — click "Open in Claude.ai" to launch`;
-}
+function updatePreview() { /* no-op — preview-box removed from UI */ }
 
 function launch() {
   const prompt = buildPrompt();
@@ -3339,7 +3231,9 @@ function initAuth() {
 }
 
 function handleCredential(response) {
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  // base64url → base64 before decoding (JWT uses url-safe alphabet)
+  const b64 = response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+  const payload = JSON.parse(atob(b64));
   const { email, name, picture } = payload;
   const errEl = document.getElementById('auth-error');
 
