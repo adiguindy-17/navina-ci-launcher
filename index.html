@@ -1212,7 +1212,10 @@
           </button>
         </div>
         <div class="gen-composer-footer">
-          <span class="gen-composer-hint" id="launch-hint">Type a question or select a competitor + use case above</span>
+          <button class="btn-generate" id="btn-generate" onclick="handleComposerSend()" disabled title="Type a question or select a competitor + use case">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Generate Intel
+          </button>
           <div class="gen-composer-actions">
             <button class="gen-action-btn" id="btn-launch" onclick="launch()" disabled>↗ Open in Claude.ai</button>
             <button class="gen-action-btn" id="btn-drive" onclick="openDriveModal()" disabled>📁 Create in Drive</button>
@@ -1540,6 +1543,18 @@ async function logLogin(user) {
 // ── Chat state ────────────────────────────────────────────────────────────────
 let chatHistory  = []; // [{role, content}]
 let isGenerating = false;
+const _GEN_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+const _SPIN_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg>`;
+const _ARROW_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
+const _ARROW_SPIN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg>`;
+function setGenerating(on) {
+  isGenerating = on;
+  const sendBtn = document.getElementById('gen-composer-send');
+  const genBtn  = document.getElementById('btn-generate');
+  if (sendBtn) { sendBtn.disabled = on; sendBtn.innerHTML = on ? _ARROW_SPIN : _ARROW_ICON; }
+  if (genBtn)  { genBtn.disabled  = on; genBtn.innerHTML  = on ? `${_SPIN_ICON} Generating...` : `${_GEN_ICON} Generate Intel`; }
+  if (!on) checkReady();
+}
 let lastAIResponse = '';
 
 // ── Main generate function ────────────────────────────────────────────────────
@@ -1585,39 +1600,24 @@ async function generateWithAI() {
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 
-  // Disable send button
-  isGenerating = true;
-  const sendBtn = document.getElementById('gen-composer-send');
-  sendBtn.disabled = true;
-  sendBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg>';
-
+  setGenerating(true);
   try {
     const reply = await callClaudeAPI(chatHistory);
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
-
-    // Remove thinking
     document.getElementById(thinkingId)?.remove();
     appendChatMessage('assistant', reply);
-
-    // Show new-chat button, clear & focus composer
     document.getElementById('btn-new-chat').style.display = 'inline-flex';
     document.getElementById('notes-input').value = '';
     document.getElementById('notes-input').style.height = 'auto';
     document.getElementById('notes-input').focus();
-
-    // Log usage
     logUsage();
-
   } catch (err) {
     document.getElementById(thinkingId)?.remove();
     messagesEl.insertAdjacentHTML('beforeend',
       `<div class="chat-error">⚠️ Error: ${escHtml(err.message)}<br><small>Check that the Cloudflare Worker has the ANTHROPIC_API_KEY secret set.</small></div>`);
   } finally {
-    isGenerating = false;
-    sendBtn.disabled = false;
-    sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
-    checkReady();
+    setGenerating(false);
   }
 }
 
@@ -1647,10 +1647,7 @@ async function sendFollowUp() {
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 
-  isGenerating = true;
-  const sendBtn = document.getElementById('gen-composer-send');
-  sendBtn.disabled = true;
-
+  setGenerating(true);
   try {
     const reply = await callClaudeAPI(chatHistory);
     lastAIResponse = reply;
@@ -1662,10 +1659,8 @@ async function sendFollowUp() {
     messagesEl.insertAdjacentHTML('beforeend',
       `<div class="chat-error">⚠️ ${escHtml(err.message)}</div>`);
   } finally {
-    isGenerating = false;
-    sendBtn.disabled = false;
+    setGenerating(false);
     input.focus();
-    checkReady();
   }
 }
 
@@ -2453,10 +2448,7 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
       </div>
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
-  isGenerating = true;
-  const sendBtn = document.getElementById('gen-composer-send');
-  sendBtn.disabled = true;
-  sendBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg>';
+  setGenerating(true);
   try {
     const reply = await callClaudeAPI(chatHistory);
     lastAIResponse = reply;
@@ -2469,10 +2461,7 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
     document.getElementById(thinkingId)?.remove();
     messagesEl.insertAdjacentHTML('beforeend', `<div class="chat-error">⚠️ Error: ${escHtml(err.message)}</div>`);
   } finally {
-    isGenerating = false;
-    sendBtn.disabled = false;
-    sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
-    checkReady();
+    setGenerating(false);
   }
 }
 
@@ -2492,13 +2481,13 @@ function checkReady() {
   const canSend = hasText || !!(hasComp && selectedAnalysis);
   const sendBtn = document.getElementById('gen-composer-send');
   if (sendBtn) sendBtn.disabled = !canSend;
+  const genBtn = document.getElementById('btn-generate');
+  if (genBtn && !isGenerating) genBtn.disabled = !canSend;
   const launchReady = !!(hasComp && selectedAnalysis);
   const launchBtn = document.getElementById('btn-launch');
   const driveBtn = document.getElementById('btn-drive');
   if (launchBtn) launchBtn.disabled = !launchReady;
   if (driveBtn) driveBtn.disabled = !launchReady;
-  const hint = document.getElementById('launch-hint');
-  if (hint) hint.style.display = canSend ? 'none' : 'inline';
   // Update multi-select counter
   const countEl = document.getElementById('multi-select-count');
   if (countEl) countEl.textContent = allSelectedCompetitors().length;
