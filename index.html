@@ -1370,7 +1370,7 @@ async function generateWithAI() {
 
   // Build prompt + pre-fetch internal content
   const rawPrompt = buildFullPrompt();
-  const prompt = await enrichPromptWithContent(rawPrompt);
+  const { prompt, sourcesLoaded } = await enrichPromptWithContent(rawPrompt);
   chatHistory = [{ role: 'user', content: prompt }];
 
   // Update context label
@@ -1401,7 +1401,7 @@ async function generateWithAI() {
       </div>
       <div class="chat-thinking-body">
         <div class="chat-dots"><span></span><span></span><span></span></div>
-        Searching and analyzing ${escHtml(selectedCompetitor)}...
+        ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Searching and analyzing ${escHtml(selectedCompetitor)}...
       </div>
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -1699,6 +1699,7 @@ async function fetchURLContent(url) {
 
 async function enrichPromptWithContent(prompt) {
   const sections = [];
+  const sourcesLoaded = [];
 
   // ── Notion URLs → use /notion-page API ──────────────
   const notionPattern = /https:\/\/www\.notion\.so\/[^\s\n)"]+/g;
@@ -1710,6 +1711,7 @@ async function enrichPromptWithContent(prompt) {
     const content = await fetchNotionContent(pageId);
     if (content && content.length > 100) {
       sections.push(`### Notion Page\n${content.slice(0, 4000)}`);
+      sourcesLoaded.push('Notion');
     }
   }));
 
@@ -1724,11 +1726,15 @@ async function enrichPromptWithContent(prompt) {
                   : url.includes('document')     ? 'Document'
                   : 'Drive File';
       sections.push(`### ${label}\n${content.slice(0, 3000)}`);
+      sourcesLoaded.push(label);
     }
   }));
 
-  if (sections.length === 0) return prompt;
-  return prompt + '\n\n---\n## PRE-FETCHED INTERNAL CONTENT (read this first)\n' + sections.join('\n\n');
+  const enrichedPrompt = sections.length === 0
+    ? prompt
+    : prompt + '\n\n---\n## PRE-FETCHED INTERNAL CONTENT (read this first)\n' + sections.join('\n\n');
+
+  return { prompt: enrichedPrompt, sourcesLoaded };
 }
 
 async function logUsage() {
