@@ -925,56 +925,65 @@
   }
   .sidebar-resize-handle:hover, .sidebar-resize-handle.dragging { background: rgba(79,70,229,0.25); }
 
-  /* ── Collapsible main-header ── */
-  .main-header { position: relative; padding-bottom: 0; }
-  .main-header-collapsible {
-    overflow: hidden;
-    transition: max-height 0.25s ease, opacity 0.2s ease;
-    max-height: 180px; opacity: 1;
-  }
-  .main-header.collapsed .main-header-collapsible { max-height: 0; opacity: 0; }
-  .header-collapse-btn {
-    position: absolute; top: 10px; right: 12px;
-    width: 24px; height: 24px; border-radius: 6px;
-    background: #f3f4f6; border: 1px solid #e5e7eb;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    color: #9ca3af; transition: all 0.15s; padding: 0;
-  }
-  .header-collapse-btn:hover { background: #eef2ff; color: #4338ca; border-color: #a5b4fc; }
-  .header-collapse-btn svg { transition: transform 0.2s; }
-  .main-header.collapsed .header-collapse-btn svg { transform: rotate(180deg); }
+  /* ══════════════════════════════════════════════
+     Collapsible panels — shared toggle pattern
+  ══════════════════════════════════════════════ */
 
-  /* ── Collapsible gen-options-bar ── */
-  .gen-options-toggle-row {
+  /* Toggle strip — always visible, full-width clickable row */
+  .panel-toggle {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 5px 32px 5px; cursor: pointer; user-select: none;
-    flex-shrink: 0;
+    cursor: pointer; user-select: none; flex-shrink: 0;
+    transition: background 0.15s;
   }
-  .gen-options-toggle-row:hover { background: #fafafa; }
-  .gen-options-summary {
-    font-size: 10px; font-weight: 700; color: #b0b9c8;
-    text-transform: uppercase; letter-spacing: 0.07em;
-  }
-  .gen-options-summary em { font-style: normal; color: #4338ca; font-weight: 700; }
-  .options-collapse-btn {
-    width: 20px; height: 20px; border-radius: 5px;
-    background: transparent; border: none; cursor: pointer;
+  .panel-toggle:hover { background: #f8f9ff; }
+  .panel-toggle:hover .toggle-chevron { background: #eef2ff; color: #4338ca; }
+  .panel-toggle-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .panel-toggle-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  /* Chevron icon button */
+  .toggle-chevron {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: #f3f4f6; border: none;
     display: flex; align-items: center; justify-content: center;
-    color: #c4cdd8; transition: all 0.15s; padding: 0;
+    color: #9ca3af; transition: background 0.15s, color 0.15s; flex-shrink: 0;
   }
-  .options-collapse-btn:hover { background: #f3f4f6; color: #4338ca; }
-  .options-collapse-btn svg { transition: transform 0.2s; }
-  .gen-options-bar.collapsed .options-collapse-btn svg { transform: rotate(180deg); }
-  .gen-options-content {
+  .toggle-chevron svg { transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Summary text shown when collapsed */
+  .toggle-summary {
+    font-size: 12px; font-weight: 600; color: #6366f1;
+    opacity: 0; transition: opacity 0.2s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .panel-collapsed .toggle-summary { opacity: 1; }
+  .toggle-dot { color: #d1d5db; font-size: 14px; opacity: 0; transition: opacity 0.2s; }
+  .panel-collapsed .toggle-dot { opacity: 1; }
+
+  /* Rotate chevron when collapsed */
+  .panel-collapsed .toggle-chevron svg { transform: rotate(180deg); }
+
+  /* Collapsible body */
+  .panel-body {
     overflow: hidden;
-    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
-    max-height: 200px; opacity: 1;
-    display: flex; flex-direction: column; gap: 7px;
-    padding: 2px 32px 10px;
+    transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+    opacity: 1;
   }
-  .gen-options-bar.collapsed .gen-options-content { max-height: 0; opacity: 0; padding-bottom: 0; padding-top: 0; }
-  /* override old gen-options-bar padding since content div now handles it */
-  .gen-options-bar { padding: 0 !important; gap: 0 !important; }
+  .panel-collapsed .panel-body { opacity: 0; }
+
+  /* ── Main header panel ── */
+  .main-header { padding: 0; }
+  .header-toggle { padding: 9px 40px; border-bottom: 1px solid #f3f4f6; }
+  .header-toggle-title { font-size: 13px; font-weight: 700; color: #374151; letter-spacing: -0.2px; white-space: nowrap; }
+  .header-body { padding: 14px 40px 0; max-height: 160px; }
+  .main-header.panel-collapsed .header-body { max-height: 0; padding-top: 0; }
+
+  /* ── Options bar panel ── */
+  .gen-options-bar { padding: 0; border-bottom: 1px solid #f3f4f6; background: #fff; }
+  .options-toggle { padding: 7px 32px; border-bottom: 1px solid transparent; }
+  .gen-options-bar.panel-collapsed .options-toggle { border-bottom-color: transparent; }
+  .options-toggle-label { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .options-body { padding: 5px 32px 10px; max-height: 150px; display: flex; flex-direction: column; gap: 7px; }
+  .gen-options-bar.panel-collapsed .options-body { max-height: 0; padding-top: 0; padding-bottom: 0; }
 </style>
 </head>
 <body>
@@ -1078,13 +1087,26 @@
 
     <div class="main-header" id="main-header">
 
-      <!-- Collapsible: title + competitor selector -->
-      <div class="main-header-collapsible" id="main-header-collapsible">
+      <!-- Toggle strip — always visible -->
+      <div class="panel-toggle header-toggle" onclick="toggleHeaderCollapse()">
+        <div class="panel-toggle-left">
+          <span class="header-toggle-title">Navina CI Platform</span>
+          <span class="toggle-dot">·</span>
+          <span class="toggle-summary" id="header-toggle-summary"></span>
+        </div>
+        <div class="panel-toggle-right">
+          <div class="toggle-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsible body -->
+      <div class="panel-body header-body">
         <div class="page-header">
           <div class="page-title">Navina CI Platform</div>
           <div class="page-sub">Your competitive intelligence workspace — browse existing materials or generate new AI-powered analysis.</div>
         </div>
-        <!-- Competitor Header -->
         <div class="competitor-header">
           <div class="competitor-header-left">
             <div class="competitor-header-title">Selected Competitor</div>
@@ -1095,7 +1117,7 @@
         </div>
       </div>
 
-      <!-- Pillar Tabs (always visible) -->
+      <!-- Pillar Tabs — always visible -->
       <div class="pillar-tabs">
         <button class="pillar-tab" id="tab-kb" onclick="switchTab('kb')">
           <span class="pillar-tab-icon">📚</span>
@@ -1113,11 +1135,6 @@
           <span class="pillar-tab-desc">Analytics dashboard</span>
         </button>
       </div>
-
-      <!-- Collapse toggle -->
-      <button class="header-collapse-btn" id="header-collapse-btn" onclick="toggleHeaderCollapse()" title="Collapse header">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-      </button>
 
     </div><!-- /.main-header -->
 
@@ -1137,15 +1154,23 @@
 
       <!-- Options bar (collapsible) -->
       <div class="gen-options-bar" id="gen-options-bar">
-        <!-- Toggle row - always visible -->
-        <div class="gen-options-toggle-row" onclick="toggleOptionsCollapse()">
-          <span class="gen-options-summary" id="gen-options-summary">Use Case &amp; Role</span>
-          <button class="options-collapse-btn" id="options-collapse-btn" title="Collapse filters">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
+
+        <!-- Toggle strip — always visible -->
+        <div class="panel-toggle options-toggle" onclick="toggleOptionsCollapse()">
+          <div class="panel-toggle-left">
+            <span class="options-toggle-label">Use Case &amp; Role</span>
+            <span class="toggle-dot">·</span>
+            <span class="toggle-summary" id="options-toggle-summary"></span>
+          </div>
+          <div class="panel-toggle-right">
+            <div class="toggle-chevron">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            </div>
+          </div>
         </div>
-        <!-- Collapsible content -->
-        <div class="gen-options-content" id="gen-options-content">
+
+        <!-- Collapsible body -->
+        <div class="panel-body options-body">
           <div class="gen-opt-row">
             <span class="gen-opt-label">Use case</span>
             <div class="gen-template-chips" id="gen-template-chips">
@@ -1177,6 +1202,7 @@
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- Chat area -->
@@ -1806,9 +1832,11 @@ function newConversation() {
   selectedAnalysis = null;
   const hint = document.getElementById('multi-select-hint');
   if (hint) hint.classList.remove('active');
-  // Re-expand options bar
-  const bar = document.getElementById('gen-options-bar');
-  if (bar) { bar.classList.remove('collapsed'); updateOptionsSummary(); }
+  // Re-expand both panels
+  document.getElementById('main-header')?.classList.remove('panel-collapsed');
+  document.getElementById('gen-options-bar')?.classList.remove('panel-collapsed');
+  updateHeaderSummary();
+  updateOptionsSummary();
   checkReady();
 }
 
@@ -2297,6 +2325,7 @@ function selectCompetitor(el, name) {
   if (countEl) countEl.textContent = all.length;
 
   updatePreview();
+  updateHeaderSummary();
   checkReady();
 }
 
@@ -3349,46 +3378,43 @@ function signOut() {
   });
 })();
 
-// Collapsible main-header (title + competitor selector)
+// ── Collapsible panels ────────────────────────────────────────────────────────
+
 function toggleHeaderCollapse() {
-  const header = document.getElementById('main-header');
-  header.classList.toggle('collapsed');
-  const btn = document.getElementById('header-collapse-btn');
-  btn.title = header.classList.contains('collapsed') ? 'Expand header' : 'Collapse header';
+  document.getElementById('main-header').classList.toggle('panel-collapsed');
+  updateHeaderSummary();
 }
 
-// Collapsible gen-options-bar (use case + role chips)
 function toggleOptionsCollapse() {
-  const bar = document.getElementById('gen-options-bar');
-  bar.classList.toggle('collapsed');
+  document.getElementById('gen-options-bar').classList.toggle('panel-collapsed');
   updateOptionsSummary();
 }
 
-function updateOptionsSummary() {
-  const bar = document.getElementById('gen-options-bar');
-  const el  = document.getElementById('gen-options-summary');
+function updateHeaderSummary() {
+  const el = document.getElementById('header-toggle-summary');
   if (!el) return;
-  if (bar && bar.classList.contains('collapsed')) {
-    const useCasePart = selectedAnalysis
-      ? `<em>${(analysisLabels[selectedAnalysis] || selectedAnalysis)}</em>`
-      : 'Use Case';
-    const rolePart = selectedPersona
-      ? `<em>${selectedPersona.split(' ')[0]}</em>`
-      : 'Role';
-    el.innerHTML = useCasePart + ' · ' + rolePart;
-  } else {
-    el.innerHTML = 'Use Case &amp; Role';
-  }
+  const comps = allSelectedCompetitors();
+  el.textContent = comps.length > 0 ? comps.join(', ') : 'No competitor selected';
 }
 
-// Auto-collapse options when chat starts, re-expand on new chat
-function collapseOptionsOnChatStart() {
-  const bar = document.getElementById('gen-options-bar');
-  if (bar && !bar.classList.contains('collapsed')) {
-    bar.classList.add('collapsed');
-    updateOptionsSummary();
-  }
+function updateOptionsSummary() {
+  const el = document.getElementById('options-toggle-summary');
+  if (!el) return;
+  const parts = [];
+  if (selectedAnalysis && analysisLabels[selectedAnalysis]) parts.push(analysisLabels[selectedAnalysis]);
+  if (selectedPersona) parts.push(selectedPersona.split(' ')[0]);
+  el.textContent = parts.length > 0 ? parts.join(' · ') : 'Sales';
 }
+
+function collapseOnChatStart() {
+  document.getElementById('main-header')?.classList.add('panel-collapsed');
+  document.getElementById('gen-options-bar')?.classList.add('panel-collapsed');
+  updateHeaderSummary();
+  updateOptionsSummary();
+}
+
+// Keep old name as alias so existing calls still work
+function collapseOptionsOnChatStart() { collapseOnChatStart(); }
 
 // Init
 checkReady();
