@@ -148,9 +148,9 @@
 
   /* ── Main content ── */
   .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .main-header { padding: 28px 40px 0; flex-shrink: 0; }
+  .main-header { padding: 16px 40px 0; flex-shrink: 0; }
 
-  .page-header { margin-bottom: 32px; }
+  .page-header { margin-bottom: 12px; }
   .page-title { font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 6px; letter-spacing: -0.5px; }
   .page-sub { font-size: 14px; color: #6b7280; line-height: 1.5; }
 
@@ -496,7 +496,7 @@
   /* ── Competitor header ── */
   .competitor-header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 24px; padding-bottom: 20px;
+    margin-bottom: 10px; padding-bottom: 10px;
     border-bottom: 1px solid #f3f4f6;
   }
   .competitor-header-left { display: flex; flex-direction: column; gap: 4px; }
@@ -767,25 +767,34 @@
   .gen-welcome-header { display: flex; align-items: center; gap: 8px; }
   .gen-welcome-icon { font-size: 18px; }
   .gen-welcome-title { font-size: 15px; font-weight: 600; color: #374151; }
-  .gen-quick-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 8px;
+  /* suggested questions */
+  .gen-quick-grid { display: flex; flex-direction: column; gap: 8px; }
+  .gen-suggested-q {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 16px; background: #fff;
+    border: 1.5px solid #e5e7eb; border-radius: 10px;
+    cursor: pointer; transition: all 0.15s;
+    font-size: 13px; color: #374151; line-height: 1.5;
+    text-align: left;
   }
-  .gen-quick-card {
-    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 12px;
-    padding: 12px 14px; cursor: pointer; transition: all 0.15s;
-    display: flex; flex-direction: column; gap: 5px;
+  .gen-suggested-q svg { flex-shrink: 0; margin-top: 2px; color: #c4c9d4; }
+  .gen-suggested-q:hover { border-color: #a5b4fc; background: #f5f3ff; color: #4338ca; }
+  .gen-suggested-q:hover svg { color: #a5b4fc; }
+
+  /* multi-select */
+  .competitor-item.multi-selected { background: #eef2ff; color: #4338ca; font-weight: 600; }
+  .competitor-item.multi-selected::before { content: '✓ '; font-size: 10px; }
+  .multi-select-hint {
+    display: none; align-items: center; gap: 6px;
+    padding: 5px 10px; background: #eef2ff; border-radius: 6px;
+    font-size: 11px; font-weight: 600; color: #4338ca;
+    margin-left: auto;
   }
-  .gen-quick-card:hover {
-    border-color: #a5b4fc; background: #f5f3ff;
-    box-shadow: 0 2px 10px rgba(79,70,229,0.09);
+  .multi-select-hint.active { display: flex; }
+  .multi-select-count {
+    background: #4f46e5; color: #fff; border-radius: 10px;
+    padding: 1px 7px; font-size: 10px;
   }
-  .gen-quick-card-top { display: flex; align-items: center; gap: 7px; }
-  .gen-quick-card-icon { font-size: 16px; flex-shrink: 0; }
-  .gen-quick-card-title { font-size: 13px; font-weight: 600; color: #1f2937; }
-  .gen-quick-card-sub { font-size: 11px; color: #9ca3af; padding-left: 23px; line-height: 1.4; }
-  .gen-quick-card-sub strong { color: #4338ca; font-weight: 600; }
 
   /* ── Gen composer ── */
   .gen-composer {
@@ -1057,6 +1066,7 @@
         <div class="gen-opt-row">
           <span class="gen-opt-label">Use case</span>
           <div class="gen-template-chips" id="gen-template-chips">
+
             <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚔️ Battlecard</div>
             <div class="gen-chip" onclick="selectTemplate(this,'deep-dive')">🔍 Deep Dive</div>
             <div class="gen-chip" onclick="selectTemplate(this,'compare')">⚖️ Compare</div>
@@ -1078,6 +1088,11 @@
             <div class="pill persona-marketing" onclick="selectPersona(this,'Marketing / Strategy')">📣 Marketing</div>
             <div class="pill persona-analyst" onclick="selectPersona(this,'CI Analyst')">🔬 CI Analyst</div>
           </div>
+          <div class="multi-select-hint" id="multi-select-hint">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            Multi-select up to 3 competitors
+            <span class="multi-select-count" id="multi-select-count">0</span>
+          </div>
         </div>
       </div>
 
@@ -1090,7 +1105,7 @@
           </div>
           <div class="gen-quick-grid" id="gen-quick-grid"></div>
         </div>
-        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-messages" id="chat-messages" style="display:none"></div>
       </div>
 
       <!-- Composer -->
@@ -1183,8 +1198,15 @@ const ADMIN_EMAIL = 'adi.guindy@navina.ai';
 let   adminData   = null; // cached { logins, usage }
 
 let selectedCompetitor = null;
-let selectedAnalysis = null;
-let selectedPersona = 'Sales Executive';
+let extraCompetitors   = []; // up to 2 extra when multi-select mode is active
+let selectedAnalysis   = null;
+let selectedPersona    = 'Sales Executive';
+const MULTI_ANALYSES   = new Set(['compare', 'news', 'navina-wins', 'exec-brief', 'kpi']);
+
+// All currently selected competitors (primary + extras)
+function allSelectedCompetitors() {
+  return selectedCompetitor ? [selectedCompetitor, ...extraCompetitors] : [];
+}
 
 // ── Drive resource links per competitor ────────────────────────────────────
 const RESOURCES = {
@@ -1434,6 +1456,7 @@ let lastAIResponse = '';
 // ── Main generate function ────────────────────────────────────────────────────
 async function generateWithAI() {
   if (!selectedCompetitor || !selectedAnalysis || isGenerating) return;
+  const allComps = allSelectedCompetitors();
 
   // Switch to Generate Intel tab
   switchTab('gen');
@@ -1445,14 +1468,16 @@ async function generateWithAI() {
 
   // Hide welcome, show chat
   document.getElementById('gen-welcome').style.display = 'none';
+  const messagesEl = document.getElementById('chat-messages');
+  messagesEl.style.display = 'flex';
 
   // Show user message (collapsed — just context, not the full prompt)
   const aLabel = analysisLabels[selectedAnalysis] || selectedAnalysis;
-  const messagesEl = document.getElementById('chat-messages');
   messagesEl.innerHTML = '';
   const notesVal = document.getElementById('notes-input').value.trim();
+  const compLabel = allSelectedCompetitors().join(', ') || selectedCompetitor;
   appendChatMessage('user',
-    `**${aLabel}** analysis for **${selectedCompetitor}** · Persona: ${selectedPersona}` +
+    `**${aLabel}** analysis for **${compLabel}** · Persona: ${selectedPersona}` +
     (notesVal ? `\n\n_Context: ${notesVal}_` : ''));
 
   // Show thinking
@@ -1465,7 +1490,7 @@ async function generateWithAI() {
       </div>
       <div class="chat-thinking-body">
         <div class="chat-dots"><span></span><span></span><span></span></div>
-        ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Searching and analyzing ${escHtml(selectedCompetitor)}...
+        ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Searching and analyzing ${escHtml(allComps.join(', '))}...
       </div>
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -1684,15 +1709,19 @@ function renderMarkdown(text) {
 function newConversation() {
   chatHistory = [];
   lastAIResponse = '';
-  document.getElementById('chat-messages').innerHTML = '';
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  msgs.style.display = 'none';
   document.getElementById('gen-welcome').style.display = '';
   document.getElementById('btn-new-chat').style.display = 'none';
   const input = document.getElementById('notes-input');
   if (input) { input.value = ''; input.style.height = 'auto'; }
-  // Deselect template chip
+  // Deselect template chip + hide multi hint
   document.querySelectorAll('.gen-chip').forEach(c => c.classList.remove('selected'));
   selectedAnalysis = null;
-  renderQuickPrompts();
+  const hint = document.getElementById('multi-select-hint');
+  if (hint) hint.classList.remove('active');
+  renderSuggestedQuestions();
   checkReady();
 }
 
@@ -1716,8 +1745,17 @@ function copyMsgText(btn, text) {
 }
 
 function buildFullPrompt() {
-  const c = selectedCompetitor;
+  const all = allSelectedCompetitors();
   const notes = document.getElementById('notes-input').value.trim();
+  if (all.length > 1) {
+    // Multi-competitor: pass comma-separated list as the "competitor" argument
+    const compList = all.join(', ');
+    const context = ''; // no single Drive context for multi
+    const promptFn = PROMPTS[selectedAnalysis];
+    if (!promptFn) return `Analyze the following competitors for ${selectedPersona}: ${compList}.`;
+    return promptFn(compList, selectedPersona, notes, context);
+  }
+  const c = selectedCompetitor;
   const context = driveContext(c, selectedAnalysis);
   const promptFn = PROMPTS[selectedAnalysis];
   if (!promptFn) return `Analyze ${c} for ${selectedPersona}.`;
@@ -2126,16 +2164,54 @@ function renderKBCards(name) {
 }
 
 function selectCompetitor(el, name) {
-  document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedCompetitor = name;
-  document.getElementById('competitor-display').innerHTML =
-    `<div class="selected-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>${name}</div>`;
+  const isMultiMode = selectedAnalysis && MULTI_ANALYSES.has(selectedAnalysis);
 
-  renderKBCards(name);
-  renderQuickPrompts();
-  // Don't auto-switch tab — stay on whichever tab the user is already on
-  updatePreview(); checkReady();
+  if (isMultiMode) {
+    // Toggle in extras (primary stays fixed if set)
+    if (selectedCompetitor === name) {
+      // Clicking primary — deselect all
+      selectedCompetitor = null;
+      extraCompetitors = [];
+    } else if (extraCompetitors.includes(name)) {
+      // Remove from extras
+      extraCompetitors = extraCompetitors.filter(c => c !== name);
+    } else {
+      // Add — first becomes primary, rest are extras (max 3 total)
+      const all = allSelectedCompetitors();
+      if (all.length >= 3) { showToast('Max 3 competitors — deselect one first'); return; }
+      if (!selectedCompetitor) selectedCompetitor = name;
+      else extraCompetitors.push(name);
+    }
+    // Sync visual selection
+    document.querySelectorAll('.competitor-item').forEach(i => {
+      const n = i.textContent.trim();
+      i.classList.remove('selected', 'multi-selected');
+      if (n === selectedCompetitor) i.classList.add('selected');
+      else if (extraCompetitors.includes(n)) i.classList.add('multi-selected');
+    });
+  } else {
+    // Single-select mode
+    extraCompetitors = [];
+    document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('selected', 'multi-selected'));
+    el.classList.add('selected');
+    selectedCompetitor = name;
+    renderKBCards(name);
+  }
+
+  // Update competitor display
+  const all = allSelectedCompetitors();
+  const svg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+  document.getElementById('competitor-display').innerHTML = all.length === 0
+    ? `<div class="placeholder-chip"><span>←</span> Select a competitor from the sidebar</div>`
+    : all.map(c => `<div class="selected-chip" style="margin-right:4px">${svg}${escHtml(c)}</div>`).join('');
+
+  // Update multi-select counter
+  const countEl = document.getElementById('multi-select-count');
+  if (countEl) countEl.textContent = all.length;
+
+  renderSuggestedQuestions();
+  updatePreview();
+  checkReady();
 }
 
 function selectTemplate(el, type) {
@@ -2143,72 +2219,124 @@ function selectTemplate(el, type) {
   document.querySelectorAll('.gen-chip').forEach(c => c.classList.remove('selected'));
   selectedAnalysis = wasSelected ? null : type;
   if (!wasSelected) el.classList.add('selected');
+
+  // Toggle multi-select mode
+  const isMulti = !!(selectedAnalysis && MULTI_ANALYSES.has(selectedAnalysis));
+  const hint = document.getElementById('multi-select-hint');
+  if (hint) hint.classList.toggle('active', isMulti);
+
+  // If switching to single-select mode, drop extras
+  if (!isMulti && extraCompetitors.length > 0) {
+    extraCompetitors = [];
+    document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('multi-selected'));
+    const all = allSelectedCompetitors();
+    const countEl = document.getElementById('multi-select-count');
+    if (countEl) countEl.textContent = all.length;
+  }
+
   updatePreview();
   checkReady();
 }
 
-// ── Quick Prompts ─────────────────────────────────────────────────────────────
-const QUICK_PROMPTS = [
-  { icon: '📰', title: 'Latest News',        sub: 'Recent updates, funding & launches', analysis: 'news' },
-  { icon: '🏆', title: 'Where Navina Wins',  sub: 'Differentiation & proof points',     analysis: 'navina-wins' },
-  { icon: '🔍', title: 'Deep Dive',          sub: 'Full company & product overview',     analysis: 'deep-dive' },
-  { icon: '⚔️', title: 'Battlecard',         sub: 'Win/loss card with objections',       analysis: 'battlecard' },
-  { icon: '⚖️', title: 'Compare vs Navina',  sub: 'Side-by-side capabilities table',     analysis: 'compare' },
-  { icon: '±',  title: 'S&W Analysis',       sub: 'Strengths & exploitable weaknesses',  analysis: 'sw' },
-  { icon: '📋', title: 'Exec Brief',         sub: '400-word strategic summary',          analysis: 'exec-brief' },
-  { icon: '🗺️', title: 'Roadmap Signals',    sub: "What they're building next",          analysis: 'roadmap' },
-  { icon: '🎤', title: 'Ambient AI Landscape', sub: 'Abridge · Suki · DAX · Freed AI',
-    freeform: 'Give me a competitive landscape of the ambient AI scribe market in 2025. Compare Abridge, Suki, Nuance DAX, Freed AI, and Ambience Healthcare — cover product differentiation, market traction, key customers, and where Navina has competitive advantages over each.' },
-  { icon: '🏥', title: 'HCC / Risk Market',   sub: 'Reveleer · Foresee · Evidently',
-    freeform: 'Give me an overview of the HCC coding and risk adjustment market in 2025. Who are the main players (Reveleer, Foresee Medical, Evidently, Navina)? What are their approaches, strengths, and weaknesses? Where does Navina differentiate and win deals?' },
-  { icon: '📊', title: 'Pop Health Market',   sub: 'Innovaccer · Arcadia · Persivia',
-    freeform: "Overview of the population health management market in 2025: Innovaccer, Arcadia, Persivia, Health Catalyst, Lightbeam Health. What are the key capabilities each offers, how do they position themselves, and where does Navina's approach stand out?" },
-  { icon: '🔬', title: 'CI Briefing Packet', sub: 'Full landscape across all sectors',
-    freeform: "Create a competitive intelligence briefing for Navina covering all major market segments: (1) HCC/Risk Adjustment, (2) Population Health, (3) Ambient AI Scribes. For each segment, name the top 3 competitors, their key differentiators, and Navina's win themes." },
-];
+// ── Suggested Questions (NotebookLM-style) ───────────────────────────────────
+const COMPETITOR_CATEGORY = {
+  'Reveleer':'hcc','Stanson Health':'hcc','Foresee Medical':'hcc','Keebler Health':'hcc',
+  'Evidently':'hcc','Inferscience':'hcc','Charta Health':'hcc','MedChartScan':'hcc',
+  'Innovaccer':'pophealth','Persivia':'pophealth','Arcadia':'pophealth','The Garage':'pophealth',
+  'Health Catalyst':'pophealth','Lightbeam Health':'pophealth','Azara Healthcare':'pophealth','Fold Health':'pophealth',
+  'Abridge':'ambient','Ambience Healthcare':'ambient','Suki':'ambient','Nuance DAX':'ambient',
+  'Nabla':'ambient','Heidi':'ambient','Marvix AI':'ambient','Freed AI':'ambient',
+  'Epic Systems':'ehr','Athenahealth':'ehr','eClinicalWorks':'ehr',
+  'Raapid':'payer','Vertexa Health':'payer','Pareto Intelligence':'payer','GeBBS':'payer',
+};
 
-function renderQuickPrompts() {
+const CATEGORY_QUESTIONS = {
+  hcc: c => [
+    `What are ${c}'s latest product updates in HCC coding and risk adjustment?`,
+    `How does ${c} approach retrospective vs prospective HCC coding — and how does Navina compare?`,
+    `What customers has ${c} recently won and why? Any notable win or loss patterns?`,
+    `How should a Navina sales rep handle a deal where ${c} is already the incumbent?`,
+  ],
+  pophealth: c => [
+    `What is ${c}'s approach to care gap closure and population health analytics?`,
+    `How does ${c} handle EHR integration and multi-source data ingestion?`,
+    `Which customer segments does ${c} primarily target — payers, providers, or ACOs?`,
+    `Where does Navina win against ${c} — what are the key differentiators in a head-to-head deal?`,
+  ],
+  ambient: c => [
+    `What are ${c}'s EHR integrations, specialty coverage, and accuracy claims?`,
+    `How does ${c} address AI hallucination risk and clinical documentation quality?`,
+    `What is ${c}'s business model, pricing, and typical customer profile?`,
+    `How does Navina's ambient AI approach differentiate from ${c}?`,
+  ],
+  ehr: c => [
+    `How does ${c} compete in AI-powered clinical decision support and HCC coding?`,
+    `What is ${c}'s recent AI strategy — acquisitions, partnerships, or native tools?`,
+    `What are ${c}'s key weaknesses from a Navina competitive perspective?`,
+    `How do Navina customers typically integrate alongside ${c}?`,
+  ],
+  payer: c => [
+    `What is ${c}'s core product and primary use case in the payer market?`,
+    `How does ${c}'s approach compare to Navina's payer-facing solutions?`,
+    `What are ${c}'s recent wins, partnerships, or funding events?`,
+    `What are ${c}'s biggest weaknesses that Navina can leverage in competitive deals?`,
+  ],
+  default: c => [
+    `What are ${c}'s key product strengths and primary differentiators?`,
+    `What is the latest news about ${c} — funding, product launches, or partnerships?`,
+    `What are ${c}'s biggest weaknesses that Navina can exploit in deals?`,
+    `How would you create a compelling Navina win narrative against ${c}?`,
+  ],
+  none: () => [
+    `What's the competitive landscape for HCC coding and risk adjustment in 2025?`,
+    `Compare Navina vs Innovaccer vs Arcadia in population health management`,
+    `What are the most common competitive objections Navina faces and how to handle them?`,
+    `Give me a competitive landscape of the ambient AI scribe market: Abridge, Suki, Nuance DAX, Freed AI`,
+  ],
+};
+
+function renderSuggestedQuestions() {
   const grid = document.getElementById('gen-quick-grid');
   if (!grid) return;
   const comp = selectedCompetitor;
-  grid.innerHTML = QUICK_PROMPTS.map((p, i) => {
-    const isTemplate = !!p.analysis;
-    const subHtml = (isTemplate && comp)
-      ? `${p.sub} · <strong>${escHtml(comp)}</strong>`
-      : p.sub;
-    return `<div class="gen-quick-card" onclick="clickQuickPrompt(${i})">
-      <div class="gen-quick-card-top">
-        <span class="gen-quick-card-icon">${p.icon}</span>
-        <span class="gen-quick-card-title">${p.title}</span>
-      </div>
-      <div class="gen-quick-card-sub">${subHtml}</div>
-    </div>`;
-  }).join('');
+  const cat = comp ? (COMPETITOR_CATEGORY[comp] || 'default') : 'none';
+  const questions = CATEGORY_QUESTIONS[cat](comp || '');
+  const qIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  grid.innerHTML = questions.map((q, i) =>
+    `<button class="gen-suggested-q" onclick="clickSuggestedQ(${i})">${qIcon}${escHtml(q)}</button>`
+  ).join('');
 }
 
-function clickQuickPrompt(idx) {
-  const p = QUICK_PROMPTS[idx];
-  if (p.analysis) {
-    // Select the matching template chip
-    document.querySelectorAll('.gen-chip').forEach(c => {
-      const match = c.getAttribute('onclick') && c.getAttribute('onclick').includes(`'${p.analysis}'`);
-      c.classList.toggle('selected', !!match);
-    });
-    selectedAnalysis = p.analysis;
-    updatePreview();
-    checkReady();
-    if (selectedCompetitor) {
-      generateWithAI();
-    } else {
-      showToast('← Select a competitor from the sidebar first');
-    }
-  } else if (p.freeform) {
-    const input = document.getElementById('notes-input');
-    input.value = p.freeform;
-    input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+// Store current questions so we can look them up by index
+let _currentSuggestedQs = [];
+function renderSuggestedQuestions() {
+  const grid = document.getElementById('gen-quick-grid');
+  if (!grid) return;
+  const comp = selectedCompetitor;
+  const cat = comp ? (COMPETITOR_CATEGORY[comp] || 'default') : 'none';
+  _currentSuggestedQs = CATEGORY_QUESTIONS[cat](comp || '');
+  const qIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  grid.innerHTML = _currentSuggestedQs.map((q, i) =>
+    `<button class="gen-suggested-q" onclick="clickSuggestedQ(${i})">${qIcon}${escHtml(q)}</button>`
+  ).join('');
+}
+
+function clickSuggestedQ(idx) {
+  const q = _currentSuggestedQs[idx];
+  if (!q) return;
+  const input = document.getElementById('notes-input');
+  input.value = q;
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+  // Clear template selection — this is a free-form question
+  document.querySelectorAll('.gen-chip').forEach(c => c.classList.remove('selected'));
+  selectedAnalysis = null;
+  checkReady();
+  if (selectedCompetitor) {
+    handleComposerSend();
+  } else {
     input.focus();
-    checkReady();
+    showToast('← Select a competitor from the sidebar first');
   }
 }
 
@@ -2247,6 +2375,7 @@ async function generateFreeForm(question) {
   chatHistory = [{ role: 'user', content: enriched }];
   document.getElementById('gen-welcome').style.display = 'none';
   const messagesEl = document.getElementById('chat-messages');
+  messagesEl.style.display = 'flex';
   messagesEl.innerHTML = '';
   const input = document.getElementById('notes-input');
   input.value = ''; input.style.height = 'auto';
@@ -2293,17 +2422,21 @@ function selectPersona(el, persona) {
 }
 
 function checkReady() {
+  const hasComp = allSelectedCompetitors().length > 0;
   const hasText = (document.getElementById('notes-input')?.value.trim().length > 0);
-  const canSend = !!(selectedCompetitor && (selectedAnalysis || hasText));
+  const canSend = !!(hasComp && (selectedAnalysis || hasText));
   const sendBtn = document.getElementById('gen-composer-send');
   if (sendBtn) sendBtn.disabled = !canSend;
-  const launchReady = !!(selectedCompetitor && selectedAnalysis);
+  const launchReady = !!(hasComp && selectedAnalysis);
   const launchBtn = document.getElementById('btn-launch');
   const driveBtn = document.getElementById('btn-drive');
   if (launchBtn) launchBtn.disabled = !launchReady;
   if (driveBtn) driveBtn.disabled = !launchReady;
   const hint = document.getElementById('launch-hint');
   if (hint) hint.style.display = canSend ? 'none' : 'inline';
+  // Update multi-select counter
+  const countEl = document.getElementById('multi-select-count');
+  if (countEl) countEl.textContent = allSelectedCompetitors().length;
 }
 
 // ── Drive creation templates ───────────────────────────────────────────────
@@ -3113,7 +3246,7 @@ function signOut() {
 
 // Init
 checkReady();
-renderQuickPrompts();
+renderSuggestedQuestions();
 initAuth();
 </script>
 </body>
