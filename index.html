@@ -1390,8 +1390,10 @@ const RESOURCES = {
   },
 
   'Health Catalyst': {
-    folder:   { url: 'https://drive.google.com/drive/folders/1iWFFr51pH2eB9NlESOjIDjF8aKFWhh71', label: 'Drive Folder' },
-    website:  { url: 'https://www.healthcatalyst.com/', label: 'Website' },
+    demo_summary: { url: 'https://drive.google.com/file/d/1oRIUyYc3SNCgOin1FOfc0h_qTJW3nKnm/view', label: 'Demo Summary' },
+    screenshots:  { url: 'https://drive.google.com/drive/folders/1wVS1-sA63ff2aQUzGJgguJw_0fhKA8PP', label: 'Demo Screenshots' },
+    folder:       { url: 'https://drive.google.com/drive/folders/1iWFFr51pH2eB9NlESOjIDjF8aKFWhh71', label: 'Drive Folder' },
+    website:      { url: 'https://www.healthcatalyst.com/', label: 'Website' },
   },
 
   'Lightbeam Health': {
@@ -1510,10 +1512,12 @@ const RESOURCES = {
   },
 
   'Charta Health': {
+    notion:  { url: 'https://www.notion.so/navinaai/Charta-Health-36b31faa1fb780459067d22dc66b9a28', label: 'Notion Page' },
     website: { url: 'https://www.chartahealth.com/', label: 'Website' },
   },
 
   'MedChartScan': {
+    notion:  { url: 'https://www.notion.so/navinaai/MedChartScan-36b31faa1fb78015863fe496d04b0d5e', label: 'Notion Page' },
     website: { url: 'https://medchartscan.io/', label: 'Website' },
   },
 
@@ -3070,6 +3074,7 @@ function driveContext(c, analysis = '') {
     if (res.notion)       links.push(`• ${res.notion.label}: ${res.notion.url}`);
     if (res.overview)     links.push(`• ${res.overview.label}: ${res.overview.url}`);
     if (res.demo_summary) links.push(`• ${res.demo_summary.label}: ${res.demo_summary.url}`);
+    if (res.screenshots)  links.push(`• ${res.screenshots.label}: ${res.screenshots.url}`);
     const needsBattlecard = ['battlecard', 'compare', 'navina-wins', 'kpi', 'deep-dive'];
     if (res.battlecard && needsBattlecard.includes(analysis)) {
       links.push(`• ${res.battlecard.label}: ${res.battlecard.url}`);
