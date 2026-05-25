@@ -917,13 +917,34 @@
   .kb-no-internal-sub { font-size: 12px; color: #d1d5db; line-height: 1.4; }
 
   /* ── Sidebar drag-resize handle ── */
-  .sidebar { position: relative; }
   .sidebar-resize-handle {
-    position: absolute; right: -3px; top: 0; bottom: 0; width: 6px;
-    cursor: col-resize; z-index: 30; background: transparent; border-radius: 3px;
-    transition: background 0.15s;
+    width: 8px; flex-shrink: 0; cursor: col-resize; z-index: 30;
+    background: transparent; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
   }
-  .sidebar-resize-handle:hover, .sidebar-resize-handle.dragging { background: rgba(79,70,229,0.25); }
+  .sidebar-resize-handle:hover { background: rgba(79,70,229,0.07); }
+  .sidebar-resize-handle.dragging { background: rgba(79,70,229,0.12); }
+  /* Three-dot grip indicator */
+  .sidebar-resize-dots {
+    display: flex; flex-direction: column; gap: 3px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .sidebar-resize-handle:hover .sidebar-resize-dots,
+  .sidebar-resize-handle.dragging .sidebar-resize-dots { opacity: 1; }
+  .sidebar-resize-dots::before,
+  .sidebar-resize-dots::after,
+  .sidebar-resize-dots {
+    /* use box-shadow to draw 3 dots without extra elements */
+  }
+  /* Vertical line shown on hover */
+  .sidebar-resize-handle::after {
+    content: ''; position: absolute; top: 0; bottom: 0; left: 3px;
+    width: 2px; border-radius: 2px; background: #a5b4fc;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .sidebar-resize-handle:hover::after,
+  .sidebar-resize-handle.dragging::after { opacity: 1; }
 
   /* ══════════════════════════════════════════════
      Collapsible panels — shared toggle pattern
@@ -1078,9 +1099,12 @@
       <div class="competitor-item" onclick="selectCompetitor(this,'ELCAT')">ELCAT</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Notable Health')">Notable Health</div>
     </div>
-    <!-- Drag-to-resize handle -->
-    <div class="sidebar-resize-handle" id="sidebar-resize-handle"></div>
   </nav>
+
+  <!-- Sidebar drag-resize handle (sibling, NOT inside nav so overflow doesn't clip it) -->
+  <div class="sidebar-resize-handle" id="sidebar-resize-handle">
+    <div class="sidebar-resize-dots"></div>
+  </div>
 
   <!-- Main -->
   <main class="main">
@@ -3357,24 +3381,32 @@ function signOut() {
   const handle  = document.getElementById('sidebar-resize-handle');
   if (!sidebar || !handle) return;
   let active = false;
+
   handle.addEventListener('mousedown', e => {
     active = true;
     handle.classList.add('dragging');
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
+    document.body.style.pointerEvents = 'none';
+    handle.style.pointerEvents = 'auto';
     e.preventDefault();
   });
+
   document.addEventListener('mousemove', e => {
     if (!active) return;
-    const w = Math.max(140, Math.min(380, e.clientX));
+    // e.clientX is the mouse position from left edge of viewport
+    const w = Math.max(140, Math.min(400, e.clientX));
     sidebar.style.width = w + 'px';
   });
+
   document.addEventListener('mouseup', () => {
     if (!active) return;
     active = false;
     handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+    document.body.style.pointerEvents = '';
+    handle.style.pointerEvents = '';
   });
 })();
 
