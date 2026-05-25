@@ -762,12 +762,30 @@
   }
   .gen-welcome {
     flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 48px 40px; text-align: center;
+    padding: 20px 40px 20px; overflow-y: auto; gap: 16px;
   }
-  .gen-welcome-icon { font-size: 44px; margin-bottom: 16px; opacity: 0.45; }
-  .gen-welcome-title { font-size: 21px; font-weight: 700; color: #374151; margin-bottom: 8px; }
-  .gen-welcome-sub { font-size: 14px; color: #9ca3af; max-width: 380px; line-height: 1.6; }
+  .gen-welcome-header { display: flex; align-items: center; gap: 8px; }
+  .gen-welcome-icon { font-size: 18px; }
+  .gen-welcome-title { font-size: 15px; font-weight: 600; color: #374151; }
+  .gen-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .gen-quick-card {
+    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 12px;
+    padding: 12px 14px; cursor: pointer; transition: all 0.15s;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .gen-quick-card:hover {
+    border-color: #a5b4fc; background: #f5f3ff;
+    box-shadow: 0 2px 10px rgba(79,70,229,0.09);
+  }
+  .gen-quick-card-top { display: flex; align-items: center; gap: 7px; }
+  .gen-quick-card-icon { font-size: 16px; flex-shrink: 0; }
+  .gen-quick-card-title { font-size: 13px; font-weight: 600; color: #1f2937; }
+  .gen-quick-card-sub { font-size: 11px; color: #9ca3af; padding-left: 23px; line-height: 1.4; }
+  .gen-quick-card-sub strong { color: #4338ca; font-weight: 600; }
 
   /* ── Gen composer ── */
   .gen-composer {
@@ -1066,9 +1084,11 @@
       <!-- Chat area -->
       <div class="gen-chat-area">
         <div class="gen-welcome" id="gen-welcome">
-          <div class="gen-welcome-icon">💬</div>
-          <div class="gen-welcome-title">Ask anything about competitors</div>
-          <div class="gen-welcome-sub">Select a competitor from the sidebar, choose a use case above for structured analysis, or just type your question below</div>
+          <div class="gen-welcome-header">
+            <span class="gen-welcome-icon">💬</span>
+            <span class="gen-welcome-title">Ask anything about competitors</span>
+          </div>
+          <div class="gen-quick-grid" id="gen-quick-grid"></div>
         </div>
         <div class="chat-messages" id="chat-messages"></div>
       </div>
@@ -1669,6 +1689,10 @@ function newConversation() {
   document.getElementById('btn-new-chat').style.display = 'none';
   const input = document.getElementById('notes-input');
   if (input) { input.value = ''; input.style.height = 'auto'; }
+  // Deselect template chip
+  document.querySelectorAll('.gen-chip').forEach(c => c.classList.remove('selected'));
+  selectedAnalysis = null;
+  renderQuickPrompts();
   checkReady();
 }
 
@@ -2109,6 +2133,7 @@ function selectCompetitor(el, name) {
     `<div class="selected-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>${name}</div>`;
 
   renderKBCards(name);
+  renderQuickPrompts();
   // Don't auto-switch tab — stay on whichever tab the user is already on
   updatePreview(); checkReady();
 }
@@ -2120,6 +2145,71 @@ function selectTemplate(el, type) {
   if (!wasSelected) el.classList.add('selected');
   updatePreview();
   checkReady();
+}
+
+// ── Quick Prompts ─────────────────────────────────────────────────────────────
+const QUICK_PROMPTS = [
+  { icon: '📰', title: 'Latest News',        sub: 'Recent updates, funding & launches', analysis: 'news' },
+  { icon: '🏆', title: 'Where Navina Wins',  sub: 'Differentiation & proof points',     analysis: 'navina-wins' },
+  { icon: '🔍', title: 'Deep Dive',          sub: 'Full company & product overview',     analysis: 'deep-dive' },
+  { icon: '⚔️', title: 'Battlecard',         sub: 'Win/loss card with objections',       analysis: 'battlecard' },
+  { icon: '⚖️', title: 'Compare vs Navina',  sub: 'Side-by-side capabilities table',     analysis: 'compare' },
+  { icon: '±',  title: 'S&W Analysis',       sub: 'Strengths & exploitable weaknesses',  analysis: 'sw' },
+  { icon: '📋', title: 'Exec Brief',         sub: '400-word strategic summary',          analysis: 'exec-brief' },
+  { icon: '🗺️', title: 'Roadmap Signals',    sub: "What they're building next",          analysis: 'roadmap' },
+  { icon: '🎤', title: 'Ambient AI Landscape', sub: 'Abridge · Suki · DAX · Freed AI',
+    freeform: 'Give me a competitive landscape of the ambient AI scribe market in 2025. Compare Abridge, Suki, Nuance DAX, Freed AI, and Ambience Healthcare — cover product differentiation, market traction, key customers, and where Navina has competitive advantages over each.' },
+  { icon: '🏥', title: 'HCC / Risk Market',   sub: 'Reveleer · Foresee · Evidently',
+    freeform: 'Give me an overview of the HCC coding and risk adjustment market in 2025. Who are the main players (Reveleer, Foresee Medical, Evidently, Navina)? What are their approaches, strengths, and weaknesses? Where does Navina differentiate and win deals?' },
+  { icon: '📊', title: 'Pop Health Market',   sub: 'Innovaccer · Arcadia · Persivia',
+    freeform: "Overview of the population health management market in 2025: Innovaccer, Arcadia, Persivia, Health Catalyst, Lightbeam Health. What are the key capabilities each offers, how do they position themselves, and where does Navina's approach stand out?" },
+  { icon: '🔬', title: 'CI Briefing Packet', sub: 'Full landscape across all sectors',
+    freeform: "Create a competitive intelligence briefing for Navina covering all major market segments: (1) HCC/Risk Adjustment, (2) Population Health, (3) Ambient AI Scribes. For each segment, name the top 3 competitors, their key differentiators, and Navina's win themes." },
+];
+
+function renderQuickPrompts() {
+  const grid = document.getElementById('gen-quick-grid');
+  if (!grid) return;
+  const comp = selectedCompetitor;
+  grid.innerHTML = QUICK_PROMPTS.map((p, i) => {
+    const isTemplate = !!p.analysis;
+    const subHtml = (isTemplate && comp)
+      ? `${p.sub} · <strong>${escHtml(comp)}</strong>`
+      : p.sub;
+    return `<div class="gen-quick-card" onclick="clickQuickPrompt(${i})">
+      <div class="gen-quick-card-top">
+        <span class="gen-quick-card-icon">${p.icon}</span>
+        <span class="gen-quick-card-title">${p.title}</span>
+      </div>
+      <div class="gen-quick-card-sub">${subHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function clickQuickPrompt(idx) {
+  const p = QUICK_PROMPTS[idx];
+  if (p.analysis) {
+    // Select the matching template chip
+    document.querySelectorAll('.gen-chip').forEach(c => {
+      const match = c.getAttribute('onclick') && c.getAttribute('onclick').includes(`'${p.analysis}'`);
+      c.classList.toggle('selected', !!match);
+    });
+    selectedAnalysis = p.analysis;
+    updatePreview();
+    checkReady();
+    if (selectedCompetitor) {
+      generateWithAI();
+    } else {
+      showToast('← Select a competitor from the sidebar first');
+    }
+  } else if (p.freeform) {
+    const input = document.getElementById('notes-input');
+    input.value = p.freeform;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+    input.focus();
+    checkReady();
+  }
 }
 
 function selectAnalysis(el, type) {
@@ -3023,6 +3113,7 @@ function signOut() {
 
 // Init
 checkReady();
+renderQuickPrompts();
 initAuth();
 </script>
 </body>
