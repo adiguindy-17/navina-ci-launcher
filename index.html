@@ -1159,15 +1159,13 @@
           <div class="gen-opt-row">
             <span class="gen-opt-label">Use case</span>
             <div class="gen-template-chips" id="gen-template-chips">
-              <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚔️ Battlecard</div>
               <div class="gen-chip" onclick="selectTemplate(this,'deep-dive')">🔍 Deep Dive</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'compare')">⚡ TL;DR</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'exec-brief')">⚡ Exec Brief</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">⚙️ Product Overview</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚔️ Battlecard</div>
               <div class="gen-chip" onclick="selectTemplate(this,'sw')">± S&amp;W</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 News</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">📦 Product Overview</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'kpi')">📊 KPI</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'exec-brief')">📋 Exec Brief</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'navina-wins')">🏆 Navina Wins</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 Latest News</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'case-studies')">📊 Case Studies</div>
             </div>
           </div>
           <div class="gen-opt-row">
@@ -1304,7 +1302,7 @@ let selectedCompetitor = null;
 let extraCompetitors   = []; // up to 2 extra when multi-select mode is active
 let selectedAnalysis   = null;
 let selectedPersona    = 'Sales Executive';
-const MULTI_ANALYSES   = new Set(['compare', 'news', 'navina-wins', 'exec-brief', 'kpi']);
+const MULTI_ANALYSES   = new Set(['news', 'exec-brief', 'case-studies']);
 
 // All currently selected competitors (primary + extras)
 function allSelectedCompetitors() {
@@ -2057,9 +2055,9 @@ function renderAdminPanel({ logins, usage }) {
   // ── Top analysis types ───────────────────────────────────────────────────
   const analysisLabelsMap = {
     battlecard:'Battlecard', 'deep-dive':'Deep Dive', compare:'Compare',
-    sw:'S&W Analysis', news:'Latest News', roadmap:'Roadmap Signals',
-    'product-overview':'Product Overview', kpi:'KPI Comparison',
-    'exec-brief':'Exec Brief', 'navina-wins':'Where Navina Wins',
+    sw:'S&W Analysis', news:'Latest News',
+    'product-overview':'Product Overview', 'case-studies':'Case Studies',
+    'exec-brief':'Exec Brief',
   };
   const topAnalMap = {};
   usage.forEach(e => {
@@ -3336,141 +3334,50 @@ Rating scale: ✓ Strong · ~ Limited (add 1-line note) · ✗ No · ? Unknown/U
 4 sentences max: pain → Navina solution → proof point → call to action. Tailored to ${persona}.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`;
   },
 
-  'compare': (c, persona, notes) => {
-    const res = RESOURCES[c];
-    const base = res?.website?.url?.replace(/\/$/, '') || '';
-    const siteScope = base
-      ? `${base} — homepage, product pages, case studies, integrations, pricing, press releases`
-      : `${c} official website — homepage, product pages, case studies, integrations, pricing, press releases`;
-    return `${driveContext(c, 'compare')}
-
-You are a healthcare technology competitive intelligence analyst at Navina AI.
-Research **${c}** and produce a concise executive-level TL;DR comparison against Navina for ${persona}.
-
-Your system context contains Navina's full KPI set, differentiators, case studies, and benchmarks — use them throughout.
-
-FORMATTING RULES:
-– Table cells: max 4–8 words. Operational and precise.
-– Bullets: max 15 words each. One fact per bullet.
-– If capability doesn't exist: write X
-– If unclear: write "Limited" / "Depth unclear" / "Retrospective only" / "No public evidence"
-– Do NOT speculate. Mark anything unverified: "Unconfirmed"
-– No marketing language · no buzzwords · no long paragraphs
-
-RESEARCH:
-Company: ${siteScope}
-External: beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · modernhealthcare.com · businesswire.com · crunchbase.com · LinkedIn company page
-
-==
-
-## TL;DR — ${c} vs. Navina
-
-First identify ${c}'s PRIMARY category: Ambient AI / Risk Adjustment / Population Health / EHR Platform
-Then build the table using ONLY capabilities relevant to that category. Omit irrelevant rows entirely.
-
-| Capability | ${c} | Navina |
-|---|---|---|
-
-Select from these capability groups based on category:
-
-**Core Platform:** Core category · Primary workflow · Embedded vs overlay
-**Risk Adjustment:** HCC workflows · Risk models (CMS-HCC/HHS-HCC/RxHCC) · Suspecting new conditions · RAF evidence · Prospective vs retrospective · Coding/CDI
-**EHR Integration:** Supported EHRs · Integration depth · Bidirectional writeback · Embedded workflow
-**Ambient AI:** Ambient documentation · Voice workflows · Clinical reconciliation · Note generation
-**Quality / VBC:** HEDIS/Stars · Care gap workflows · Population health · Analytics
-**AI Capabilities:** AI assistant · Patient outreach · AI summaries · Conversational querying
-
-SKEPTICISM RULES FOR THE TABLE:
-– "Custom integrations" ≠ deep embedded workflow → if depth unclear: "Depth unclear"
-– Vague suspecting claims → "Limited" or "No public evidence"
-– No ambient capability → "X"
-– Navina column: use verified KPIs from your context (77% acceptance, 86% weekly active, PHYX/AAFP studies, +67% new HCCs)
-
-==
-
-## Core Strategic Difference
-
-2–3 bullets. One sentence each. Real strategic difference — workflow, buyer value, or product philosophy.
-Good: "Focused on retrospective coding rather than point-of-care prospective workflows."
-Bad: "Navina is more advanced and comprehensive."
-
-==
-
-## Positioning
-
-### ${c}
-2–3 bullets. Use actual phrases from their website where possible.
-Focus: how they describe themselves · who they sell to · their core ROI claim.
-
-### Navina
-2–3 bullets. Ground every bullet in a specific KPI or proof point.
-Examples: "77% HCC acceptance vs. ~40% industry average" · "Prospective point-of-care — not retrospective" · "#1 KLAS Clinician Digital Workflows 2025 (score 94.6)"
-
-==
-
-## Where Navina Wins
-
-3–4 bullets. Each: specific dimension + verified KPI or proof point.
-Be direct — this is for ${persona} to use in an active deal.
-Where relevant, call out the specific gap: "vs. ${c}: [gap]"
-
-==
-
-## Battlecard — ${c} vs. Navina
-
-### Capability Snapshot
-
-| Capability | ${c} | Navina |
-|---|---|---|
-| Prospective HCC at point of care | | ✓ 77% acceptance (market avg 40%) |
-| Unstructured data NLP | | ✓ Scanned docs, HIE, imaging, ambient |
-| Suspecting new conditions | | ✓ +67% new HCCs vs recapture only |
-| Evidence-backed AI — insight links to source | | ✓ Every suggestion traceable |
-| EHR-native, no new portal | | ✓ 86% weekly active providers |
-| Ambient documentation | | ✓ Note ready in 30 sec, push to EHR |
-| Quality / HEDIS / Stars | | ✓ Real-time care gaps at point of care |
-| Independent clinical studies | | ✓ PHYX 2025 + AAFP Phase 2 |
-
-Fill ${c}'s column honestly: ✓ Strong · ~ Limited (add note) · ✗ No · ? Unknown
-
-### Objections & Responses
-
-| Likely Objection | Navina Response | Proof Point |
-|---|---|---|
-| | | |
-
-3 most likely objections ${persona} will face from a ${c} prospect.
-Response: max 1 sentence. Proof point: specific KPI or study name.
-
-### Discovery Questions
-– 3 questions that expose ${c}'s gaps (focus on physician engagement, prospective vs retrospective, data depth)
-– 2 trap questions ${c} will struggle to answer with specifics
-
-### Talk Track — ${persona}
-4 sentences max: pain → what Navina does differently → specific proof point → call to action.${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`;
-  },
 
   'sw': (c, persona, notes) =>
 `${driveContext(c, 'sw')}
 
-You are a senior CI analyst at Navina. Deliver a focused strengths & weaknesses analysis of **${c}** for ${persona}.
+You are a senior CI analyst at Navina. Build a competitive S&W analysis of **${c}** for ${persona}.
 Use web search, published case studies, customer reviews, demo observations, and product pages.
 
 FORMATTING RULES: Use bullet points (–). No lone dashes. No single-column | pipe | rows. Tight spacing.
 
+## CAPABILITY COMPARISON — ${c} vs. Navina
+
+Identify ${c}'s PRIMARY category first: Ambient AI / Risk Adjustment / Population Health / EHR Platform
+Build the table using ONLY capabilities relevant to that category. Omit irrelevant rows entirely.
+
+| Capability | ${c} | Navina |
+|---|---|---|
+
+Select relevant rows:
+– Risk Adjustment: Prospective HCC at POC · Suspecting new conditions · Unstructured NLP · Evidence-backed AI · RAF tracking
+– Ambient AI: Ambient docs · Voice · Push to EHR · Clinical reconciliation · Note quality
+– Quality/VBC: HEDIS/Stars · Care gaps · Population analytics · Stratification
+– Platform: EHR-native workflow · Integration depth · Physician engagement · Implementation speed
+
+Rating: ✓ Strong · ~ Limited (add 1-line note) · ✗ No · ? Unknown
+Navina column: use verified KPIs (77% acceptance · 86% weekly active · +67% new HCCs · PHYX/AAFP studies)
+
 ## STRENGTHS — what ${c} is genuinely good at
-3–5 bullets. Focus only on REAL, specific capabilities:
-Workflow depth · Integration depth · ROI evidence · Differentiation · Buyer alignment · Scalability · Operational efficiency
-Avoid generic praise. If only 2–3 meaningful strengths exist, write fewer — do not pad.
+3–5 bullets. Specific, real capabilities only. Avoid generic praise. Fewer if only 2–3 real strengths exist.
 
 ## WEAKNESSES — where ${c} falls short
-3–5 bullets. Focus on REAL, specific gaps:
-Missing integrations · Retrospective-only workflow · Weak physician engagement · Limited data depth · No independent validation · Unclear deployment maturity · Limited enterprise evidence
-Evidence base: case studies · product reviews · customer complaints · demo gaps · public limitations.
-If only 2–3 real weaknesses exist, write fewer — do not pad.
+3–5 bullets. Specific, real gaps only.
+Evidence base: product reviews · customer complaints · demo gaps · public limitations. Fewer if only 2–3 real weaknesses exist.
 
-## NAVINA OPPORTUNITY
-1 bullet: the single most exploitable gap in a competitive deal against ${c}.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
+## WHERE NAVINA WINS
+| Dimension | Navina | ${c} | Pitch line for ${persona} |
+|---|---|---|---|
+4–5 rows. Each: specific dimension + verified KPI + 1-line pitch for ${persona}.
+
+## QUESTIONS TO EXPOSE GAPS
+– 3 discovery questions that surface ${c}'s limitations
+– 2 trap questions ${c} will struggle to answer (engagement rate · prospective vs retrospective · independent studies · audit risk)
+
+## NAVINA PITCH — ${persona.toUpperCase()}
+3–4 sentences: pain → what Navina does differently → specific proof point → close.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'news': (c, persona, notes) => {
     const res = RESOURCES[c];
@@ -3569,10 +3476,24 @@ Bad: "Leverages advanced AI to transform clinical documentation experience."
 – **Geography:** focus area if known${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
-  'kpi': (c, persona, notes) =>
+  'case-studies': (c, persona, notes) =>
 `${driveContext(c, 'kpi')}
 
-You are a senior CI analyst at Navina. Compare verified proof points — Navina vs ${c} — for ${persona}.
+You are a senior CI analyst at Navina. Research all published case studies, outcome data, and KPIs for **${c}** — then benchmark against Navina's verified numbers for ${persona}.
+
+FORMATTING RULES: Use bullet points (–). Tables for comparisons only. Mark anything unverified as "No public data." Never invent data.
+
+## ${c.toUpperCase()} — PUBLISHED CASE STUDIES
+Search: company website (/case-studies, /outcomes, /resources, /customers), press releases, healthcare media.
+For each case study found:
+– **[Customer name or type, year]** — [measurable outcome with numbers]. Source: [domain]
+Include: ROI metrics · workflow improvements · revenue impact · coding/compliance results · physician engagement stats.
+If none found: write "No published case studies found." then list any available testimonials or outcome claims.
+
+## ${c.toUpperCase()} — CLAIMED METRICS & KPIs
+| Metric | ${c} Value | Source | Date | Confidence |
+|---|---|---|---|---|
+Search for any publicly claimed metrics — capture rate, engagement rate, time savings, ROI, revenue uplift. Mark unverified as "No public data."
 
 ## NAVINA — VERIFIED KPIs (2025)
 | Metric | Value | Source |
@@ -3587,13 +3508,8 @@ You are a senior CI analyst at Navina. Compare verified proof points — Navina 
 | RAF score increase | +0.153/patient | Phyx 2025 study |
 | Physicians who'd recommend | 84% | Phyx 2025 study |
 
-## ${c.toUpperCase()} — PUBLISHED METRICS
-Search for any case studies, outcome claims, or ROI data. Include source and date.
-| Metric | Value | Source | Date | Confidence |
-Never invent — mark gaps as "No public data."
-
 ## PROOF GAP ANALYSIS
-2 bullets: where ${c}'s claims lack evidence, and what a ${persona} should ask to pressure-test them.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
+2–3 bullets: where ${c}'s claims lack independent evidence, what cannot be verified, and what a ${persona} should ask to pressure-test them.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'exec-brief': (c, persona, notes) => {
     const res = RESOURCES[c];
@@ -3629,30 +3545,11 @@ Skip section entirely if nothing material found.
 1 bullet: the most important thing to monitor about ${c} in the next 60 days.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
-  'navina-wins': (c, persona, notes) =>
-`${driveContext(c, 'navina-wins')}
-
-You are a senior CI analyst at Navina. Build a win-against playbook for ${persona} competing with ${c}.
-
-## WHERE NAVINA WINS
-| Dimension | Navina | ${c} | Pitch line |
-5–6 rows covering the strongest, most verifiable advantages. Use Navina KPIs and study data as proof. Focus on what matters most to ${persona}.
-
-## QUESTIONS TO UNCOVER ${c.toUpperCase()}'S GAPS
-3 discovery questions — make the prospect think, not feel interrogated.
-2 trap-setting questions — a standard ${c} will struggle to meet (e.g. physician engagement, prospective vs retrospective, independent study results).
-
-## WHAT NOT TO SAY
-2 bullets: arguments that are weak or could backfire specifically against ${c}.
-
-## PITCH — ${persona.toUpperCase()}
-4–5 sentences: pain → Navina vs ${c} → proof point → close.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 };
 
 const analysisLabels = {
-  'battlecard':'Battlecard','deep-dive':'Deep Dive','compare':'TL;DR vs. Navina',
-  'sw':'S&W Analysis','news':'Latest News','product-overview':'Product Overview',
-  'kpi':'KPI Comparison','exec-brief':'Exec Brief','navina-wins':'Where Navina Wins'
+  'deep-dive':'Deep Dive','exec-brief':'Exec Brief','product-overview':'Product Overview',
+  'battlecard':'Battlecard','sw':'S&W Analysis','news':'Latest News','case-studies':'Case Studies'
 };
 
 // buildPrompt is an alias for buildFullPrompt (multi-select aware)
