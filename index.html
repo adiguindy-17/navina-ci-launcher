@@ -762,24 +762,29 @@
   }
   .gen-welcome {
     flex: 1; display: flex; flex-direction: column;
-    padding: 20px 40px 20px; overflow-y: auto; gap: 16px;
+    padding: 32px 40px 20px; overflow-y: auto;
   }
-  .gen-welcome-header { display: flex; align-items: center; gap: 8px; }
-  .gen-welcome-icon { font-size: 18px; }
-  .gen-welcome-title { font-size: 15px; font-weight: 600; color: #374151; }
-  /* suggested questions */
-  .gen-quick-grid { display: flex; flex-direction: column; gap: 8px; }
-  .gen-suggested-q {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 11px 16px; background: #fff;
-    border: 1.5px solid #e5e7eb; border-radius: 10px;
-    cursor: pointer; transition: all 0.15s;
-    font-size: 13px; color: #374151; line-height: 1.5;
-    text-align: left;
+  /* ── Joey intro ── */
+  .joey-intro { max-width: 600px; }
+  .joey-intro-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .joey-avatar-lg {
+    width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; font-weight: 900; color: #fff; letter-spacing: -1px;
+    box-shadow: 0 4px 14px rgba(79,70,229,0.3);
+    font-style: italic;
   }
-  .gen-suggested-q svg { flex-shrink: 0; margin-top: 2px; color: #c4c9d4; }
-  .gen-suggested-q:hover { border-color: #a5b4fc; background: #f5f3ff; color: #4338ca; }
-  .gen-suggested-q:hover svg { color: #a5b4fc; }
+  .joey-name { font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.4px; line-height: 1.1; }
+  .joey-tag { font-size: 11px; font-weight: 600; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 2px; }
+  .joey-greeting { font-size: 15px; color: #374151; line-height: 1.65; margin-bottom: 8px; }
+  .joey-sub { font-size: 13px; color: #9ca3af; line-height: 1.6; }
+  .joey-caps { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .joey-cap {
+    padding: 6px 13px; background: #fff; border: 1.5px solid #e5e7eb;
+    border-radius: 20px; font-size: 12px; color: #374151; font-weight: 500;
+    white-space: nowrap;
+  }
 
   /* multi-select */
   .competitor-item.multi-selected { background: #eef2ff; color: #4338ca; font-weight: 600; }
@@ -1099,11 +1104,25 @@
       <!-- Chat area -->
       <div class="gen-chat-area">
         <div class="gen-welcome" id="gen-welcome">
-          <div class="gen-welcome-header">
-            <span class="gen-welcome-icon">💬</span>
-            <span class="gen-welcome-title">Ask anything about competitors</span>
+          <div class="joey-intro">
+            <div class="joey-intro-header">
+              <div class="joey-avatar-lg">J</div>
+              <div>
+                <div class="joey-name">Joey</div>
+                <div class="joey-tag">Competitive Intelligence</div>
+              </div>
+            </div>
+            <div class="joey-greeting">Hi! I'm Joey, your competitive intelligence assistant at Navina. 👋</div>
+            <div class="joey-sub">Ask me anything about competitors — or select a company, use case, and role above for a structured analysis.</div>
+            <div class="joey-caps">
+              <span class="joey-cap">⚔️ Battlecards</span>
+              <span class="joey-cap">🔍 Deep Dives</span>
+              <span class="joey-cap">📰 Latest News</span>
+              <span class="joey-cap">🏆 Win Strategies</span>
+              <span class="joey-cap">⚖️ Comparisons</span>
+              <span class="joey-cap">± S&amp;W Analysis</span>
+            </div>
           </div>
-          <div class="gen-quick-grid" id="gen-quick-grid"></div>
         </div>
         <div class="chat-messages" id="chat-messages" style="display:none"></div>
       </div>
@@ -1114,7 +1133,7 @@
           <textarea
             class="gen-composer-input"
             id="notes-input"
-            placeholder="Ask anything about competitors, or select a use case above..."
+            placeholder="Ask Joey anything..."
             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();handleComposerSend();}"
             oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,160)+'px';checkReady();"
           ></textarea>
@@ -1123,7 +1142,7 @@
           </button>
         </div>
         <div class="gen-composer-footer">
-          <span class="gen-composer-hint" id="launch-hint">← Select a competitor to continue</span>
+          <span class="gen-composer-hint" id="launch-hint">Type a question or select a competitor + use case above</span>
           <div class="gen-composer-actions">
             <button class="gen-action-btn" id="btn-launch" onclick="launch()" disabled>↗ Open in Claude.ai</button>
             <button class="gen-action-btn" id="btn-drive" onclick="openDriveModal()" disabled>📁 Create in Drive</button>
@@ -1485,8 +1504,8 @@ async function generateWithAI() {
   messagesEl.insertAdjacentHTML('beforeend', `
     <div id="${thinkingId}" class="chat-msg-ai">
       <div class="chat-msg-ai-header">
-        <div class="chat-msg-avatar">N</div>
-        <div class="chat-msg-name">Claude</div>
+        <div class="chat-msg-avatar">J</div>
+        <div class="chat-msg-name">Joey</div>
       </div>
       <div class="chat-thinking-body">
         <div class="chat-dots"><span></span><span></span><span></span></div>
@@ -1547,8 +1566,8 @@ async function sendFollowUp() {
   messagesEl.insertAdjacentHTML('beforeend', `
     <div id="${thinkingId}" class="chat-msg-ai">
       <div class="chat-msg-ai-header">
-        <div class="chat-msg-avatar">N</div>
-        <div class="chat-msg-name">Claude</div>
+        <div class="chat-msg-avatar">J</div>
+        <div class="chat-msg-name">Joey</div>
       </div>
       <div class="chat-thinking-body">
         <div class="chat-dots"><span></span><span></span><span></span></div>
@@ -1618,8 +1637,8 @@ function appendChatMessage(role, content) {
     const escapedForAttr = content.replace(/\\/g,'\\\\').replace(/"/g,'&quot;').replace(/\n/g,'\\n');
     html = `<div class="chat-msg-ai">
       <div class="chat-msg-ai-header">
-        <div class="chat-msg-avatar">N</div>
-        <div class="chat-msg-name">Claude</div>
+        <div class="chat-msg-avatar">J</div>
+        <div class="chat-msg-name">Joey</div>
       </div>
       <div class="chat-msg-ai-body">${renderMarkdown(content)}</div>
       <div class="chat-msg-ai-actions">
@@ -1721,7 +1740,6 @@ function newConversation() {
   selectedAnalysis = null;
   const hint = document.getElementById('multi-select-hint');
   if (hint) hint.classList.remove('active');
-  renderSuggestedQuestions();
   checkReady();
 }
 
@@ -2209,7 +2227,6 @@ function selectCompetitor(el, name) {
   const countEl = document.getElementById('multi-select-count');
   if (countEl) countEl.textContent = all.length;
 
-  renderSuggestedQuestions();
   updatePreview();
   checkReady();
 }
@@ -2295,50 +2312,7 @@ const CATEGORY_QUESTIONS = {
   ],
 };
 
-function renderSuggestedQuestions() {
-  const grid = document.getElementById('gen-quick-grid');
-  if (!grid) return;
-  const comp = selectedCompetitor;
-  const cat = comp ? (COMPETITOR_CATEGORY[comp] || 'default') : 'none';
-  const questions = CATEGORY_QUESTIONS[cat](comp || '');
-  const qIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
-  grid.innerHTML = questions.map((q, i) =>
-    `<button class="gen-suggested-q" onclick="clickSuggestedQ(${i})">${qIcon}${escHtml(q)}</button>`
-  ).join('');
-}
-
-// Store current questions so we can look them up by index
-let _currentSuggestedQs = [];
-function renderSuggestedQuestions() {
-  const grid = document.getElementById('gen-quick-grid');
-  if (!grid) return;
-  const comp = selectedCompetitor;
-  const cat = comp ? (COMPETITOR_CATEGORY[comp] || 'default') : 'none';
-  _currentSuggestedQs = CATEGORY_QUESTIONS[cat](comp || '');
-  const qIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
-  grid.innerHTML = _currentSuggestedQs.map((q, i) =>
-    `<button class="gen-suggested-q" onclick="clickSuggestedQ(${i})">${qIcon}${escHtml(q)}</button>`
-  ).join('');
-}
-
-function clickSuggestedQ(idx) {
-  const q = _currentSuggestedQs[idx];
-  if (!q) return;
-  const input = document.getElementById('notes-input');
-  input.value = q;
-  input.style.height = 'auto';
-  input.style.height = Math.min(input.scrollHeight, 160) + 'px';
-  // Clear template selection — this is a free-form question
-  document.querySelectorAll('.gen-chip').forEach(c => c.classList.remove('selected'));
-  selectedAnalysis = null;
-  checkReady();
-  if (selectedCompetitor) {
-    handleComposerSend();
-  } else {
-    input.focus();
-    showToast('← Select a competitor from the sidebar first');
-  }
-}
+function renderSuggestedQuestions() { /* removed — Joey doesn't show suggested questions */ }
 
 function selectAnalysis(el, type) {
   document.querySelectorAll('.analysis-card').forEach(c => c.classList.remove('selected'));
@@ -2356,20 +2330,19 @@ async function handleComposerSend() {
     return;
   }
   // First message
-  if (!selectedCompetitor) { showToast('← Select a competitor first'); return; }
   const text = document.getElementById('notes-input').value.trim();
-  if (!selectedAnalysis && !text) { showToast('Select a use case or type a question'); return; }
-  if (selectedAnalysis) {
+  if (!text && !selectedAnalysis) { showToast('Type a question or select a use case'); return; }
+  if (selectedAnalysis && selectedCompetitor) {
     await generateWithAI();
   } else {
-    await generateFreeForm(text);
+    await generateFreeForm(text || '');
   }
 }
 
 async function generateFreeForm(question) {
-  if (!selectedCompetitor || !question || isGenerating) return;
+  if (!question || isGenerating) return;
   switchTab('gen');
-  const context = driveContext(selectedCompetitor, '');
+  const context = selectedCompetitor ? driveContext(selectedCompetitor, '') : '';
   const prompt = `Answer the following question directly and concisely.
 
 STRICT RULES — follow every one:
@@ -2394,10 +2367,10 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
   const thinkingId = 'thinking-' + Date.now();
   messagesEl.insertAdjacentHTML('beforeend', `
     <div id="${thinkingId}" class="chat-msg-ai">
-      <div class="chat-msg-ai-header"><div class="chat-msg-avatar">N</div><div class="chat-msg-name">Claude</div></div>
+      <div class="chat-msg-ai-header"><div class="chat-msg-avatar">J</div><div class="chat-msg-name">Joey</div></div>
       <div class="chat-thinking-body">
         <div class="chat-dots"><span></span><span></span><span></span></div>
-        ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Searching about ${escHtml(selectedCompetitor)}...
+        ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}${selectedCompetitor ? `Searching about ${escHtml(selectedCompetitor)}...` : 'Thinking...'}
       </div>
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -2435,7 +2408,8 @@ function selectPersona(el, persona) {
 function checkReady() {
   const hasComp = allSelectedCompetitors().length > 0;
   const hasText = (document.getElementById('notes-input')?.value.trim().length > 0);
-  const canSend = !!(hasComp && (selectedAnalysis || hasText));
+  // Send is enabled whenever there's text — no competitor required
+  const canSend = hasText;
   const sendBtn = document.getElementById('gen-composer-send');
   if (sendBtn) sendBtn.disabled = !canSend;
   const launchReady = !!(hasComp && selectedAnalysis);
@@ -3279,7 +3253,6 @@ function signOut() {
 
 // Init
 checkReady();
-renderSuggestedQuestions();
 initAuth();
 </script>
 </body>
