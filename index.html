@@ -1072,7 +1072,7 @@
             <div class="gen-chip" onclick="selectTemplate(this,'compare')">⚖️ Compare</div>
             <div class="gen-chip" onclick="selectTemplate(this,'sw')">± S&amp;W</div>
             <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 News</div>
-            <div class="gen-chip" onclick="selectTemplate(this,'roadmap')">🗺️ Roadmap</div>
+            <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">📦 Product Overview</div>
             <div class="gen-chip" onclick="selectTemplate(this,'kpi')">📊 KPI</div>
             <div class="gen-chip" onclick="selectTemplate(this,'exec-brief')">📋 Exec Brief</div>
             <div class="gen-chip" onclick="selectTemplate(this,'navina-wins')">🏆 Navina Wins</div>
@@ -2370,8 +2370,16 @@ async function generateFreeForm(question) {
   if (!selectedCompetitor || !question || isGenerating) return;
   switchTab('gen');
   const context = driveContext(selectedCompetitor, '');
-  const prompt = `Answer the following question directly and concisely. Focus ONLY on what is asked — no company overview, no history, no unrelated background.
-Use bullet points. Be specific. 5–6 bullets max unless the question asks for a full report.
+  const prompt = `Answer the following question directly and concisely.
+
+STRICT RULES — follow every one:
+- Answer ONLY what was asked. Nothing more.
+- NO company overview, history, founding year, HQ, headcount, or general background
+- NO Navina comparison table or "Navina advantages" section unless the question explicitly asks for it
+- Use bullet points
+- Max 5–6 bullets total
+- If asked about updates/news → list them chronologically with dates and sources
+- If fewer than 5 real items exist, write fewer — do not pad
 
 QUESTION: ${question}${context ? '\n\n' + context : ''}`;
   const { prompt: enriched, sourcesLoaded } = await enrichPromptWithContent(prompt);
@@ -2682,11 +2690,12 @@ const NAVINA_CORE = `You are Navina's Competitive Intelligence Analyst. Use the 
 
 ━━━ OUTPUT RULES (follow strictly) ━━━
 • Match depth to the question — a focused question gets a focused answer, NOT a full company brief
-• Never include company history, founding year, HQ, or general background unless explicitly asked
-• Use bullet points by default. No lengthy prose paragraphs
-• Maximum 5–6 bullet points per section unless the request explicitly asks for a full report
-• Lead with the answer — don't explain what you're about to do
-• When Navina comparison is not asked for, don't add it (or keep to 1 line max)
+• Never include company history, founding year, HQ, headcount, or general background unless explicitly asked
+• Use bullet points by default — no lengthy prose paragraphs
+• Max 5–6 bullets per section unless the request explicitly asks for a full report
+• Lead with the answer — never explain what you're about to do ("Based on my research...")
+• NEVER add a Navina comparison table, "Navina Competitive Advantages" section, or KPI table unless the question or template explicitly asks for it
+• If asked a factual question about a competitor, answer it — full stop. Do not volunteer Navina positioning.
 
 ━━━ NAVINA — COMPANY & PLATFORM ━━━
 Navina is a clinician-first AI platform for value-based care (VBC). It synthesizes ALL patient data — EHR, HIE, claims, scanned documents, labs, imaging, ambient visit recordings — into actionable clinical intelligence surfaced at the point of care, embedded in the physician's existing EHR. No new portal. No behavior change. <1 hour provider training. 8–10 week implementation.
@@ -2951,17 +2960,22 @@ Strong / Moderate / Limited / Unknown + 1-line note. Edge: Navina / ${c} / Tie.
   'sw': (c, persona, notes) =>
 `${driveContext(c, 'sw')}
 
-You are a senior CI analyst at Navina. Analyze ${c} for ${persona}.
-Use internal materials, web search, and any published case studies or reviews.
+You are a senior CI analyst at Navina. Deliver a focused strengths & weaknesses analysis of ${c} for ${persona}.
+Use web search, published case studies, customer reviews, demo observations, and product pages.
 
 ## STRENGTHS — what ${c} is genuinely good at
-4–5 bullets. Be specific: product capability, market position, customer proof, or execution advantage.
+3–5 bullets. Focus only on REAL, specific capabilities:
+Workflow depth · Integration depth · ROI evidence · Differentiation · Buyer alignment · Scalability · Operational efficiency
+Avoid generic praise. If only 2–3 meaningful strengths exist, write fewer — do not pad.
 
 ## WEAKNESSES — where ${c} falls short
-4–5 bullets. Be specific: product gaps, missing capabilities, customer complaints, structural limitations.
+3–5 bullets. Focus on REAL, specific gaps:
+Missing integrations · Retrospective-only workflow · Weak physician engagement · Limited data depth · No independent validation · Unclear deployment maturity · Limited enterprise evidence
+Evidence base: case studies · product reviews · customer complaints · demo gaps · public limitations.
+If only 2–3 real weaknesses exist, write fewer — do not pad.
 
-## COMPETITIVE THREAT TO NAVINA
-High / Medium / Low — 2 sentences. Which Navina segments or deal types are most at risk?${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
+## NAVINA OPPORTUNITY
+1 bullet: the single most exploitable gap in a competitive deal against ${c}.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'news': (c, persona, notes) => {
     const res = RESOURCES[c];
@@ -3031,35 +3045,37 @@ Repeat for each item. Max 2 items per category.
 - If fewer than 4 strong items exist, return fewer — do not pad${notes ? `\n\n## ADDITIONAL CONTEXT\n${notes}` : ''}`;
   },
 
-  'roadmap': (c, persona, notes) => {
-    const res = RESOURCES[c];
-    const base = res?.website?.url?.replace(/\/$/, '') || '';
-    const newsUrl = base
-      ? `${base} (/news, /blog, /resources), beckershospitalreview.com, fiercehealthcare.com, businesswire.com`
-      : `"${c}" official website, beckershospitalreview.com, fiercehealthcare.com, businesswire.com`;
-    return `${driveContext(c, 'roadmap')}
+  'product-overview': (c, persona, notes) => {
+    return `${driveContext(c, 'product-overview')}
 
-You are a senior CI analyst at Navina. Map the product direction and roadmap signals of ${c} for ${persona}.
-Search: job postings · product pages · press releases · demo videos · conference talks · LinkedIn · executive interviews · partner announcements.
+You are a senior CI analyst at Navina. Build a clear product overview of ${c} for ${persona}.
+Search the company's website, product pages, and any published demo materials.
 
-## CONFIRMED — shipped or officially announced
-| Item | Source | Date |
+## PRODUCT PILLARS
+Divide the product into 2–3 main pillars.
+Under each pillar: list 3–4 major products, modules, or capabilities.
 
-## STRONG SIGNAL — beta, job postings, partnerships implying direction
-| Item | Evidence |
+For each capability:
+— ONE line explanation, max 8–12 words
+— Simple, operational language — no marketing wording
+— Make the capability immediately understandable
 
-## WEAK SIGNAL — exec quotes, hiring patterns, conference themes
-| Item | Evidence |
+Example style:
+  "Surfaces HCC gaps during visits with supporting evidence."
+  "Automates prior authorization submission inside provider ordering workflows."
+NOT:
+  "Leverages advanced AI to transform clinical documentation experience."
 
-## SPECULATIVE — logical inference from strategy
-| Item | Reasoning |
+## DEPLOYMENT & INTEGRATION
+- EHR integrations: [list known]
+- Workflow type: prospective / retrospective / both
+- EHR-native vs separate portal
+- Implementation timeline if known
 
-## RECENT LAUNCHES & ANNOUNCEMENTS (last 8 weeks)
-Search: ${newsUrl}
-**[Month DD]** — What launched or was announced. Source: [confirmed URL or "via [domain]"]
-
-## WATCH LIST
-3 bullets: most important things to monitor about ${c} in the next 90 days.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+## WHO BUYS IT
+- Primary buyer: health plans / ACOs / health systems / primary care
+- Deal size or contract model (if known)
+- Geographic focus (if known)${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'kpi': (c, persona, notes) =>
@@ -3096,24 +3112,30 @@ Never invent — mark gaps as "No public data."
       : `"${c}" official website news section, businesswire.com, prnewswire.com, beckershospitalreview.com`;
     return `${driveContext(c, 'exec-brief')}
 
-You are a senior CI analyst at Navina. Write a tight executive brief on ${c}. No fluff — every sentence must add information.
+You are a senior CI analyst at Navina. Write a sharp executive brief on ${c} for ${persona}.
+No fluff — every sentence must add information. No marketing language.
 
-## ${c.toUpperCase()} — KEY FACTS
-3 bullets: core product · funding & scale · key customers or market position
+## 1. COMPANY SNAPSHOT
+Write a single paragraph: 55–80 words (target 65–70).
+Cover: what the company does · main product categories · core workflows · primary customers · notable customers or partnerships if available · total funding · year founded · approx. employee count.
+Style: straightforward, clear, non-marketing, easy to scan quickly.
 
-## RECENT DEVELOPMENTS (last 6–8 weeks)
+## 2. PRODUCT OVERVIEW
+Divide into 2–3 main pillars. Under each: 3–4 features/capabilities.
+Each feature: 1 line, max 8–12 words. No marketing language.
+Example: "Surfaces HCC gaps during visits with supporting evidence."
+
+## 3. RECENT DEVELOPMENTS (last 6–8 weeks)
 Search: ${newsUrl}
-2–3 bullets on material developments only: funding, acquisitions, major product launches, key hires.
-Include source URL. Skip section if nothing material found.
+2–3 bullets: material developments only — funding, product launches, partnerships, key hires.
+Format: **[Month DD]** — Headline. Source: [URL or "via [domain]"]
+Skip section entirely if nothing material found.
 
-## WHERE THEY COMPETE WITH NAVINA
-2 bullets: specific product overlap, deal types, or market segments.
+## 4. WHERE THEY COMPETE WITH NAVINA
+1–2 bullets: specific product overlap or deal types only.
 
-## WHERE NAVINA HAS THE EDGE
-2 bullets — use Navina's verified KPIs as proof.
-
-## ACTIONS
-2 bullets: what sales, product, or marketing should do based on this.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+## 5. ONE THING TO WATCH
+1 bullet: the most important thing to monitor about ${c} in the next 60 days.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'navina-wins': (c, persona, notes) =>
@@ -3138,7 +3160,7 @@ You are a senior CI analyst at Navina. Build a win-against playbook for ${person
 
 const analysisLabels = {
   'battlecard':'Battlecard','deep-dive':'Deep Dive','compare':'Compare',
-  'sw':'S&W Analysis','news':'Latest News','roadmap':'Roadmap Signals',
+  'sw':'S&W Analysis','news':'Latest News','product-overview':'Product Overview',
   'kpi':'KPI Comparison','exec-brief':'Exec Brief','navina-wins':'Where Navina Wins'
 };
 
