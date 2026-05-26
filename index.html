@@ -2820,18 +2820,81 @@ const COMPANY_KB = {
 
   'Keebler Health': {
     category: 'Risk Adjustment',
-    summary: `Keebler Health is an early-stage risk adjustment startup offering HCC coding support for value-based care organizations. Very early in development — limited public information on product depth, customers, or outcomes. No ambient AI, no quality/HEDIS module, no named customers publicly confirmed.`,
-    key_facts: `– Stage: early/seed (~$7.8M raised)
-– Employees: ~20
-– No published case studies or outcome data
+    summary: `Keebler Health is an LLM-native risk adjustment platform founded in 2023, headquartered in Durham, NC. Processes unstructured clinical documentation to surface missed HCC coding opportunities for value-based care organizations. Raised $23M total ($16M Series A led by Flare Capital Partners, April 2026). ~27 employees. Targets physician groups, MSOs, ACOs, and MA-focused providers. No named customers publicly confirmed.`,
+    key_facts: `– Founded: 2023 · HQ: Durham, NC
+– Funding: ~$23M total ($7M seed + $16M Series A led by Flare Capital Partners, April 2026)
+– Employees: ~27
+– Core: LLM-native HCC coding from unstructured clinical docs, retrospective + concurrent
+– Expanding into RADV audit readiness workflows
 – No quality/HEDIS module
 – No ambient documentation
-– No named enterprise customers confirmed publicly`,
-    vs_navina: `– Early stage with unproven product vs. Navina's production-scale platform (1,300+ clinics, 20,000+ clinicians)
+– No named enterprise customers publicly confirmed`,
+    vs_navina: `– Early stage (founded 2023) vs. Navina's production-scale platform (1,300+ clinics, 20,000+ clinicians)
 – No quality/HEDIS capability
 – No ambient documentation
-– No independent clinical validation
-– No named customers publicly confirmed`,
+– No independent clinical validation studies
+– No named customers publicly confirmed
+– Retrospective/concurrent focus vs. Navina's prospective point-of-care suspecting`,
+  },
+
+  'Evidently': {
+    category: 'Risk Adjustment / HCC',
+    summary: `Evidently is a risk adjustment and HCC coding platform targeting value-based care organizations and Medicare Advantage plans. Focused on prospective and retrospective HCC workflows. Early-stage company with limited public information on product depth and customer scale.`,
+    key_facts: `– Focus: HCC risk adjustment, prospective and retrospective coding
+– Target: ACOs, Medicare Advantage, value-based care organizations
+– Stage: early stage — limited public funding and customer data
+– No confirmed ambient documentation capability
+– No confirmed quality/HEDIS module`,
+    vs_navina: `– Limited public information — verify details via web search
+– No confirmed ambient documentation or quality capability
+– No published clinical validation studies
+– Early stage vs. Navina's production-scale, KLAS-validated platform`,
+  },
+
+  'Inferscience': {
+    category: 'Risk Adjustment / Clinical NLP',
+    summary: `Inferscience is a clinical NLP and risk adjustment platform that uses natural language processing to extract HCC-relevant diagnoses and clinical evidence from physician notes and records. Focused primarily on retrospective chart analysis and HCC coding automation. Targets health plans and risk-bearing provider organizations.`,
+    key_facts: `– Focus: NLP-based HCC extraction from clinical documentation
+– Workflow: primarily retrospective chart analysis
+– Target: health plans, payers, risk-bearing organizations
+– Technology: clinical NLP on unstructured text
+– Limited public information on scale, funding, and named customers`,
+    vs_navina: `– Background NLP tool vs. Navina's real-time point-of-care physician interface
+– No physician-facing workflow — results go to coders/analysts, not clinicians
+– No ambient documentation
+– No quality/HEDIS module
+– Navina reaches the physician during the visit; Inferscience processes charts in the back office`,
+  },
+
+  'Charta Health': {
+    category: 'Risk Adjustment / Chart Review',
+    summary: `Charta Health is a risk adjustment and retrospective chart review platform serving health plans and Medicare Advantage organizations. Uses AI to analyze clinical documentation for HCC coding accuracy and missed diagnoses. Primarily payer-side tooling — limited point-of-care physician workflow. Notion page available for internal research.`,
+    key_facts: `– Focus: AI-assisted retrospective HCC chart review
+– Target: health plans, Medicare Advantage payers
+– Workflow: retrospective, post-visit processing
+– No confirmed point-of-care physician interface
+– No ambient documentation
+– No quality/HEDIS module`,
+    vs_navina: `– Retrospective chart review only vs. Navina's prospective point-of-care workflow
+– Payer-focused vs. Navina's provider/physician-first approach
+– No physician-facing EHR-embedded interface
+– No ambient documentation
+– Navina creates the clinical signal at the point of care; Charta reviews charts after the fact`,
+  },
+
+  'MedChartScan': {
+    category: 'Risk Adjustment / Document Processing',
+    summary: `MedChartScan is a retrospective chart review and document processing platform for HCC risk adjustment. Focuses on scanning and analyzing clinical documentation — faxes, scanned records, medical charts — to identify missed HCC codes for health plans and MA organizations. Primarily an automated document processing service.`,
+    key_facts: `– Focus: automated chart and document scanning for HCC coding
+– Target: health plans, Medicare Advantage organizations
+– Workflow: retrospective bulk document processing
+– Technology: document scanning and NLP for HCC extraction
+– Limited public information on scale or funding`,
+    vs_navina: `– Retrospective document processing vs. Navina's real-time prospective intelligence
+– No physician-facing interface at point of care
+– No ambient documentation
+– No quality/HEDIS capability
+– Back-office service vs. Navina's clinician workflow tool`,
   },
 
   'Innovaccer': {
@@ -2951,6 +3014,84 @@ const COMPANY_KB = {
 
   // ── Population Health / VBC ────────────────────────────────────────────────
 
+  'Health Catalyst': {
+    category: 'Health Data Platform / Analytics',
+    summary: `Health Catalyst (HCAT) is a publicly-traded health data platform company focused on data warehousing, analytics, and performance improvement programs for large health systems. Core product: Late-Binding Data Warehouse (EDW) with analytics applications on top. Strong in hospital operational analytics, quality improvement, and financial performance. Not designed for physician point-of-care workflows — primarily sells to health system IT and analytics teams.`,
+    key_facts: `– Founded: 2008 · HQ: Salt Lake City, UT
+– Public company (HCAT, NASDAQ) · ~$260M annual revenue (~2024)
+– ~1,200 employees
+– Core: health data warehouse (Ignite platform), analytics apps, AI/ML modules
+– Customers: large health systems, academic medical centers, hospital networks
+– Products: data platform, care management suite, financial/quality analytics
+– No ambient documentation capability
+– Not focused on primary care VBC or physician point-of-care HCC workflows`,
+    vs_navina: `– Enterprise data infrastructure vs. Navina's point-of-care clinical intelligence
+– Targets health system CIOs and data teams, not individual physicians
+– No prospective HCC at point of care
+– No ambient documentation
+– No care gap closure in the physician visit
+– Health Catalyst is a data warehouse play; Navina is a clinical action play at the bedside`,
+  },
+
+  'Lightbeam Health': {
+    category: 'Population Health / Care Management',
+    summary: `Lightbeam Health Solutions is a population health management platform focused on care management, risk stratification, and care coordination for ACOs and physician groups. Provides care management workflows, patient outreach, and quality tracking. Acquired by Privia Health to support their VBC network. Primarily serves care teams and care managers — limited direct physician encounter workflow.`,
+    key_facts: `– HQ: Nashville, TN
+– Acquired by Privia Health (~2021)
+– Core: care management, patient stratification, care coordination, quality tracking
+– Target: ACOs, physician groups, VBC networks (primarily Privia's own network)
+– Workflow: care managers and population health teams — not individual physician visit
+– No ambient documentation
+– No prospective HCC at point of care`,
+    vs_navina: `– Care management platform vs. Navina's physician-facing clinical intelligence
+– Focuses on the care team (care managers, nurses), not the physician encounter
+– No prospective HCC at point of care
+– No ambient documentation
+– No unstructured data NLP
+– Now primarily an internal tool within the Privia Health ecosystem`,
+  },
+
+  'Azara Healthcare': {
+    category: 'Population Health / FQHC Analytics',
+    summary: `Azara Healthcare is a population health analytics and quality reporting platform focused primarily on Federally Qualified Health Centers (FQHCs), community health centers, and safety-net organizations. Specializes in UDS reporting, HEDIS measures, and care gap tracking for government-funded health programs. Strong in the FQHC market — minimal overlap with commercial Medicare Advantage or primary care VBC.`,
+    key_facts: `– HQ: Burlington, MA
+– Core: population health analytics, UDS reporting, HEDIS/quality tracking, care gap management
+– Primary market: FQHCs, community health centers, safety-net providers
+– Integrations: Epic, Cerner, eClinicalWorks, and FQHC-specific EHRs
+– Not focused on Medicare Advantage or commercial risk adjustment
+– No ambient documentation
+– No point-of-care HCC coding`,
+    vs_navina: `– FQHC/safety-net focus vs. Navina's Medicare Advantage and primary care VBC market
+– Different market segment — minimal overlap with Navina's target buyers
+– No point-of-care HCC risk adjustment
+– No ambient documentation
+– Reporting/analytics tool vs. Navina's real-time clinical intelligence platform`,
+  },
+
+  'Fold Health': {
+    category: 'Population Health / VBC Enablement',
+    summary: `Fold Health is a VBC enablement platform designed to help independent physician groups manage value-based care contracts. Provides analytics dashboards, care management workflows, and contract performance monitoring. Early-stage company targeting independent physician groups and ACOs looking to operationalize VBC contracts.`,
+    key_facts: `– Stage: early stage / growth
+– Focus: VBC contract enablement, care gap management, quality performance tracking
+– Target: independent physician groups, ACOs
+– No ambient documentation
+– No dedicated HCC risk adjustment module
+– Limited public information on funding and scale`,
+    vs_navina: `– VBC contract analytics vs. Navina's point-of-care clinical intelligence
+– No physician-facing workflow at point of care
+– No ambient documentation
+– No prospective HCC coding
+– Different layer of the VBC stack: contract management vs. clinical execution`,
+  },
+
+  'The Garage': {
+    category: 'Population Health / VBC',
+    summary: `The Garage is a value-based care enablement organization or platform. Limited public information available — verify current product details and market position via web search.`,
+    key_facts: `– Category: value-based care / population health
+– Limited public information available — web search recommended for current details`,
+    vs_navina: `– Verify current competitive details via web search`,
+  },
+
   'Arcadia': {
     category: 'Population Health / VBC Data Platform',
     summary: `Arcadia is a population health analytics and VBC enablement platform focused on aggregating multi-source clinical and claims data for ACOs, health systems, and payers. Core product: data aggregation, analytics, and care management workflows. Strong in large network analytics and ACO reporting. Limited in point-of-care physician engagement — primarily a back-office/analytics tool.`,
@@ -2968,6 +3109,71 @@ const COMPANY_KB = {
 – No prospective HCC at point of care
 – Strong data aggregation; Navina wins on clinical action at the point of care
 – Arcadia is an analytics/reporting platform; Navina is a clinician workflow tool`,
+  },
+
+  'Nabla': {
+    category: 'Ambient AI / Clinical Documentation',
+    summary: `Nabla is a French AI ambient documentation startup expanding aggressively in the US market. Core product: real-time ambient note generation during physician-patient encounters. Known for a clean UX and a developer-facing API (Nabla API) used to embed ambient documentation into existing health platforms. Supports multiple specialties. Documentation-only — no HCC coding, no risk adjustment, no quality/HEDIS.`,
+    key_facts: `– Founded: 2018 · HQ: Paris, France (US expansion)
+– Funding: ~$30M+ raised
+– Core: ambient documentation, specialty-specific note templates, developer API
+– Integrations: multiple EHRs via FHIR API
+– API-first strategy: enables embedding in third-party platforms
+– Target: physician groups, health systems, platform builders
+– No HCC / no risk adjustment / no quality module`,
+    vs_navina: `– Documentation only vs. Navina's full VBC platform
+– French company entering US — less brand equity in US enterprise healthcare
+– No HCC or risk adjustment capability
+– API-first may commoditize ambient scribing vs. Navina's integrated platform depth
+– No clinical outcome validation studies in US market`,
+  },
+
+  'Heidi': {
+    category: 'Ambient AI / Clinical Documentation',
+    summary: `Heidi Health is an Australian AI ambient medical scribe platform expanding globally. Core product: real-time ambient note generation for general practice and primary care, known for ease of use and fast self-serve onboarding. Consumer-friendly pricing ($99–149/month) makes it popular with solo physicians and small practices. Documentation-only — no HCC coding, no risk adjustment, no quality workflows. Limited US enterprise presence.`,
+    key_facts: `– Founded: 2021 · HQ: Melbourne, Australia (expanding to US/UK)
+– Funding: ~$10M+ raised
+– Core: ambient documentation for general practice, primary care
+– Target: solo physicians, small practices, general practitioners
+– Pricing: freemium + low monthly subscription
+– No EHR deep integration — primarily copy-paste workflow
+– No HCC / no risk adjustment / no quality module`,
+    vs_navina: `– Consumer/SMB tool vs. Navina's enterprise VBC platform
+– No HCC or risk adjustment capability
+– Australian focus vs. Navina's US Medicare Advantage expertise
+– No enterprise EHR integration or bidirectional data push
+– No US clinical validation studies
+– Competes on price/simplicity for tiny practices; Navina competes in enterprise ACOs and health systems`,
+  },
+
+  'Freed AI': {
+    category: 'Ambient AI / Clinical Documentation',
+    summary: `Freed AI is a consumer-facing AI medical scribe focused on individual physicians and small practices. Core product: ambient note generation via browser or smartphone app. Known for the lowest price point in the market and instant self-serve onboarding — no sales team, no implementation. Targets solo practitioners and small groups, not enterprise health systems. Documentation-only — no HCC coding, no risk adjustment, no quality/HEDIS.`,
+    key_facts: `– Founded: 2023 · HQ: US
+– Funding: seed stage (~$2M+)
+– Core: ambient note generation via browser/iOS app
+– Target: individual physicians, solo practices, small groups
+– Pricing: ~$99–149/month per physician (self-serve, no contract)
+– No deep EHR integration — copy-paste workflow
+– No HCC / no risk adjustment / no quality module
+– No enterprise sales team or customer success`,
+    vs_navina: `– Solo/consumer tool vs. Navina's enterprise VBC platform
+– No EHR integration depth (copy-paste vs. Navina's bidirectional push)
+– No HCC or risk adjustment capability
+– No care gap or quality workflows
+– No enterprise implementation or support
+– Competes on simplicity and price in tiny practices; Navina competes in enterprise ACOs`,
+  },
+
+  'Marvix AI': {
+    category: 'Ambient AI / Clinical Documentation',
+    summary: `Marvix AI is an ambient clinical documentation platform. Early stage with limited public information — verify current product details, funding, and customers via web search.`,
+    key_facts: `– Focus: ambient clinical documentation
+– Stage: early stage
+– Limited public information — web search recommended`,
+    vs_navina: `– Documentation-focused vs. Navina's full VBC platform
+– No confirmed HCC or risk adjustment capability
+– Verify current details via web search`,
   },
 
   // ── EHRs ──────────────────────────────────────────────────────────────────
@@ -2991,6 +3197,157 @@ const COMPANY_KB = {
 – Navina adds value ON TOP of Epic, not competing with core EHR functionality
 – Independent PHYX/AAFP studies validate Navina in Epic-native workflows
 – Epic's ambient (DAX partnership) is documentation only — no HCC, no care gaps`,
+  },
+
+  'Athenahealth': {
+    category: 'EHR Platform / Ambulatory',
+    summary: `Athenahealth (Athena Health Group, owned by Veritas Capital) is a cloud-based EHR, practice management, and patient engagement platform dominant in ambulatory and independent physician practice settings. Serves ~160,000 providers. Known for cloud-native architecture and integrated revenue cycle management. Has native care gap and HEDIS reporting tools and is building AI features (athenaOne AI). Navina integrates with athenahealth — overlaying HCC and quality intelligence on top of its workflow.`,
+    key_facts: `– Founded: 1997 · HQ: Watertown, MA
+– Owner: Veritas Capital (private equity) — merged with Virence Health (GE Healthcare IT)
+– ~5,000–6,000 employees · ~160,000 providers on platform
+– Core: cloud EHR (athenaOne), practice management, revenue cycle, patient engagement
+– Market: ambulatory care, independent practices, specialty groups, FQHCs
+– Quality: native care gap and HEDIS reporting (basic)
+– AI: athenaOne AI (ambient notes, workflow automation — building out)
+– No dedicated HCC risk adjustment for Medicare Advantage populations`,
+    vs_navina: `– Navina overlays ON TOP of athenahealth — not a head-to-head EHR competition
+– athenahealth's native care gap tools are basic vs. Navina's evidence-backed, real-time HCC closure
+– athenahealth processes structured data only; Navina adds NLP on unstructured records
+– athenahealth's ambient AI is documentation-only; Navina adds HCC + quality layer
+– Navina's 77% acceptance rate vs. lower follow rates from athena's native alerts
+– Large athena practice base = major Navina integration opportunity (especially as those practices join MA/ACO contracts)`,
+  },
+
+  'eClinicalWorks': {
+    category: 'EHR Platform / Ambulatory',
+    summary: `eClinicalWorks (eCW) is one of the largest US ambulatory EHR vendors, serving ~180,000 providers across 150,000 facilities. Known for cost-competitive pricing targeting small and mid-size practices. Had a $155M DOJ settlement in 2017 for misrepresenting EHR certification. Has a population health module (PHM Suite) and basic care gap tools. Building AI features (Eva AI assistant). Navina integrates with eCW, adding a clinical intelligence layer on top.`,
+    key_facts: `– Founded: 1999 · HQ: Westborough, MA
+– Private · ~5,000 employees
+– Scale: ~180,000 providers, 150,000 facilities
+– Core: ambulatory EHR, practice management, patient engagement
+– PHM Suite: care management, care gaps, quality reporting (basic)
+– AI: Eva (EHR navigation and note generation assistant)
+– 2017: $155M DOJ settlement for misrepresenting EHR certification
+– Heavy use in independent/small practices, FQHCs, community health centers
+– No dedicated HCC risk adjustment for MA populations`,
+    vs_navina: `– Navina overlays ON TOP of eCW — not direct EHR competition
+– eCW's native care gap tools are basic vs. Navina's evidence-backed, real-time HCC workflow
+– eCW 2017 DOJ fraud settlement creates trust concerns in compliance-sensitive organizations
+– eCW processes structured data; Navina adds unstructured NLP across all record types
+– Large eCW practice base = Navina integration and sales opportunity
+– eCW's Eva is EHR navigation/documentation — not HCC-specific or prospective`,
+  },
+
+  // ── Payer Solutions ───────────────────────────────────────────────────────
+
+  'Raapid': {
+    category: 'Risk Adjustment / Payer Solutions',
+    summary: `Raapid is a risk adjustment platform targeting health plans and Medicare Advantage payers. Focuses on retrospective HCC coding, chart review automation, and risk adjustment analytics for payers. Primarily a back-office tool for health plan risk adjustment operations — no point-of-care physician workflow.`,
+    key_facts: `– Focus: retrospective HCC chart review and risk adjustment for payers
+– Target: health plans, Medicare Advantage organizations
+– Workflow: retrospective, payer-side operations
+– No physician-facing point-of-care interface
+– No ambient documentation
+– Limited public information on funding and scale`,
+    vs_navina: `– Payer-focused back-office tool vs. Navina's provider-first point-of-care platform
+– Retrospective workflow vs. Navina's prospective real-time HCC suspecting
+– No physician-facing interface
+– No ambient documentation
+– No quality/HEDIS module`,
+  },
+
+  'Vertexa Health': {
+    category: 'Risk Adjustment / Payer Solutions',
+    summary: `Vertexa Health is a healthcare analytics and risk adjustment platform focused on payer-side solutions for Medicare Advantage and value-based care. Limited public information available — verify current product depth, customers, and market position via web search.`,
+    key_facts: `– Focus: payer analytics, risk adjustment, Medicare Advantage
+– Limited public information — web search recommended for current details`,
+    vs_navina: `– Payer-focused analytics vs. Navina's provider-first platform
+– Verify current competitive details via web search`,
+  },
+
+  'Pareto Intelligence': {
+    category: 'Risk Adjustment / Payer Analytics',
+    summary: `Pareto Intelligence is a healthcare analytics company providing risk adjustment and quality performance analytics for health plans and Medicare Advantage organizations. Focuses on data-driven risk adjustment accuracy, quality measure tracking, and compliance analytics. Acquired by Cognizant (major IT services company), giving it enterprise distribution but reducing agility as an independent product.`,
+    key_facts: `– HQ: Chicago, IL
+– Acquired by Cognizant (global IT services company)
+– Core: risk adjustment analytics, quality performance, HCC analytics for payers
+– Target: health plans, Medicare Advantage payers
+– Workflow: back-office payer analytics and compliance reporting
+– No provider-facing workflow
+– No ambient documentation`,
+    vs_navina: `– Payer analytics tool vs. Navina's provider-facing clinical intelligence
+– Back-office analytics vs. real-time point-of-care workflow
+– No physician-facing interface
+– No ambient documentation
+– Navina creates the clinical signal (at point of care); Pareto analyzes risk data after the fact
+– Cognizant acquisition may slow product innovation`,
+  },
+
+  'GeBBS': {
+    category: 'Healthcare Outsourcing / Revenue Cycle',
+    summary: `GeBBS Healthcare Solutions is a healthcare outsourcing company specializing in revenue cycle management, medical coding, and clinical documentation improvement (CDI) services. Provides both technology and human coding staff for HCC risk adjustment. Primarily a services/BPO company rather than a software platform. Targets health plans, hospitals, and physician groups for outsourced coding and risk adjustment operations.`,
+    key_facts: `– HQ: Los Angeles, CA
+– Private equity-backed
+– Core: revenue cycle outsourcing, medical coding, CDI, risk adjustment services
+– Model: services (human coders + offshore) + technology platform
+– Target: hospitals, health systems, health plans, physician groups
+– HCC: retrospective chart review with human coder teams + AI assist
+– No physician-facing workflow tool
+– No ambient documentation`,
+    vs_navina: `– Outsourced services model vs. Navina's SaaS software platform
+– Human-coded retrospective vs. Navina's AI-driven prospective point-of-care
+– Labor-intensive model creates cost and scalability limits vs. Navina's scalable SaaS
+– No physician workflow or EHR integration
+– Navina reduces the need for outsourced coding by improving physician capture rate at the source`,
+  },
+
+  // ── Other ─────────────────────────────────────────────────────────────────
+
+  'Doximity': {
+    category: 'Physician Network / Communications / AI Tools',
+    summary: `Doximity is the largest professional network for US physicians, with ~80% of US doctors as members (~2M+ clinicians). Core products: secure messaging, telehealth (Doximity Dialer), digital fax, and a medical newsfeed. Recently launched Doximity GPT — AI tools for clinical note drafting, letter writing, and patient communication. Generates revenue primarily through pharma/medtech marketing and talent placement. Not a clinical intelligence or risk adjustment platform — but has unmatched physician reach.`,
+    key_facts: `– Founded: 2010 · HQ: San Francisco, CA
+– Public company (DOCS, NYSE) · ~$420M annual revenue (~2024)
+– ~900 employees
+– Members: ~2M+ US physicians and NPs (~80% of all US physicians)
+– Core: secure messaging, telehealth, e-fax, news feed
+– AI: Doximity GPT for note drafting, letters, patient communication
+– Revenue model: pharma/medtech advertising, talent placement — NOT direct provider SaaS
+– No HCC risk adjustment / no EHR bidirectional integration / no quality analytics`,
+    vs_navina: `– Physician communications network vs. Navina's clinical intelligence platform
+– No HCC, no risk adjustment, no quality/HEDIS capability
+– No EHR bidirectional integration
+– Doximity GPT is note assistance only — not evidence-backed HCC suspecting
+– Revenue from pharma, not from VBC operators — very different buyer motion
+– Significant physician reach could be an awareness or co-marketing opportunity for Navina`,
+  },
+
+  'Notable Health': {
+    category: 'Patient Intake / AI Automation',
+    summary: `Notable Health is an AI-powered patient intake, care gap outreach, and administrative workflow automation platform. Core product: automated pre-visit patient intake via digital forms and text-based outreach, care gap closure through patient-facing engagement, and administrative task automation. Focuses on reducing front-desk burden and improving patient experience. Limited in physician-facing clinical intelligence or HCC risk adjustment.`,
+    key_facts: `– Founded: 2017 · HQ: San Mateo, CA
+– Funding: ~$100M+ raised (Series B)
+– Core: AI-driven patient intake, care gap outreach to patients, admin workflow automation
+– Integrations: Epic, Cerner, athenahealth, eClinicalWorks
+– Target: health systems, physician groups, multi-specialty practices
+– Care gaps: patient-facing outreach and questionnaires — not physician CDS
+– No ambient documentation
+– No HCC risk adjustment or prospective coding`,
+    vs_navina: `– Patient-facing automation vs. Navina's physician-facing point-of-care intelligence
+– Notable touches the front desk and patient; Navina touches the physician
+– No HCC risk adjustment or prospective coding
+– No ambient documentation
+– No unstructured data NLP across clinical records
+– Potential partner: Notable improves pre-visit intake data quality that Navina can then act on at the visit`,
+  },
+
+  'ELCAT': {
+    category: 'Risk Adjustment / Coding',
+    summary: `ELCAT is a risk adjustment and HCC coding platform. Limited public information available — verify current product details, market position, and customers via web search.`,
+    key_facts: `– Focus: risk adjustment, HCC coding
+– Limited public information available — web search recommended`,
+    vs_navina: `– Verify current competitive details via web search
+– Likely retrospective coding workflow vs. Navina's prospective point-of-care approach`,
   },
 
 };
