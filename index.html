@@ -1577,21 +1577,13 @@ async function generateWithAI() {
   if (!selectedCompetitor || !selectedAnalysis || isGenerating) return;
   const allComps = allSelectedCompetitors();
 
-  // Switch to Generate Intel tab
+  // ── Show UI immediately — don't wait for Notion fetch ──
   switchTab('gen');
-
-  // Build prompt + pre-fetch internal content
-  const rawPrompt = buildFullPrompt();
-  const { prompt, sourcesLoaded } = await enrichPromptWithContent(rawPrompt);
-  chatHistory = [{ role: 'user', content: prompt }];
-
-  // Hide welcome, show chat; auto-collapse options to give chat more room
   document.getElementById('gen-welcome').style.display = 'none';
   collapseOptionsOnChatStart();
   const messagesEl = document.getElementById('chat-messages');
   messagesEl.style.display = 'flex';
 
-  // Show user message (collapsed — just context, not the full prompt)
   const aLabel = analysisLabels[selectedAnalysis] || selectedAnalysis;
   messagesEl.innerHTML = '';
   const notesVal = document.getElementById('notes-input').value.trim();
@@ -1600,7 +1592,7 @@ async function generateWithAI() {
     `**${aLabel}** analysis for **${compLabel}** · Persona: ${selectedPersona}` +
     (notesVal ? `\n\n_Context: ${notesVal}_` : ''));
 
-  // Show thinking
+  // Show loading indicator immediately
   const thinkingId = 'thinking-' + Date.now();
   messagesEl.insertAdjacentHTML('beforeend', `
     <div id="${thinkingId}" class="chat-msg-ai">
@@ -1608,14 +1600,27 @@ async function generateWithAI() {
         <div class="chat-msg-avatar">J</div>
         <div class="chat-msg-name">Joey</div>
       </div>
-      <div class="chat-thinking-body">
+      <div class="chat-thinking-body" id="${thinkingId}-body">
         <div class="chat-dots"><span></span><span></span><span></span></div>
-        ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Searching and analyzing ${escHtml(allComps.join(', '))}...
+        Fetching internal materials for ${escHtml(compLabel)}...
       </div>
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
-
   setGenerating(true);
+
+  // ── Now do the slow Notion/Drive fetch in background ──
+  const rawPrompt = buildFullPrompt();
+  const { prompt, sourcesLoaded } = await enrichPromptWithContent(rawPrompt);
+  chatHistory = [{ role: 'user', content: prompt }];
+
+  // Update loading message to show what was loaded
+  const bodyEl = document.getElementById(`${thinkingId}-body`);
+  if (bodyEl) {
+    bodyEl.innerHTML = `
+      <div class="chat-dots"><span></span><span></span><span></span></div>
+      ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Searching and analyzing ${escHtml(allComps.join(', '))}...
+    `;
+  }
   try {
     const reply = await callClaudeAPI(chatHistory);
     lastAIResponse = reply;
@@ -3514,35 +3519,34 @@ Search for any publicly claimed metrics — capture rate, engagement rate, time 
   'exec-brief': (c, persona, notes) => {
     const res = RESOURCES[c];
     const base = res?.website?.url?.replace(/\/$/, '') || '';
-    const newsUrl = base
-      ? `${base} (/news, /newsroom, /press), businesswire.com, prnewswire.com, beckershospitalreview.com`
-      : `"${c}" official website news section, businesswire.com, prnewswire.com, beckershospitalreview.com`;
     return `${driveContext(c, 'exec-brief')}
 
-You are a senior CI analyst at Navina. Write a sharp executive brief on ${c} for ${persona}.
-No fluff — every sentence must add information. No marketing language.
+You are a senior CI analyst at Navina. Write a tight executive brief on **${c}** for ${persona}.
+No intro sentence. No meta-commentary ("Based on research..."). Start immediately with section 1.
+Every sentence must add a concrete fact. No marketing language.
+
+FORMATTING: Bullets (–) only. Max 12 words per bullet. No long paragraphs except the snapshot.
 
 ## 1. COMPANY SNAPSHOT
-Write a single paragraph: 55–80 words (target 65–70).
-Cover: what the company does · main product categories · core workflows · primary customers · notable customers or partnerships if available · total funding · year founded · approx. employee count.
-Style: straightforward, clear, non-marketing, easy to scan quickly.
+One paragraph, 50–65 words max.
+Cover: what they do · core product · primary customers · total funding · founded · headcount.
 
-## 2. PRODUCT OVERVIEW
-Divide into 2–3 main pillars. Under each: 3–4 features/capabilities.
-Each feature: 1 line, max 8–12 words. No marketing language.
-Example: "Surfaces HCC gaps during visits with supporting evidence."
+## 2. PRODUCT — KEY CAPABILITIES
+5 bullets max. One capability per bullet. Plain operational language only.
+Good: "Surfaces HCC gaps during visits with supporting evidence."
+Bad: "Leverages advanced AI to transform clinical documentation."
 
-## 3. RECENT DEVELOPMENTS (last 6–8 weeks)
-Search: ${newsUrl}
-2–3 bullets: material developments only — funding, product launches, partnerships, key hires.
-Format: **[Month DD]** — Headline. Source: [URL or "via [domain]"]
-Skip section entirely if nothing material found.
+## 3. LATEST NEWS
+Search: ${base ? base + ' (/news, /blog, /press)' : c + ' official website'} · fiercehealthcare.com · beckershospitalreview.com · businesswire.com · prnewswire.com
+Timeframe: last 6–8 weeks. 2–3 items max.
+Format: **[Month DD, YYYY]** — One-sentence headline. Source: [domain]
+Skip entirely if nothing material found in the timeframe.
 
-## 4. WHERE THEY COMPETE WITH NAVINA
-1–2 bullets: specific product overlap or deal types only.
+## 4. NAVINA OVERLAP
+1–2 bullets: specific product areas where ${c} directly competes with Navina today.
 
 ## 5. ONE THING TO WATCH
-1 bullet: the most important thing to monitor about ${c} in the next 60 days.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+1 bullet: the single most important thing to monitor about ${c} in the next 60 days.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
 };
