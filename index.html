@@ -1700,7 +1700,7 @@ async function callClaudeAPI(messages) {
     body: JSON.stringify({
       model: 'claude-opus-4-5',
       max_tokens: 4096,
-      system: NAVINA_CORE,
+      system: NAVINA_CORE + OUTPUT_STYLE + SOURCE_RULE,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
       messages: messages,
     }),
@@ -1898,19 +1898,20 @@ function copyMsgText(btn, text) {
 function buildFullPrompt() {
   const all = allSelectedCompetitors();
   const notes = document.getElementById('notes-input').value.trim();
+  const personaBlock = PERSONA_FOCUS[selectedPersona] || '';
+
   if (all.length > 1) {
-    // Multi-competitor: pass comma-separated list as the "competitor" argument
     const compList = all.join(', ');
-    const context = ''; // no single Drive context for multi
     const promptFn = PROMPTS[selectedAnalysis];
-    if (!promptFn) return `Analyze the following competitors for ${selectedPersona}: ${compList}.`;
-    return promptFn(compList, selectedPersona, notes, context);
+    if (!promptFn) return `${personaBlock}\n\nAnalyze the following competitors: ${compList}.`;
+    const body = promptFn(compList, selectedPersona, notes, '');
+    return personaBlock ? `${personaBlock}\n\n${body}` : body;
   }
   const c = selectedCompetitor;
-  const context = driveContext(c, selectedAnalysis);
   const promptFn = PROMPTS[selectedAnalysis];
-  if (!promptFn) return `Analyze ${c} for ${selectedPersona}.`;
-  return promptFn(c, selectedPersona, notes, context);
+  if (!promptFn) return `${personaBlock}\n\nAnalyze ${c}.`;
+  const body = promptFn(c, selectedPersona, notes);
+  return personaBlock ? `${personaBlock}\n\n${body}` : body;
 }
 
 // ── URL content pre-fetcher ───────────────────────────────────────────────────
@@ -3078,6 +3079,59 @@ vs. EHR tools (Epic CDS): Purpose-built for VBC. Unstructured NLP. Evidence-link
 • CBInsights GenAI 50 · CB Insights AI 100 · CB Insights Digital Health 50
 • KLAS Top 20 Emerging Solutions · SOC2 Type II + HIPAA · ISO 27001:2022`;
 
+// ── Layer 2: Universal Output Style ──────────────────────────────────────────
+const OUTPUT_STYLE = `
+━━━ OUTPUT STYLE — FOLLOW STRICTLY ━━━
+• Answer ONLY what the template asks. Never add sections not listed in the template.
+• No intro sentences. No meta-commentary ("Based on my research...", "Here is the brief:"). Start immediately with the first section.
+• No marketing language: never use "transformative", "innovative", "robust", "cutting-edge", "leverages", "comprehensive", "powerful"
+• Bullets (–): one concrete fact per bullet, max 15 words. Never place a "–" on its own line without content.
+• Tables: only for true multi-column comparisons (2+ data columns). Never for single-column lists.
+• Tight spacing: no blank lines between a section header and its content.
+• Unverified data: write "Unconfirmed" or "No public data" — never speculate or hallucinate.
+• Short and sharp: if a section only warrants 2 items, write 2. Never pad to fill space.`;
+
+// ── Layer 3: Universal Source Rule ───────────────────────────────────────────
+const SOURCE_RULE = `
+━━━ SOURCE RULE — APPLY TO ALL FACTS ━━━
+• Every factual claim must include a source inline: Source: [URL] or "via domain.com"
+• For news/recent items: always include the date AND a confirmed source URL or domain. Never omit.
+• If a fact cannot be sourced or verified: write "Unconfirmed" — never present it as fact.
+• Recency: news and updates must be from the last 6–8 weeks. Never cite items older than 8 weeks as "recent".
+• Preferred sources: company website (product pages, press, blog), businesswire.com, prnewswire.com, fiercehealthcare.com, beckershospitalreview.com, healthcareitnews.com, mobihealthnews.com, klasresearch.com, crunchbase.com`;
+
+// ── Layer 4: Persona Focus ────────────────────────────────────────────────────
+const PERSONA_FOCUS = {
+  'Sales': `PERSONA — Sales Executive:
+Prioritize: deal-winning angles, objections you'll face in the field, displacement tactics, pricing signals, customer proof points.
+For news: customer wins, new enterprise deals, pricing changes, channel updates.
+For comparisons: frame everything around Navina's win rates, physician adoption, ROI proof points.`,
+
+  'Product Manager': `PERSONA — Product Manager:
+Prioritize: product depth, feature completeness, integration breadth, technical architecture, roadmap signals, API capabilities.
+For news: new product features, new integrations, platform changes, technical acquisitions.
+For comparisons: feature-by-feature technical depth, build vs. buy implications, data model differences.`,
+
+  'Clinical Manager': `PERSONA — Clinical Manager:
+Prioritize: clinical workflow impact, physician adoption rates, burnout data, quality/HEDIS outcomes, evidence-based validation, EHR embedding depth.
+For news: clinical studies published, outcome data, EHR workflow updates, physician experience changes.
+For comparisons: clinical evidence quality, real-world adoption, workflow disruption risk.`,
+
+  'Executive': `PERSONA — Executive:
+Prioritize: market position, funding/M&A activity, strategic direction, customer scale, partnership signals, key risks.
+For news: funding rounds, acquisitions, leadership changes, strategic pivots, market expansion.
+For comparisons: market share signals, strategic threat level, build-or-partner implications.`,
+
+  'Marketing / Strategy': `PERSONA — Marketing & Strategy:
+Prioritize: positioning language, messaging frameworks, category definition, competitive narrative, analyst recognition, GTM strategy.
+For news: analyst reports (KLAS, Gartner), partnerships, category movements, messaging shifts, awards.
+For comparisons: positioning gaps, messaging angles, category displacement opportunities, narrative weaknesses.`,
+
+  'CI Analyst': `PERSONA — CI Analyst:
+Prioritize: full depth on all dimensions. Accuracy and sourcing above all else. Flag data gaps, conflicting signals, and unverified claims explicitly.
+For news: signal vs. noise — only material developments with confirmed sources.
+For comparisons: evidence-based only. Mark all unverified claims as "Unconfirmed".`,
+};
 
 function driveContext(c, analysis = '') {
   const res   = RESOURCES[c];
@@ -3157,8 +3211,6 @@ const PROMPTS = {
   'battlecard': (c, persona, notes) =>
 `${driveContext(c, 'battlecard')}
 
-You are a senior CI analyst at Navina preparing a sales battlecard for ${persona}.
-
 ## ${c.toUpperCase()} — SNAPSHOT
 3 bullets: founded · funding & ownership · headcount · core product in one line
 
@@ -3208,28 +3260,10 @@ Mark anything unverified as "Unknown".${notes ? `\n\n## CONTEXT\n${notes}` : ''}
       : 'customer wins · named logos · enterprise deals · pricing signals · ROI claims';
     return `${driveContext(c, 'deep-dive')}
 
-You are a strategy analyst and competitive intelligence expert at Navina AI.
-Produce executive-level competitive intelligence on **${c}** for ${persona}.
+Research scope: ${websiteScope}
+External: beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · modernhealthcare.com · businesswire.com · prnewswire.com · klasresearch.com · crunchbase.com · LinkedIn
 
-FORMATTING RULES — follow strictly:
-– Use **bold labels:** for named fields. Example: **CEO:** Name
-– Use bullet points (–) for lists. Never use a lone "-" on its own line as a separator.
-– Use markdown tables only for comparative data (2+ real columns). Never | pipes | for single-column content.
-– Each bullet: max 15 words. One concrete fact per bullet.
-– No blank lines between a label and its value.
-– Mark anything unverified: "Unconfirmed"
-
-WRITING RULES:
-– Executive-ready · structured · concise · direct · fact-based · easy to scan
-– No marketing language · no buzzwords · no generic claims · no long paragraphs
-– If a capability lacks clear evidence: say "unclear" or "not publicly confirmed" — do not speculate
-– Prioritize: workflow depth · product depth · integration depth · AI capabilities · commercial relevance
-
-RESEARCH SCOPE:
-${websiteScope}
-External: beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · modernhealthcare.com · businesswire.com · prnewswire.com · klasresearch.com · crunchbase.com · LinkedIn company page
-
-NAVINA-RELEVANT FOCUS — identify ${c}'s PRIMARY category first, then apply matching depth:
+Identify **${c}'s PRIMARY category** first, then apply matching depth:
 – Ambient AI / Documentation → ambient docs · clinical workflows · voice · EHR embedding · push-to-EHR · coding support · chart Q&A · physician adoption · specialty coverage
 – Risk Adjustment / Coding → HCC workflows · RAF · CMS-HCC/HHS-HCC/RxHCC · prospective vs retrospective · CDI · chart review · audit · provider prompts · EHR+payer integrations
 – Population Health / VBC → care gaps · HEDIS/STARS · claims+clinical data · risk stratification · outreach · care management · quality programs
@@ -3312,13 +3346,8 @@ Style: quote-heavy · sharp · structured. No paragraphs.
 ${newsContext(c)}
 
 Timeframe: last 6–8 weeks. Extend to 90 days only for major announcements — always show the date.
-Prioritize for ${persona}: ${personaNewsFocus}
-Skip: generic thought leadership · vague AI messaging · event appearances · no concrete details.
-
-Format each item:
-**[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [confirmed URL or "via [domain]"]
-
-If fewer than 4 strong items exist, return fewer — do not pad.
+Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [confirmed URL or "via domain.com"]
+If fewer than 3 strong items exist, return fewer — do not pad.
 
 ==
 
@@ -3365,11 +3394,6 @@ Rating scale: ✓ Strong · ~ Limited (add 1-line note) · ✗ No · ? Unknown/U
 
   'sw': (c, persona, notes) =>
 `${driveContext(c, 'sw')}
-
-You are a senior CI analyst at Navina. Build a competitive S&W analysis of **${c}** for ${persona}.
-Use web search, published case studies, customer reviews, demo observations, and product pages.
-
-FORMATTING RULES: Use bullet points (–). No lone dashes. No single-column | pipe | rows. Tight spacing.
 
 ## CAPABILITY COMPARISON — ${c} vs. Navina
 
@@ -3483,15 +3507,7 @@ Repeat for each item. Max 2 items per category.
 You are a senior CI analyst at Navina. Build a focused product overview of **${c}** for ${persona}.
 Search: ${base ? base + ' — product pages, features, integrations, case studies' : c + ' official website — product pages, features, integrations'}.
 
-⚠️ OUTPUT ONLY THE 4 SECTIONS BELOW. Do NOT add: Navina comparisons, KEY GAPS, TALK TRACK, competitive analysis, or any other sections. This is a product-only brief.
-
-FORMATTING RULES:
-– Use bullet points (–) for capabilities. Never a lone "–" on its own line.
-– Use **bold labels:** for named fields. No single-column | pipe | rows.
-– Tight spacing — no extra blank lines between label and content.
-– Each capability: ONE line, max 12 words, plain language. No marketing speak.
-– Good: "Surfaces HCC gaps during visits with supporting evidence."
-– Bad: "Leverages advanced AI to transform clinical documentation."
+OUTPUT ONLY the 4 sections below. Do not add any other sections.
 
 ## PRODUCT PILLARS
 Divide into 2–3 main pillars. Under each: 3–4 capabilities.
@@ -3518,10 +3534,6 @@ If nothing relevant found in the timeframe: write "No recent product updates fou
 
   'case-studies': (c, persona, notes) =>
 `${driveContext(c, 'kpi')}
-
-You are a senior CI analyst at Navina. Research all published case studies, outcome data, and KPIs for **${c}** — then benchmark against Navina's verified numbers for ${persona}.
-
-FORMATTING RULES: Use bullet points (–). Tables for comparisons only. Mark anything unverified as "No public data." Never invent data.
 
 ## ${c.toUpperCase()} — PUBLISHED CASE STUDIES
 Search: company website (/case-studies, /outcomes, /resources, /customers), press releases, healthcare media.
@@ -3555,12 +3567,6 @@ Search for any publicly claimed metrics — capture rate, engagement rate, time 
     const res = RESOURCES[c];
     const base = res?.website?.url?.replace(/\/$/, '') || '';
     return `${driveContext(c, 'exec-brief')}
-
-You are a senior CI analyst at Navina. Write a tight executive brief on **${c}** for ${persona}.
-No intro sentence. No meta-commentary ("Based on research..."). Start immediately with section 1.
-Every sentence must add a concrete fact. No marketing language.
-
-FORMATTING: Bullets (–) only. Max 12 words per bullet. No long paragraphs except the snapshot.
 
 ## 1. COMPANY SNAPSHOT
 One paragraph, 50–65 words max.
