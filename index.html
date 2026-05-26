@@ -1751,6 +1751,9 @@ function renderMarkdown(text) {
   let s = text
     // Collapse 3+ consecutive blank lines to exactly 2
     .replace(/\n{3,}/g, '\n\n')
+    // Join a lone bullet/dash line with the following content line
+    // (AI sometimes puts "–" alone then content on the next line)
+    .replace(/^([ \t]*[–•-])[ \t]*\n\n?(?!\n)/gm, '$1 ')
     // Remove lines that are just a lone dash (used as visual separator, not a list)
     .replace(/^[ \t]*-[ \t]*$/gm, '')
     // Convert single-cell table rows  "| Some Label |"  → just the content
