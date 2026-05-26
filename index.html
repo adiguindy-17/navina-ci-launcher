@@ -1751,6 +1751,10 @@ function renderMarkdown(text) {
   let s = text
     // Collapse 3+ consecutive blank lines to exactly 2
     .replace(/\n{3,}/g, '\n\n')
+    // Join continuation lines starting with "; " (e.g. "; also AdvancedMD" after a bullet)
+    .replace(/\n[ \t]*;[ \t]+/g, '; ')
+    // Join em-dash "—" continuation lines followed by lowercase (not standalone bullets)
+    .replace(/\n[ \t]*—[ \t]+(?=[a-z(])/g, ' — ')
     // Join a lone bullet/dash line with the following content line
     // (AI sometimes puts "–" alone then content on the next line)
     .replace(/^([ \t]*[–•-])[ \t]*\n\n?(?!\n)/gm, '$1 ')
@@ -3094,11 +3098,18 @@ const OUTPUT_STYLE = `
 // ── Layer 3: Universal Source Rule ───────────────────────────────────────────
 const SOURCE_RULE = `
 ━━━ SOURCE RULE — APPLY TO ALL FACTS ━━━
-• Every factual claim must include a source inline: Source: [URL] or "via domain.com"
-• For news/recent items: always include the date AND a confirmed source URL or domain. Never omit.
-• If a fact cannot be sourced or verified: write "Unconfirmed" — never present it as fact.
-• Recency: news and updates must be from the last 6–8 weeks. Never cite items older than 8 weeks as "recent".
-• Preferred sources: company website (product pages, press, blog), businesswire.com, prnewswire.com, fiercehealthcare.com, beckershospitalreview.com, healthcareitnews.com, mobihealthnews.com, klasresearch.com, crunchbase.com`;
+STATIC FACTS (product capabilities, company info, integrations):
+• Cite the source page ONCE at the end of the section — e.g., "Source: persivia.com/product" — not after every bullet.
+• If a claim cannot be sourced or verified: write "Unconfirmed" — never present it as fact.
+
+NEWS / DATED ITEMS (announcements, funding, launches, partnerships):
+• Every item must include: exact date (Month DD, YYYY) + confirmed URL or "via [domain]". No exceptions.
+• Recency: prefer last 6–8 weeks. If extending beyond, always show the actual date.
+
+METRICS / KPIS:
+• Cite the source per metric. If unverified: write "No public data".
+
+PREFERRED SOURCES: company website (product pages, press, blog), businesswire.com, prnewswire.com, fiercehealthcare.com, beckershospitalreview.com, healthcareitnews.com, mobihealthnews.com, klasresearch.com, crunchbase.com`;
 
 // ── Layer 4: Persona Focus ────────────────────────────────────────────────────
 const PERSONA_FOCUS = {
@@ -3213,6 +3224,7 @@ const PROMPTS = {
 
 ## ${c.toUpperCase()} — SNAPSHOT
 3 bullets: founded · funding & ownership · headcount · core product in one line
+Source: [crunchbase.com or company website]
 
 ## CAPABILITY TABLE — NAVINA vs ${c.toUpperCase()}
 | Capability | Navina | ${c} |
@@ -3305,10 +3317,13 @@ Do not list buyer types or roles that don't apply.
 
 ## 3. Product Overview
 
-Divide into 2–3 main pillars. Under each: 3–4 capabilities.
-Each capability: ONE line · max 8–12 words · plain operational language · no marketing.
+Visit product pages first. Identify 2–3 main pillars — name each explicitly (e.g., "Risk Adjustment Engine", "Clinical Workflow", "Population Analytics").
+Under each pillar: 3–4 specific capabilities.
+Each capability: ONE line · max 10–12 words · plain operational language · no marketing.
 Good: "Surfaces HCC gaps during visits with supporting evidence."
 Bad: "Leverages advanced AI to transform clinical documentation."
+Capture: operational mechanics · NLP depth · EHR embedding type · prospective vs retrospective distinction.
+Source: [product page URL] at end of section.
 
 ==
 
@@ -3345,7 +3360,7 @@ Style: quote-heavy · sharp · structured. No paragraphs.
 
 ${newsContext(c)}
 
-Timeframe: last 6–8 weeks. Extend to 90 days only for major announcements — always show the date.
+Preferred timeframe: last 6–8 weeks. If fewer than 3 items found, extend to 90 days — always show the actual date.
 Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [confirmed URL or "via domain.com"]
 If fewer than 3 strong items exist, return fewer — do not pad.
 
@@ -3414,10 +3429,12 @@ Navina column: use verified KPIs (77% acceptance · 86% weekly active · +67% ne
 
 ## STRENGTHS — what ${c} is genuinely good at
 3–5 bullets. Specific, real capabilities only. Avoid generic praise. Fewer if only 2–3 real strengths exist.
+Source: [website or review source] at end of section.
 
 ## WEAKNESSES — where ${c} falls short
 3–5 bullets. Specific, real gaps only.
 Evidence base: product reviews · customer complaints · demo gaps · public limitations. Fewer if only 2–3 real weaknesses exist.
+Source: [website or review source] at end of section.
 
 ## WHERE NAVINA WINS
 | Dimension | Navina | ${c} | Pitch line for ${persona} |
@@ -3444,8 +3461,8 @@ You are preparing a briefing for a **${persona}** who needs current intelligence
 ## TASK
 Find the 4–6 most relevant recent developments about **${c}**.
 
-Timeframe: last 6–8 weeks.
-Extend to 90 days only for major announcements — always show the date.
+Preferred timeframe: last 6–8 weeks.
+If fewer than 4 items found in that window, extend to 90 days — always show the actual date.
 
 Prioritize by persona:
 - **Product Manager** → product launches, new features, integrations, platform changes, roadmap signals
@@ -3505,31 +3522,39 @@ Repeat for each item. Max 2 items per category.
     return `${driveContext(c, 'product-overview')}
 
 You are a senior CI analyst at Navina. Build a focused product overview of **${c}** for ${persona}.
-Search: ${base ? base + ' — product pages, features, integrations, case studies' : c + ' official website — product pages, features, integrations'}.
+Primary research source: ${base ? base + ' — visit product pages, platform pages, features pages, integrations pages, case studies' : c + ' official website — visit product pages, platform pages, features pages'}.
 
 OUTPUT ONLY the 4 sections below. Do not add any other sections.
 
 ## PRODUCT PILLARS
-Divide into 2–3 main pillars. Under each: 3–4 capabilities.
+Visit the product pages first. Identify 2–3 main product pillars — name each pillar explicitly (e.g., "Risk Adjustment Engine", "Clinical Workflow", "Analytics & Reporting").
+Under each pillar: 3–4 specific capabilities.
+Each capability: one concrete line, max 12 words. Plain operational language only.
+  Good: "Surfaces HCC gaps during visits with supporting evidence"
+  Bad: "Leverages AI to optimize clinical workflows"
+Capture operational depth: NLP on unstructured docs · voice · bidirectional EHR push · prospective vs retrospective · specific EHR hooks · workflow triggers.
+At the end of all pillars: Source: [product page URL where capabilities were found]
 
 ## DEPLOYMENT & INTEGRATION
-– **EHR Integrations:** list all known integrations
-– **Workflow:** prospective / retrospective / both
-– **Access:** EHR-native vs separate portal
-– **Implementation:** timeline if publicly known
+– **EHR Integrations:** list every named EHR integration found on the website (e.g., Epic, athenahealth, eClinicalWorks). If none listed publicly: write "Unconfirmed".
+– **Workflow:** prospective / retrospective / both — specify which
+– **Access:** EHR-native (embedded inside the EHR) vs separate portal vs both
+– **Implementation:** typical timeline if publicly mentioned
+Source: [integration/deployment page URL if found]
 
 ## WHO BUYS IT
-– **Primary Buyer:** health plans / ACOs / health systems / primary care
-– **Contract Model:** deal size or structure if known
-– **Geography:** focus area if known
+– **Primary Buyer:** health plans / ACOs / health systems / primary care groups — specify which
+– **Contract Model:** deal structure or pricing model if publicly known; otherwise "Unconfirmed"
+– **Geography:** US-only / specific regions / international — if known
+– **Typical Customer Size:** enterprise / mid-market / small practice — if signals available
 
 ## RECENT PRODUCT UPDATES
 Search ${base ? base + ' (/news, /blog, /press, /releases)' : c + ' website'} and: businesswire.com · prnewswire.com · mobihealthnews.com · fiercehealthcare.com
-Timeframe: last 6–8 weeks ONLY. Do not include anything older.
-Focus ONLY on: new product features · new integrations · product acquisitions that expand the platform.
-Skip: funding rounds, awards, executive hires, partnerships unrelated to product.
+Preferred timeframe: last 6–8 weeks. If fewer than 2 items found in that window, extend search to the last 6 months — always show the actual date.
+Focus ONLY on: new product features · new integrations · platform acquisitions.
+Skip: funding rounds, awards, executive hires, generic partnerships.
 For each item: **[Month DD, YYYY]** — one sentence. Source: [confirmed URL or "via [domain]"]
-If nothing relevant found in the timeframe: write "No recent product updates found."${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+If truly nothing found at all: write "No product updates found."${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'case-studies': (c, persona, notes) =>
@@ -3571,17 +3596,20 @@ Search for any publicly claimed metrics — capture rate, engagement rate, time 
 ## 1. COMPANY SNAPSHOT
 One paragraph, 50–65 words max.
 Cover: what they do · core product · primary customers · total funding · founded · headcount.
+Source: [company website or crunchbase URL]
 
 ## 2. PRODUCT — KEY CAPABILITIES
-5 bullets max. One capability per bullet. Plain operational language only.
+Visit ${base ? base + ' product pages' : c + ' website product pages'} first.
+5 bullets max. One concrete capability per bullet. Plain operational language only.
 Good: "Surfaces HCC gaps during visits with supporting evidence."
 Bad: "Leverages advanced AI to transform clinical documentation."
+After the bullets: Source: [product page URL]
 
 ## 3. LATEST NEWS
 Search: ${base ? base + ' (/news, /blog, /press)' : c + ' official website'} · fiercehealthcare.com · beckershospitalreview.com · businesswire.com · prnewswire.com
-Timeframe: last 6–8 weeks. 2–3 items max.
-Format: **[Month DD, YYYY]** — One-sentence headline. Source: [domain]
-Skip entirely if nothing material found in the timeframe.
+Preferred timeframe: last 6–8 weeks. If fewer than 2 items, extend to 90 days. 2–3 items max.
+Format: **[Month DD, YYYY]** — One-sentence headline. Source: [confirmed URL or "via domain"]
+If truly nothing material found: write "No recent news found."
 
 ## 4. NAVINA OVERLAP
 1–2 bullets: specific product areas where ${c} directly competes with Navina today.
