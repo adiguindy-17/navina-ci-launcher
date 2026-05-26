@@ -1751,19 +1751,30 @@ function renderMarkdown(text) {
   let s = text
     // Collapse 3+ consecutive blank lines to exactly 2
     .replace(/\n{3,}/g, '\n\n')
-    // Join continuation lines starting with "; " (e.g. "; also AdvancedMD" after a bullet)
-    .replace(/\n[ \t]*;[ \t]+/g, '; ')
-    // Join em-dash "—" continuation lines followed by lowercase (not standalone bullets)
-    .replace(/\n[ \t]*—[ \t]+(?=[a-z(])/g, ' — ')
-    // Join a lone bullet/dash line with the following content line
-    // (AI sometimes puts "–" alone then content on the next line)
+
+    // ── Fix AI mid-sentence line-break artifacts ──────────────────────────────
+    // 1. Remove lines containing ONLY a comma (e.g. "2023\n\n,\n\nheadquartered" → "2023, headquartered")
+    .replace(/\n+[ \t]*,[ \t]*\n+/g, ', ')
+    // 2. Join double-newline where next "paragraph" starts with lowercase (sentence continuation)
+    //    e.g. "...raised $23M total,\n\nincluding a $16M..." → joined
+    //    Safe: section headings start with #/–/|, bullets start with –/•/-, never bare lowercase
+    .replace(/\n\n([a-z(])/g, ' $1')
+    // 3. Join news-date lines ending with "—" with following content (single or double newline)
+    //    e.g. "[April 15, 2026] —\n\nRaised $16M..." → "[April 15, 2026] — Raised $16M..."
+    .replace(/—[ \t]*\n{1,2}(?=[A-Z\[\*])/g, '— ')
+    // 4. Join continuation lines starting with "; " or ", " (e.g. "; also AdvancedMD")
+    .replace(/\n{1,2}[ \t]*;[ \t]+/g, '; ')
+    // 5. Join em-dash "—" continuation lines followed by lowercase (not standalone bullets)
+    .replace(/\n{1,2}[ \t]*—[ \t]+(?=[a-z(])/g, ' — ')
+
+    // ── Standard pre-processing ───────────────────────────────────────────────
+    // Join a lone bullet/dash with the following content line
     .replace(/^([ \t]*[–•-])[ \t]*\n\n?(?!\n)/gm, '$1 ')
-    // Remove lines that are just a lone dash (used as visual separator, not a list)
+    // Remove lines that are just a lone dash (visual separator, not a list item)
     .replace(/^[ \t]*-[ \t]*$/gm, '')
-    // Convert single-cell table rows  "| Some Label |"  → just the content
-    // (real multi-column tables have at least two | in the middle)
+    // Convert single-cell table rows to plain content
     .replace(/^\|[ \t]*(\*{0,2}[^|\n]+?\*{0,2})[ \t]*\|[ \t]*$/gm, '$1')
-    // Remove lines that are only pipe characters (leftover table separators)
+    // Remove lines that are only pipe characters
     .replace(/^[ \t]*\|[ \t]*$/gm, '')
     // Trim trailing whitespace from every line
     .replace(/[ \t]+$/gm, '');
@@ -3611,11 +3622,19 @@ Preferred timeframe: last 6–8 weeks. If fewer than 2 items, extend to 90 days.
 Format: **[Month DD, YYYY]** — One-sentence headline. Source: [confirmed URL or "via domain"]
 If truly nothing material found: write "No recent news found."
 
-## 4. NAVINA OVERLAP
-1–2 bullets: specific product areas where ${c} directly competes with Navina today.
+## 4. STRATEGIC THREAT TO NAVINA
+**Threat Level:** High / Medium / Low — one sentence explaining why.
+– Where they compete directly with Navina: specific product capability and buyer segment
+– Deal displacement risk: any public signals of them winning deals in Navina's market
+– Key advantage they claim over platforms like Navina (pricing, workflow, data depth)
+– Any strategic move (partnership, acquisition, new EHR integration) that expands their reach into Navina territory
+Write 3–4 bullets. Be specific — not "they do HCC too" but *how*, *where*, and *at what scale*.
 
-## 5. ONE THING TO WATCH
-1 bullet: the single most important thing to monitor about ${c} in the next 60 days.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+## 5. SIGNALS TO WATCH (next 60 days)
+2–3 specific items. Each: what to monitor + why it matters for Navina.
+Format: **[Signal]** — why this matters.
+Good: "Watch for Epic integration announcement — would give them access to Navina's core customer base."
+Bad: "Monitor their product roadmap."${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
 };
