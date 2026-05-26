@@ -3476,32 +3476,44 @@ Repeat for each item. Max 2 items per category.
   },
 
   'product-overview': (c, persona, notes) => {
+    const res = RESOURCES[c];
+    const base = res?.website?.url?.replace(/\/$/, '') || '';
     return `${driveContext(c, 'product-overview')}
 
-You are a senior CI analyst at Navina. Build a clear product overview of **${c}** for ${persona}.
-Search the company's website, product pages, and any published demo materials.
+You are a senior CI analyst at Navina. Build a focused product overview of **${c}** for ${persona}.
+Search: ${base ? base + ' — product pages, features, integrations, case studies' : c + ' official website — product pages, features, integrations'}.
+
+⚠️ OUTPUT ONLY THE 4 SECTIONS BELOW. Do NOT add: Navina comparisons, KEY GAPS, TALK TRACK, competitive analysis, or any other sections. This is a product-only brief.
 
 FORMATTING RULES:
-- Use bullet points (–) for capabilities. Never use a lone "-" on its own line.
-- Use **bold labels:** for named fields. No single-column | pipe | rows.
-- Keep content tight — no extra blank lines between a label and its content.
+– Use bullet points (–) for capabilities. Never a lone "–" on its own line.
+– Use **bold labels:** for named fields. No single-column | pipe | rows.
+– Tight spacing — no extra blank lines between label and content.
+– Each capability: ONE line, max 12 words, plain language. No marketing speak.
+– Good: "Surfaces HCC gaps during visits with supporting evidence."
+– Bad: "Leverages advanced AI to transform clinical documentation."
 
 ## PRODUCT PILLARS
-Divide the product into 2–3 main pillars. Under each pillar list 3–4 capabilities.
-Each capability: ONE line, max 12 words, plain language. No marketing speak.
-Good: "Surfaces HCC gaps during visits with supporting evidence."
-Bad: "Leverages advanced AI to transform clinical documentation experience."
+Divide into 2–3 main pillars. Under each: 3–4 capabilities.
 
 ## DEPLOYMENT & INTEGRATION
-– **EHR Integrations:** list known integrations
+– **EHR Integrations:** list all known integrations
 – **Workflow:** prospective / retrospective / both
 – **Access:** EHR-native vs separate portal
-– **Implementation:** timeline if known
+– **Implementation:** timeline if publicly known
 
 ## WHO BUYS IT
 – **Primary Buyer:** health plans / ACOs / health systems / primary care
 – **Contract Model:** deal size or structure if known
-– **Geography:** focus area if known${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+– **Geography:** focus area if known
+
+## RECENT PRODUCT UPDATES
+Search ${base ? base + ' (/news, /blog, /press, /releases)' : c + ' website'} and: businesswire.com · prnewswire.com · mobihealthnews.com · fiercehealthcare.com
+Timeframe: last 6–8 weeks ONLY. Do not include anything older.
+Focus ONLY on: new product features · new integrations · product acquisitions that expand the platform.
+Skip: funding rounds, awards, executive hires, partnerships unrelated to product.
+For each item: **[Month DD, YYYY]** — one sentence. Source: [confirmed URL or "via [domain]"]
+If nothing relevant found in the timeframe: write "No recent product updates found."${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'case-studies': (c, persona, notes) =>
