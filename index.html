@@ -748,17 +748,21 @@
   /* multi-select */
   .competitor-item.multi-selected { background: #eef2ff; color: #4338ca; font-weight: 600; }
   .competitor-item.multi-selected::before { content: '✓ '; font-size: 10px; }
-  .multi-select-hint {
+  .multi-toggle-btn {
     display: none; align-items: center; gap: 6px;
-    padding: 5px 10px; background: #eef2ff; border-radius: 6px;
-    font-size: 11px; font-weight: 600; color: #4338ca;
-    margin-left: auto;
+    padding: 5px 12px; border-radius: 6px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    border: 1.5px solid #e5e7eb; background: #f9fafb; color: #6b7280;
+    transition: all 0.15s; margin-left: auto; white-space: nowrap;
   }
-  .multi-select-hint.active { display: flex; }
-  .multi-select-count {
-    background: #4f46e5; color: #fff; border-radius: 10px;
-    padding: 1px 7px; font-size: 10px;
+  .multi-toggle-btn:hover { border-color: #4f46e5; color: #4f46e5; background: #eef2ff; }
+  .multi-toggle-btn.visible { display: flex; }
+  .multi-toggle-btn.on { border-color: #4f46e5; background: #4f46e5; color: #fff; }
+  .multi-toggle-btn .multi-count {
+    background: rgba(255,255,255,0.25); border-radius: 10px;
+    padding: 1px 6px; font-size: 10px; display: none;
   }
+  .multi-toggle-btn.on .multi-count { display: inline; }
 
   /* ── Gen composer ── */
   .gen-composer {
@@ -1178,11 +1182,11 @@
               <div class="pill persona-marketing" onclick="selectPersona(this,'Marketing / Strategy')">📣 Marketing</div>
               <div class="pill persona-analyst" onclick="selectPersona(this,'CI Analyst')">🔬 CI Analyst</div>
             </div>
-            <div class="multi-select-hint" id="multi-select-hint">
+            <button class="multi-toggle-btn" id="multi-toggle-btn" onclick="toggleMultiSelect()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-              Multi-select up to 3 competitors
-              <span class="multi-select-count" id="multi-select-count">0</span>
-            </div>
+              Compare multiple
+              <span class="multi-count" id="multi-count">0</span>
+            </button>
           </div>
         </div>
 
@@ -1300,9 +1304,10 @@ let   adminData   = null; // cached { logins, usage }
 
 let selectedCompetitor = null;
 let extraCompetitors   = []; // up to 2 extra when multi-select mode is active
+let multiSelectActive  = false; // toggled explicitly by button
 let selectedAnalysis   = null;
 let selectedPersona    = 'Sales Executive';
-const MULTI_ANALYSES   = new Set(['news', 'exec-brief', 'case-studies']);
+const MULTI_CAPABLE    = new Set(['exec-brief', 'sw', 'news']); // use cases that support multi-select
 
 // All currently selected competitors (primary + extras)
 function allSelectedCompetitors() {
@@ -1533,8 +1538,11 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tabId).classList.add('active');
   document.getElementById('panel-' + tabId).classList.add('active');
-  // Refresh KB cards whenever the KB tab is opened
-  if (tabId === 'kb' && selectedCompetitor) renderKBCards(selectedCompetitor);
+  // KB tab: always reset multi-select
+  if (tabId === 'kb') {
+    resetMultiSelect();
+    if (selectedCompetitor) renderKBCards(selectedCompetitor);
+  }
 }
 
 function openAdminTab() {
@@ -1852,11 +1860,10 @@ function newConversation() {
   document.getElementById('btn-new-chat').style.display = 'none';
   const input = document.getElementById('notes-input');
   if (input) { input.value = ''; input.style.height = 'auto'; }
-  // Deselect template chip + hide multi hint
+  // Deselect template chip + reset multi-select
   document.querySelectorAll('.gen-chip').forEach(c => c.classList.remove('selected'));
   selectedAnalysis = null;
-  const hint = document.getElementById('multi-select-hint');
-  if (hint) hint.classList.remove('active');
+  resetMultiSelect();
   // Keep persona selection — it's a persistent preference, no reset needed
   // Re-expand both panels
   document.getElementById('main-header')?.classList.remove('panel-collapsed');
@@ -2306,35 +2313,37 @@ function renderKBCards(name) {
 }
 
 function selectCompetitor(el, name) {
-  const isMultiMode = selectedAnalysis && MULTI_ANALYSES.has(selectedAnalysis);
+  // Multi-select: only when explicitly toggled ON AND we're in Generate Intel tab
+  const activeTab = document.querySelector('.pillar-tab.active')?.id;
+  const inGenTab  = activeTab === 'tab-gen';
+  const isMultiMode = inGenTab && multiSelectActive;
 
   if (isMultiMode) {
-    // Toggle in extras (primary stays fixed if set)
+    // Toggle in extras
     if (selectedCompetitor === name) {
-      // Clicking primary — deselect all
       selectedCompetitor = null;
       extraCompetitors = [];
     } else if (extraCompetitors.includes(name)) {
-      // Remove from extras
       extraCompetitors = extraCompetitors.filter(c => c !== name);
     } else {
-      // Add — first becomes primary, rest are extras (max 3 total)
       const all = allSelectedCompetitors();
       if (all.length >= 3) { showToast('Max 3 competitors — deselect one first'); return; }
       if (!selectedCompetitor) selectedCompetitor = name;
       else extraCompetitors.push(name);
     }
-    // Sync visual selection
+    // Sync visual
     document.querySelectorAll('.competitor-item').forEach(i => {
       const n = i.textContent.trim();
       i.classList.remove('selected', 'multi-selected');
       if (n === selectedCompetitor) i.classList.add('selected');
       else if (extraCompetitors.includes(n)) i.classList.add('multi-selected');
     });
-    // Refresh KB cards for primary competitor even in multi-mode
     if (selectedCompetitor) renderKBCards(selectedCompetitor);
+    // Update count badge
+    const countEl = document.getElementById('multi-count');
+    if (countEl) countEl.textContent = allSelectedCompetitors().length;
   } else {
-    // Single-select mode
+    // Single-select — always just switch
     extraCompetitors = [];
     document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('selected', 'multi-selected'));
     el.classList.add('selected');
@@ -2342,17 +2351,7 @@ function selectCompetitor(el, name) {
     renderKBCards(name);
   }
 
-  // Update competitor display
-  const all = allSelectedCompetitors();
-  const svg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
-  document.getElementById('competitor-display').innerHTML = all.length === 0
-    ? `<div class="placeholder-chip"><span>←</span> Select a competitor from the sidebar</div>`
-    : all.map(c => `<div class="selected-chip" style="margin-right:4px">${svg}${escHtml(c)}</div>`).join('');
-
-  // Update multi-select counter
-  const countEl = document.getElementById('multi-select-count');
-  if (countEl) countEl.textContent = all.length;
-
+  refreshCompetitorDisplay();
   updatePreview();
   updateHeaderSummary();
   checkReady();
@@ -2364,28 +2363,49 @@ function selectTemplate(el, type) {
   selectedAnalysis = wasSelected ? null : type;
   if (!wasSelected) el.classList.add('selected');
 
-  // Toggle multi-select mode
-  const isMulti = !!(selectedAnalysis && MULTI_ANALYSES.has(selectedAnalysis));
-  const hint = document.getElementById('multi-select-hint');
-  if (hint) hint.classList.toggle('active', isMulti);
+  // Show/hide multi-select toggle button based on use case capability
+  const canMulti = !!(selectedAnalysis && MULTI_CAPABLE.has(selectedAnalysis));
+  const btn = document.getElementById('multi-toggle-btn');
+  if (btn) btn.classList.toggle('visible', canMulti);
 
-  // If switching to single-select mode, drop extras and refresh competitor display
-  if (!isMulti && extraCompetitors.length > 0) {
-    extraCompetitors = [];
-    document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('multi-selected'));
-    // Refresh competitor display chips
-    const all = allSelectedCompetitors();
-    const svg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
-    document.getElementById('competitor-display').innerHTML = all.length === 0
-      ? `<div class="placeholder-chip"><span>←</span> Select a competitor from the sidebar</div>`
-      : all.map(c => `<div class="selected-chip" style="margin-right:4px">${svg}${escHtml(c)}</div>`).join('');
-    const countEl = document.getElementById('multi-select-count');
-    if (countEl) countEl.textContent = all.length;
-    updateHeaderSummary();
-  }
+  // If switching to a non-capable use case, reset multi-select
+  if (!canMulti) resetMultiSelect();
 
   updateOptionsSummary();
   checkReady();
+}
+
+function toggleMultiSelect() {
+  multiSelectActive = !multiSelectActive;
+  const btn = document.getElementById('multi-toggle-btn');
+  if (btn) btn.classList.toggle('on', multiSelectActive);
+  // When turning off, drop extras
+  if (!multiSelectActive) {
+    extraCompetitors = [];
+    document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('multi-selected'));
+    refreshCompetitorDisplay();
+    updateHeaderSummary();
+  }
+}
+
+function resetMultiSelect() {
+  multiSelectActive = false;
+  extraCompetitors = [];
+  const btn = document.getElementById('multi-toggle-btn');
+  if (btn) { btn.classList.remove('on', 'visible'); }
+  document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('multi-selected'));
+  const countEl = document.getElementById('multi-count');
+  if (countEl) countEl.textContent = '0';
+}
+
+function refreshCompetitorDisplay() {
+  const all = allSelectedCompetitors();
+  const svg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+  document.getElementById('competitor-display').innerHTML = all.length === 0
+    ? `<div class="placeholder-chip"><span>←</span> Select a competitor from the sidebar</div>`
+    : all.map(c => `<div class="selected-chip" style="margin-right:4px">${svg}${escHtml(c)}</div>`).join('');
+  const countEl = document.getElementById('multi-count');
+  if (countEl) countEl.textContent = all.length;
 }
 
 // (Suggested questions and selectAnalysis removed — Joey uses free-form + templates)
