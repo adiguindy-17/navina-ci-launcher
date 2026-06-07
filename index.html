@@ -1755,9 +1755,12 @@ function renderMarkdown(text) {
     // ── Fix AI mid-sentence line-break artifacts ──────────────────────────────
     // 1. Remove lines containing ONLY a comma (e.g. "2023\n\n,\n\nheadquartered" → "2023, headquartered")
     .replace(/\n+[ \t]*,[ \t]*\n+/g, ', ')
-    // 2. Join double-newline where next "paragraph" starts with lowercase (sentence continuation)
-    //    e.g. "...raised $23M total,\n\nincluding a $16M..." → joined
-    //    Safe: section headings start with #/–/|, bullets start with –/•/-, never bare lowercase
+    // 2a. Join paragraph starting with ", " or "; " — continuation fragment after double-newline
+    //     e.g. "Massachusetts\n\n, the company" → "Massachusetts, the company"
+    .replace(/\n\n([,;])[ \t]*/g, '$1 ')
+    // 2b. Join double-newline where next "paragraph" starts with lowercase (sentence continuation)
+    //     e.g. "...raised $23M total,\n\nincluding a $16M..." → joined
+    //     Safe: section headings start with #/–/|, bullets start with –/•/-, never bare lowercase
     .replace(/\n\n([a-z(])/g, ' $1')
     // 3. Join news-date lines ending with "—" with following content (single or double newline)
     //    e.g. "[April 15, 2026] —\n\nRaised $16M..." → "[April 15, 2026] — Raised $16M..."
