@@ -2011,7 +2011,7 @@ async function enrichPromptWithContent(prompt) {
 
   const enrichedPrompt = sections.length === 0
     ? prompt
-    : prompt + '\n\n---\n## PRE-FETCHED INTERNAL CONTENT (read this first)\n' + sections.join('\n\n');
+    : prompt + '\n\n---\n## ⚠️ INTERNAL NAVINA RESEARCH DATA — HIGHEST PRIORITY\nThe following content was pre-fetched from Navina\'s internal Notion pages and Google Drive. This is primary source material written by Navina\'s team. Use it as your main foundation — prioritize it over web search results.\nSources loaded: ' + sourcesLoaded.join(', ') + '\n\n' + sections.join('\n\n');
 
   return { prompt: enrichedPrompt, sourcesLoaded };
 }
@@ -3454,6 +3454,8 @@ vs. EHR tools (Epic CDS): Purpose-built for VBC. Unstructured NLP. Evidence-link
 // ── Layer 2: Universal Output Style ──────────────────────────────────────────
 const OUTPUT_STYLE = `
 ━━━ OUTPUT STYLE — FOLLOW STRICTLY ━━━
+• If the prompt contains a section labeled "INTERNAL NAVINA RESEARCH DATA", start your response with exactly one line:
+  📚 Internal data loaded: [list the sources, e.g. "Notion page, Overview Deck"] — then immediately begin the first section.
 • Answer ONLY what the template asks. Never add sections not listed in the template.
 • No intro sentences. No meta-commentary ("Based on my research...", "Here is the brief:"). Start immediately with the first section.
 • No marketing language: never use "transformative", "innovative", "robust", "cutting-edge", "leverages", "comprehensive", "powerful"
