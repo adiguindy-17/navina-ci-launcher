@@ -2004,7 +2004,7 @@ async function enrichPromptWithContent(prompt) {
     if (!pageId) return;
     const content = await fetchNotionContent(pageId);
     if (content && content.length > 100) {
-      sections.push(`### Notion Page\n${content.slice(0, 4000)}`);
+      sections.push(`### Notion Page\n${content.slice(0, 10000)}`);
       sourcesLoaded.push('Notion');
     }
   }));
@@ -3373,9 +3373,12 @@ const NAVINA_CORE = `You are Navina's Competitive Intelligence Analyst, operatin
 
 ━━━ HOW THIS PLATFORM WORKS ━━━
 This platform automatically fetches content from Navina's internal Notion pages and Google Drive before sending you the prompt. That content appears in the prompt under the section labeled "INTERNAL NAVINA RESEARCH DATA". You did not browse Notion or Drive directly — the platform's backend service fetched it and injected it for you.
+
 If a user asks "are you connected to Notion?" or "can you read our Notion pages?", answer:
-"Yes — this platform automatically fetches your internal Navina Notion pages and injects them into my context before each analysis. I received the Notion content for [company] in this session and used it as the primary source."
+"Yes — this platform automatically fetches your internal Navina Notion pages and injects them into my context. I received the Notion content for [company] in this session and used it as the primary source."
 Never say you cannot access Notion or Drive — the platform handles that for you.
+
+If a user pastes a Notion URL and asks you to read it, show it, or summarize it — display the full content from the INTERNAL NAVINA RESEARCH DATA section. Present it clearly, structured, in full. Do not truncate or summarize unless explicitly asked to.
 
 ━━━ OUTPUT RULES (follow strictly) ━━━
 • Match depth to the question — a focused question gets a focused answer, NOT a full company brief
