@@ -1,0 +1,1833 @@
+# Navina Knowledge Store v0.3
+
+metadata:
+  store_name: Navina Knowledge Store
+  version: v0.3
+  consumer_ai: Joey
+  purpose: Permanent knowledge layer for competitive intelligence and evidence-grounded retrieval
+  extraction_date: 2026-06-07
+  extraction_scope:
+    primary_sources:
+      - Provider Training Deck Athena
+      - Coder Training Deck
+      - Navina sales deck 2026
+    supporting_sources:
+      - 2026 Navina overview
+      - Navina MSO one pager
+      - Navina Case Studies 2026
+      - Phyx Primary Care report
+      - AAFP findings referenced in decks
+  principles:
+    - Separate stable facts from temporary or operational details
+    - Separate facts from messaging
+    - Separate product knowledge from competitive positioning
+    - Preserve source provenance
+    - Preserve conflicting metrics instead of silently deduplicating
+
+company_profile:
+  company_name: Navina
+
+  company_description:
+    value: Clinical intelligence platform for value-based care.
+    evidence_sources:
+      - SRC-004
+      - SRC-006
+      - SRC-007
+    confidence_level: high
+    stability: stable
+
+  strategic_positioning:
+    - value: Clinician-first AI platform for value-based success.
+      evidence_sources:
+        - SRC-001
+      confidence_level: high
+      stability: semi_stable
+      notes: Messaging-like positioning; store as strategic positioning, not product fact.
+
+    - value: Point-of-care intelligence supporting system-wide value-based care performance.
+      evidence_sources:
+        - SRC-001
+      confidence_level: high
+      stability: semi_stable
+
+    - value: Clinical intelligence from population management to the point of care.
+      evidence_sources:
+        - SRC-005
+        - SRC-007
+      confidence_level: high
+      stability: semi_stable
+
+  primary_market_focus:
+    - value: Value-based care organizations
+      evidence_sources:
+        - SRC-001
+        - SRC-004
+        - SRC-005
+        - SRC-006
+      confidence_level: high
+      stability: stable
+
+    - value: Risk adjustment, HCC documentation, HEDIS/Stars quality performance, clinician workflow efficiency, and network performance management.
+      evidence_sources:
+        - SRC-001
+        - SRC-004
+        - SRC-005
+        - SRC-006
+      confidence_level: high
+      stability: stable
+
+  target_customers:
+    - customer_segment: Provider groups
+      confidence_level: high
+      source_ids: [SRC-001, SRC-004, SRC-006]
+
+    - customer_segment: MSOs
+      confidence_level: high
+      source_ids: [SRC-005]
+
+    - customer_segment: ACOs
+      confidence_level: high
+      source_ids: [SRC-005]
+
+    - customer_segment: Health plans
+      confidence_level: medium
+      source_ids: [prior_source_health_plan_one_pager]
+
+    - customer_segment: Risk-bearing provider organizations
+      confidence_level: high
+      source_ids: [SRC-006]
+
+    - customer_segment: HCC coding teams / CDI teams
+      confidence_level: high
+      source_ids: [SRC-002, SRC-003]
+
+    - customer_segment: Primary care clinicians
+      confidence_level: high
+      source_ids: [SRC-002, SRC-006]
+
+  business_model:
+    value: Not explicitly defined in the analyzed sources.
+    confidence_level: unknown
+    stability: unknown
+    notes: Do not infer pricing or contracting model.
+
+  key_product_pillars:
+    - Clinical intelligence / Patient Portrait
+    - Risk Adjustment / HCC
+    - Coder Workspace
+    - Clinician Copilot
+    - Quality / HEDIS / Stars
+    - Clinical Summary
+    - Clinical Documents / document intelligence
+    - Performance Management / network analytics
+    - Ambient documentation
+
+product_knowledge:
+  - product_id: PROD-001
+    name: Navina Platform
+    type: platform
+
+    description:
+      value: AI-powered value-based care platform that ingests data from multiple clinical and administrative sources, structures and reconciles it, and surfaces patient-level and population-level insights to clinicians, coders, care teams, and managers.
+      source_ids:
+        - SRC-001
+        - SRC-002
+        - SRC-003
+        - SRC-004
+        - SRC-005
+      confidence_level: high
+
+    capabilities:
+      - name: Multi-source data ingestion
+        description: Reads EHR, HIE, claims, payer data, data aggregators, ambient conversation data, labs, vitals, medications, encounters, problem lists, consult notes, imaging, echocardiograms, vascular studies, PHQ scores, scanned documents, and unstructured medical text.
+        source_ids:
+          - SRC-001
+          - SRC-002
+          - SRC-003
+        confidence_level: high
+
+      - name: Data normalization and structuring
+        description: Performs multimodal interpretation, medical data structuring into ontologies, entity extraction, classification, clinical inference, data reconciliation, and patient portrait generation.
+        source_ids:
+          - SRC-001
+        confidence_level: high
+
+      - name: Clinical evidence linking
+        description: Connects AI-generated insights and diagnosis suggestions to supporting clinical evidence.
+        source_ids:
+          - SRC-001
+          - SRC-002
+          - SRC-003
+          - SRC-004
+          - SRC-005
+        confidence_level: high
+
+      - name: Point-of-care interface
+        description: Provides contextual interface embedded into clinician workflows and EHR screens where supported.
+        source_ids:
+          - SRC-001
+          - SRC-002
+          - SRC-004
+        confidence_level: high
+
+      - name: Web fallback
+        description: A web-based Navina version is used for cases where native EHR workflow is not supported.
+        source_ids:
+          - SRC-001
+        confidence_level: medium
+
+    user_personas:
+      - Clinician
+      - Coder
+      - CDI / MRA team
+      - Quality team
+      - Care team
+      - Network manager
+      - MSO / ACO operator
+      - VBC executive
+
+  - product_id: PROD-002
+    name: Patient Portrait
+    type: product_experience
+
+    description:
+      value: Consolidated patient-level view aggregating clinical information from all available sources before or during the visit.
+      source_ids:
+        - SRC-002
+        - SRC-003
+      confidence_level: high
+
+    capabilities:
+      - name: Full patient picture
+        description: Provides the patient's full picture before the provider enters the room.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Quick case review
+        description: Designed to support review of cases in minutes.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Risk and quality gap identification
+        description: Surfaces potential quality and risk gaps based on patient data.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: One-click documentation
+        description: Enables action and documentation with a click.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+    input_data:
+      - encounters
+      - problem list
+      - labs
+      - vitals
+      - medications
+      - consult notes
+      - imaging
+      - echocardiograms
+      - vascular studies
+      - claims
+      - PHQ scores
+      - unstructured medical text
+
+    surfaced_outputs:
+      - HCC diagnosis recommendations
+      - quality care gaps
+      - clinical summary
+      - document record access
+
+  - product_id: PROD-003
+    name: Diagnosis Insights
+    type: module
+
+    description:
+      value: Point-of-care risk adjustment module surfacing AI-powered HCC recommendations grounded in patient clinical data.
+      source_ids:
+        - SRC-002
+        - SRC-003
+        - SRC-004
+        - SRC-005
+      confidence_level: high
+
+    capabilities:
+      - name: HCC recommendations
+        description: Generates HCC diagnosis recommendations based on patient data including scanned documents, imaging, free text, HIE, claims, labs, and other sources.
+        source_ids:
+          - SRC-002
+          - SRC-003
+        confidence_level: high
+
+      - name: User actions on recommendations
+        description: Users can accept, reject, or hold Navina's HCC recommendations and provide reasoning.
+        source_ids:
+          - SRC-002
+          - SRC-003
+        confidence_level: high
+
+      - name: Confirm and push to EHR
+        description: Saves actions and pushes accepted diagnoses, including attached notes, to the assessment section within the EHR.
+        source_ids:
+          - SRC-002
+          - SRC-003
+        confidence_level: high
+
+      - name: View details
+        description: Shows sources of recommendations, including imaging, labs, HIE, claims, and related evidence.
+        source_ids:
+          - SRC-002
+          - SRC-003
+        confidence_level: high
+
+      - name: AI-generated assessment
+        description: Provides AI-generated assessment alongside suggested diagnoses using available clinical data.
+        source_ids:
+          - SRC-002
+        confidence_level: high
+
+      - name: Editable assessment
+        description: Users can review and edit Navina's suggested assessment before adding to EHR.
+        source_ids:
+          - SRC-002
+        confidence_level: high
+
+      - name: Add to EHR
+        description: Automatically accepts the suggested diagnosis along with supporting documentation.
+        source_ids:
+          - SRC-002
+        confidence_level: high
+
+      - name: Companion codes
+        description: Companion codes are coded together; accepting one code automatically accepts the other.
+        source_ids:
+          - SRC-002
+          - SRC-003
+        confidence_level: high
+
+      - name: HCC gap label
+        description: Displays HCC groups not yet documented in the EHR for the year and sorts recommendations by HCC group weight.
+        source_ids:
+          - SRC-002
+          - SRC-003
+        confidence_level: high
+
+      - name: Progress bar
+        description: Tracks how many gaps have been closed.
+        source_ids:
+          - SRC-002
+        confidence_level: high
+
+      - name: Red hints
+        description: Red hint numbers indicate number of unique or outstanding HCC gaps for a patient.
+        source_ids:
+          - SRC-002
+        confidence_level: high
+
+    workflows:
+      - workflow_id: WF-DX-001
+        name: Provider diagnosis workflow
+        steps:
+          - Open patient from Athena schedule or chart
+          - Review red hint / HCC gap count
+          - Open Diagnosis Insights
+          - Review suggested HCCs and evidence
+          - Accept, reject, or hold recommendation
+          - Edit AI-generated assessment if needed
+          - Confirm / Add to EHR
+          - Push accepted diagnosis and notes into EHR assessment section
+
+      - workflow_id: WF-DX-002
+        name: Coder diagnosis workflow
+        steps:
+          - Open Diagnosis Insights
+          - Review Open recommendations
+          - Accept or reject recommendations
+          - Add manual diagnosis if appropriate
+          - Add notes for provider
+          - Finish Scrub to send selected diagnoses to provider
+          - Update Scrub if diagnosis list changes
+          - Review post-visit provider action status
+
+    recommendation_states:
+      provider_view:
+        - accepted
+        - rejected
+        - held
+      coder_view:
+        - open
+        - pending_provider
+        - addressed
+        - accepted
+        - ignored
+        - rejected
+        - on_hold
+
+  - product_id: PROD-004
+    name: Coder Workspace
+    type: module
+
+    description:
+      value: Dedicated workspace for HCC coding teams to review, add, reject, and route diagnosis recommendations to providers.
+      source_ids:
+        - SRC-003
+        - SRC-001
+      confidence_level: high
+
+    capabilities:
+      - name: Scrubbing workflow
+        description: Coders review Navina recommendations, accept or reject them, and send accepted items to providers.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Manual diagnosis addition
+        description: Coders can manually add diagnoses, select ICD-10 codes, choose supporting source type, attach notes, and send to providers.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Add diagnosis from document
+        description: Coders can add a diagnosis directly from a document, attaching the document as supporting evidence.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Provider communication
+        description: Coder notes are visible to providers in their view.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Companion code linking
+        description: Supports automatic or manual linking of companion diagnosis codes.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Outdated ICD code handling
+        description: Displays outdated or non-billable ICD code recommendations with alternative code selection.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Close-the-loop visibility
+        description: Coders can review provider decisions after visit completion, including accepted, ignored, rejected, and on-hold statuses.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+    user_personas:
+      - HCC coder
+      - MRA team
+      - CDI team
+      - Risk adjustment operations
+
+  - product_id: PROD-005
+    name: Clinical Summary
+    type: module
+
+    description:
+      value: Consolidated view of a patient's clinical picture aggregated from available data sources for quick and accurate chart review.
+      source_ids:
+        - SRC-002
+        - SRC-003
+      confidence_level: high
+
+    capabilities:
+      - name: Diagnosis overview
+        description: Shows the patient's clinical problem list and relevant medications, labs, and consult notes.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Medication summary
+        description: Presents active medications, dosages, and pending refills.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Labs summary
+        description: Presents most recent lab results.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Additional clinical info
+        description: Includes hospital notes, diagnostic imaging, family history, and surgical history.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Lab trend visualization
+        description: Shows diabetes-related lab trends from external sources such as HIE, with access to supporting lab documents.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Hospitalization and imaging notifications
+        description: Alerts users to highlighted hospitalizations and imaging documents.
+        source_ids: [SRC-003]
+        confidence_level: medium
+
+  - product_id: PROD-006
+    name: Clinical Documents
+    type: module
+
+    description:
+      value: Document intelligence and search module for navigating the full patient record regardless of how documents are labeled.
+      source_ids:
+        - SRC-002
+        - SRC-003
+      confidence_level: high
+
+    capabilities:
+      - name: Advanced document search
+        description: Allows users to find documents in the patient record regardless of labels, including handwritten consult notes, imaging reports, and lab results.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Full-document search
+        description: Searches for any word or phrase and highlights search terms throughout the document.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: AI classifying label
+        description: Extracts document type labels using AI to provide context.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: ICD label extraction
+        description: Extracts ICD-10 codes from documents.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Date extraction
+        description: Displays clinical encounter date and EHR upload date when different.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Document viewer
+        description: Supports access from anywhere in Navina, search within document, highlight and copy, and document-based diagnosis support.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+  - product_id: PROD-007
+    name: Quality Insights / Quality Workspace
+    type: module
+
+    description:
+      value: Quality care gap module surfacing actionable point-of-care insights based on HEDIS guidelines and quality program requirements.
+      source_ids:
+        - SRC-001
+        - SRC-002
+        - SRC-004
+        - SRC-005
+      confidence_level: high
+
+    capabilities:
+      - name: Point-of-care care gap alerts
+        description: Displays actionable care gap alerts at the point of care based on up-to-date HEDIS guidelines.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Open measures
+        description: Shows open measures requiring medical team attention.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Supporting evidence for measures
+        description: Users can review supporting evidence and take action on measures requiring action.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Care team notes
+        description: Displays notes from the care team for relevant measures.
+        source_ids: [SRC-002, SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: CPT II code push
+        description: Adds CPT II codes directly to Summary Report and Billing sections of the EHR where supported.
+        source_ids: [SRC-002]
+        confidence_level: medium
+
+      - name: Order creation
+        description: Creates orders and order sets for select measures with a single click.
+        source_ids: [SRC-002]
+        confidence_level: medium
+
+      - name: Patient cohorting
+        description: Supports patient cohorting and prioritization for quality measures.
+        source_ids: [SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: Measure prioritization
+        description: Prioritizes compliant, triple-weighted, and excludable measures.
+        source_ids: [SRC-004, SRC-005]
+        confidence_level: high
+
+  - product_id: PROD-008
+    name: Performance Management / Analytics
+    type: module
+
+    description:
+      value: Analytics layer providing visibility into value-based care metrics across clinicians, practices, networks, providers, payers, clinics, and regions.
+      source_ids:
+        - SRC-001
+        - SRC-004
+        - SRC-005
+      confidence_level: high
+
+    capabilities:
+      - name: RAF trend tracking
+        description: Tracks RAF trends across providers, clinics, regions, and networks.
+        source_ids: [SRC-001, SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: Quality performance tracking
+        description: Tracks quality performance and measure trends.
+        source_ids: [SRC-001, SRC-004, SRC-005, SRC-006]
+        confidence_level: high
+
+      - name: Utilization tracking
+        description: Tracks utilization-related metrics and trends.
+        source_ids: [SRC-001, SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: Provider incentive support
+        description: Enables provider incentive programs based on real-time performance data.
+        source_ids: [SRC-001]
+        confidence_level: medium
+
+      - name: Same-year performance reporting
+        description: Actionable reports support same-year performance and population-health initiatives.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+  - product_id: PROD-009
+    name: Clinician Copilot / Ambient
+    type: module
+
+    description:
+      value: Clinician-facing workflow that combines pre-chart preparation, clinical intelligence, visit dialogue, coding, and documentation.
+      source_ids:
+        - SRC-001
+        - prior_ambient_training_deck
+      confidence_level: high
+
+    capabilities:
+      - name: 2-minute chart review
+        description: Complete patient picture supports rapid chart review.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: Historical plus conversational reconciliation
+        description: Reconciles historical patient data with conversational dialogue.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: CPT / E/M / HCC suggestions
+        description: Suggests CPT, E/M, and HCC codes based on historical and visit data.
+        source_ids: [SRC-001]
+        confidence_level: medium
+
+      - name: Structured documentation
+        description: Generates structured documentation of visit and accepted codes.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: One-click EHR push
+        description: Pushes documentation to A&P, HPI, and other structured fields where supported.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: Ambient listening and auto-documentation
+        description: Captures visit dialogue and supports automated documentation.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+  - product_id: PROD-010
+    name: Athena EHR Access
+    type: integration_workflow
+
+    description:
+      value: Athena-specific access workflow for launching Navina from the EHR schedule, chart, or top navigation.
+      source_ids: [SRC-002]
+      confidence_level: high
+      stability: semi_stable
+      notes: Operational training detail; do not use in external messaging unless current.
+
+    capabilities:
+      - name: Chrome extension
+        description: Providers install Navina extension through app.navina.ai/athena.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Athena schedule access
+        description: Navina icon appears next to each patient's name on the schedule page.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Athena chart access
+        description: Navina is accessible through the EHR patient chart, with tabs appearing on the right-hand side.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Navina app menu access
+        description: Users can access Navina from the Athena top navigation bar via apps dropdown.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Session dependency
+        description: app.navina.ai works only if the user is logged into Athena in a browser tab.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+clinical_vbc_knowledge:
+  - domain_id: VBC-001
+    domain_area: Value-based care
+    concept_name: Clinician engagement dependency
+    knowledge_statement: VBC success depends on clinician engagement because clinicians must act on risk and quality gaps.
+    source_ids: [SRC-001]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-002
+    domain_area: Risk adjustment
+    concept_name: HCC gap
+    knowledge_statement: HCC gap refers to an HCC group not yet documented or addressed in the relevant reporting year.
+    source_ids: [SRC-002, SRC-003]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-003
+    domain_area: Risk adjustment
+    concept_name: Suspected condition
+    knowledge_statement: Suspected conditions are condition recommendations inferred from clinical evidence and require clinician validation.
+    source_ids: [SRC-003]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-004
+    domain_area: Risk adjustment
+    concept_name: Recapture
+    knowledge_statement: Recaptured conditions are previously documented conditions that may need to be re-addressed in the current reporting period.
+    source_ids: [SRC-003, SRC-006]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-005
+    domain_area: Risk adjustment
+    concept_name: RAF
+    knowledge_statement: RAF reflects documentation completeness and patient risk burden; higher documentation completeness can increase RAF capture.
+    source_ids: [SRC-006]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-006
+    domain_area: Quality
+    concept_name: HEDIS / Stars
+    knowledge_statement: Quality performance is tracked through HEDIS and Stars-related measures, including measure closure, exclusions, compliant status, and open care gaps.
+    source_ids: [SRC-002, SRC-004, SRC-005, SRC-006]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-007
+    domain_area: Quality
+    concept_name: Care gap closure
+    knowledge_statement: Care gaps can be surfaced at the point of care with supporting evidence, care team notes, CPT II code workflows, and order creation workflows.
+    source_ids: [SRC-002, SRC-004, SRC-005]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-008
+    domain_area: Clinical documentation
+    concept_name: Point-of-care documentation
+    knowledge_statement: Documentation integrated into clinician workflow reduces post-visit burden and supports risk and quality workflows.
+    source_ids: [SRC-001, SRC-002, SRC-004]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-009
+    domain_area: Clinical AI
+    concept_name: Evidence-backed AI insight
+    knowledge_statement: AI-generated suggestions should be accompanied by clinical evidence, such as labs, imaging findings, documents, claims, HIE data, or visit dialogue.
+    source_ids: [SRC-001, SRC-002, SRC-003, SRC-004]
+    confidence_level: high
+    stability: stable
+
+kpi_repository:
+  - kpi_id: KPI-001
+    metric_name: Clinics
+    value: 1300+
+    source_ids: [SRC-001]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-002
+    metric_name: Clinicians and care team members
+    value: 20000+
+    source_ids: [SRC-001]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-003
+    metric_name: Lives
+    value: 3500000+
+    source_ids: [SRC-001]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-004
+    metric_name: Weekly active providers
+    value: 86%
+    time_period: 2025 average across Navina customers
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: high
+    conflict_status: canonical
+    notes: In parsed text from one source, 77/86 appears transposed; visual evidence and repeated usage support 86% weekly active providers.
+
+  - kpi_id: KPI-005
+    metric_name: AI suggestions accepted by clinicians
+    value: 77%
+    time_period: 2025 average across Navina customers
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-006
+    metric_name: Diagnosis recommendation address rate
+    value: 90%
+    time_period: 2025 average across Navina customers
+    source_ids: [SRC-005]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-007
+    metric_name: Increase in identified diagnoses
+    value: 43%
+    comparator: vs prior year
+    source_ids: [SRC-004, SRC-005]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-008
+    metric_name: Time saved on chart review / visit preparation
+    value: 9
+    unit: minutes
+    source_ids: [SRC-004, SRC-006]
+    confidence_level: high
+    conflict_status: canonical_with_scope_variation
+    notes: Source wording varies between "visit prep per complex patient" and "chart review reducing visit preparation burden."
+
+  - kpi_id: KPI-009
+    metric_name: Increase in diagnoses found
+    value: 49%
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: medium
+    conflict_status: alternate_version
+    notes: Preserve separately from 43% increase in identified diagnoses because source context differs.
+
+  - kpi_id: KPI-010
+    metric_name: Increase in physician satisfaction rate
+    value: 21%
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: medium
+    conflict_status: canonical_pending_study_source
+
+  - kpi_id: KPI-011
+    metric_name: Suspecting engine HCC boost
+    value: 67%
+    scope: Anonymized customer case; additional suspected HCCs on top of recaptured HCCs
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-012
+    metric_name: Suspect condition accept rate
+    value: 61%
+    scope: Anonymized 930k-lives customer case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-013
+    metric_name: Recapture accept rate
+    value: 90%
+    scope: Anonymized 930k-lives customer case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-014
+    metric_name: Overall acceptance rate
+    value: 78%
+    scope: Anonymized 930k-lives customer case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-015
+    metric_name: RAF increase in first year
+    value: 30%
+    scope: High-performing value-based care enabler case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-016
+    metric_name: RAF EOY score before Navina
+    value: 0.96
+    time_period: 2024 EOY
+    scope: High-performing value-based care enabler case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-017
+    metric_name: RAF EOY score after Navina
+    value: 1.25
+    time_period: 2025 EOY
+    scope: High-performing value-based care enabler case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-018
+    metric_name: RAF gain for low usage providers
+    value: 11.6%
+    usage_band: 0%-10%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific_or_analysis
+
+  - kpi_id: KPI-019
+    metric_name: RAF gain for medium usage providers
+    value: 21.7%
+    usage_band: 10%-40%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific_or_analysis
+
+  - kpi_id: KPI-020
+    metric_name: RAF gain for high usage providers
+    value: 31.4%
+    usage_band: 40%-100%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific_or_analysis
+
+  - kpi_id: KPI-021
+    metric_name: Quality performance realized increase
+    value: 17%
+    scope: Anonymized risk-bearing provider organization, 31K lives, 29 providers
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-022
+    metric_name: Quality performance potential increase
+    value: 28%
+    scope: Anonymized risk-bearing provider organization, 31K lives, 29 providers
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-023
+    metric_name: Initial quality performance
+    value: 54%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-024
+    metric_name: Current quality performance
+    value: 71%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-025
+    metric_name: Potential quality performance
+    value: 82%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-026
+    metric_name: Implementation duration
+    value: 8-10
+    unit: weeks per instance
+    source_ids: [SRC-001]
+    confidence_level: medium
+    conflict_status: operational
+
+  - kpi_id: KPI-027
+    metric_name: Provider training duration
+    value: <1
+    unit: hour
+    source_ids: [SRC-001]
+    confidence_level: medium
+    conflict_status: operational
+
+quality_measure_kpis:
+  - measure: Kidney Health Evaluation
+    initial_rate: 55%
+    final_plus_potential_rate: 81%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Glycemic Status <8%
+    initial_rate: 38%
+    final_plus_potential_rate: 69%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Diabetic Eye Exam
+    initial_rate: 57%
+    final_plus_potential_rate: 77%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Controlling High Blood Pressure
+    initial_rate: 59%
+    final_plus_potential_rate: 89%
+    cms_star_boost: 2_to_5
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Colorectal Cancer Screening
+    initial_rate: 60%
+    final_plus_potential_rate: 79%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Breast Cancer Screening
+    initial_rate: 72%
+    final_plus_potential_rate: 80%
+    cms_star_boost: 4_to_5
+    source_id: SRC-006
+    confidence_level: high
+
+  footnotes:
+    - Current state as of May 15, 2024
+    - Reporting period of 2024 only
+    - Potential includes exclusion for simplification
+    - Initial rate derived from first seen status of all measures ingested
+
+independent_studies:
+  - study_id: STUDY-001
+    study_name: AAFP report / AI Assistant for Clinical Review and Value-Based Care
+    study_type: independent_or_partnered_validation
+    source_ids:
+      - SRC-001
+      - SRC-006
+    extracted_findings:
+      - metric_id: KPI-008
+        finding: 9 minutes saved on chart review / visit preparation
+      - metric_id: KPI-009
+        finding: 49% increase in diagnoses found
+      - metric_id: KPI-010
+        finding: 21% increase in physician satisfaction rate
+    quote:
+      speaker: Steven E. Waldren, MD, MS
+      title: Chief Medical Informatics Officer at the AAFP
+      quote_text: "Navina is an essential innovation for primary care physicians to streamline their clinical workflow and thrive in value-based care."
+    confidence_level: medium
+    notes: Full methodology and sample details should be preserved from source report when ingested.
+
+  - study_id: STUDY-002
+    study_name: Phyx Primary Care — Practicing Value-based Care with AI
+    study_type: independent_validation
+    source_ids:
+      - prior_PHYX_report
+    extracted_metrics:
+      - 40% reduction in clinical review time for complex visits
+      - 32% decrease in physician burnout
+      - +0.153 RAF increase
+      - +1.9 Star quality rating improvement
+      - 94% physicians found it easy to access/use
+      - 92% trusted HCC suggestions
+    confidence_level: high
+    notes: Retained from v0.1; not re-analyzed in the three requested decks.
+
+customer_evidence:
+  - customer_id: CUST-001
+    customer_name: Privia Health
+    customer_type: provider_network
+    evidence_type: named_customer_quote_and_usage_chart
+    source_ids:
+      - SRC-004
+      - SRC-006
+    outcomes:
+      - High engagement from day one
+      - Provider count increased approximately 3x without reduction in usage
+    metrics:
+      - Weekly active providers shown around mid/high 80s to 90% range in chart
+      - Working providers increased from approximately 306 to around 1000 in the chart period
+    quote:
+      speaker: Dr. Keith Fernandez
+      title: EVP and Chief Clinical Officer, Privia Health
+      quote_text: "Navina's platform stands out because of its ability to reduce the burden on physicians while also giving a more appropriate history of the patients conditions. It backs up every insight and diagnosis with clinical evidence presented at the time of a patient visit."
+      approved_for_external_use: unknown
+    confidence_level: high
+
+  - customer_id: CUST-002
+    customer_name: Primus Health Networks
+    customer_type: MSO
+    evidence_type: named_customer_quote
+    source_ids:
+      - SRC-001
+    quote:
+      speaker: Rich Lucibella
+      title: Director at Primus Health Networks
+      quote_text: "I've never seen a roll out like this. I've never seen anything go as smoothly as this in my business. It's really been amazing from contracting to implementation to training and onboarding."
+      approved_for_external_use: unknown
+    confidence_level: high
+
+  - customer_id: CUST-003
+    customer_name: Anonymous risk-bearing provider organization
+    customer_type: risk_bearing_provider_organization
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    size:
+      lives_with_navina: 930000
+      providers: 1080
+      go_live_date: October 2023
+    outcomes:
+      - Navina suspecting engine suggested 67% additional HCCs on top of recaptured HCCs
+      - 78% overall acceptance rate
+    metrics:
+      - 1.1M+ Navina suggestions
+      - 620K recaptured HCCs
+      - 413K suspected HCCs
+      - 810K+ provider-accepted suggestions
+      - 90% recapture acceptance
+      - 61% suspect acceptance
+    confidentiality: confidential_anonymized
+    caveat: Informational illustration; outcomes directionally correct but vary.
+
+  - customer_id: CUST-004
+    customer_name: Anonymous high-performing value-based care enabler
+    customer_type: value_based_care_enabler
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    outcomes:
+      - 30% increase in RAF in first year
+      - Major two-decile RAF increase realized in first three quarters with Navina alone
+    metrics:
+      - 2024 EOY RAF: 0.96
+      - 2025 EOY RAF: 1.25
+    confidentiality: confidential_anonymized
+    caveat: Risk adjustment policies and agreement periods subject to CMS changes; results vary.
+
+  - customer_id: CUST-005
+    customer_name: Anonymous large employed group
+    customer_type: employed_provider_group
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    size:
+      medicare_advantage_members: approximately_32500
+    outcomes:
+      - Durable growth in YoY RAF outcomes
+    metrics:
+      - 2021 RAF: 0.80
+      - 2022 RAF: 0.90
+      - 2023 RAF: 1.07
+      - 2024 RAF: 1.22
+      - 2025 RAF: 1.41
+    caveat: Eligible Navina members, MA, 65+, with at least one visit each year between 2021 and 2025.
+
+  - customer_id: CUST-006
+    customer_name: Anonymous high-performing ACO REACH partner
+    customer_type: ACO_REACH_partner
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    outcomes:
+      - Gap-closing velocity doubled
+      - 2023 year-end scores achieved by mid-2024
+    metrics:
+      - Prior RAF point: 1.17
+      - Prior RAF point: 1.27
+      - EOY 2024: 1.56
+      - Q3 2025: 1.46
+      - 2025 projection: 1.71
+    caveat: Informational illustration; outcomes directionally correct but vary.
+
+  - customer_id: CUST-007
+    customer_name: Anonymous risk-bearing provider organization
+    customer_type: risk_bearing_provider_organization
+    evidence_type: anonymized_quality_case_study
+    source_ids: [SRC-006]
+    size:
+      lives_with_navina: 31000
+      providers: 29
+    outcomes:
+      - 17% realized quality performance increase
+      - 28% potential quality performance increase
+    metrics:
+      - Initial performance: 54%
+      - Current performance: 71%
+      - Potential performance: 82%
+    linked_quality_measure_kpis:
+      - Kidney Health Evaluation
+      - Glycemic Status <8%
+      - Diabetic Eye Exam
+      - Controlling High Blood Pressure
+      - Colorectal Cancer Screening
+      - Breast Cancer Screening
+
+competitive_positioning:
+  - positioning_id: POS-001
+    positioning_type: workflow_advantage
+    statement: Navina embeds risk and quality insights into clinician and EHR workflows where supported.
+    supporting_evidence:
+      - PROD-003
+      - PROD-007
+      - PROD-010
+      - SRC-002
+      - SRC-004
+      - SRC-005
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-002
+    positioning_type: clinical_advantage
+    statement: Navina links AI-generated HCC and quality insights to clinical evidence from multiple data sources.
+    supporting_evidence:
+      - PROD-003
+      - PROD-006
+      - SRC-001
+      - SRC-002
+      - SRC-003
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-003
+    positioning_type: product_advantage
+    statement: Navina supports both provider and coder workflows for HCC review, documentation, and post-visit loop closure.
+    supporting_evidence:
+      - PROD-003
+      - PROD-004
+      - SRC-003
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-004
+    positioning_type: adoption_advantage
+    statement: Navina has evidence of high clinician engagement and usage.
+    supporting_evidence:
+      - KPI-004
+      - KPI-005
+      - CUST-001
+      - SRC-006
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-005
+    positioning_type: data_advantage
+    statement: Navina can use structured and unstructured data, including scanned documents, imaging, HIE, claims, labs, and free text, to support risk and quality insights.
+    supporting_evidence:
+      - PROD-001
+      - PROD-003
+      - PROD-006
+      - SRC-001
+      - SRC-002
+      - SRC-003
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-006
+    positioning_type: quality_advantage
+    statement: Navina supports point-of-care quality gap closure workflows with evidence, notes, CPT II code support, and order workflows.
+    supporting_evidence:
+      - PROD-007
+      - quality_measure_kpis
+      - SRC-002
+      - SRC-006
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-007
+    positioning_type: implementation_advantage
+    statement: Navina sources claim streamlined deployment and short provider training time.
+    supporting_evidence:
+      - KPI-026
+      - KPI-027
+      - CUST-002
+    confidence_level: medium
+    unsupported_claim_risk: medium
+    notes: Treat as operational evidence, not universal guarantee.
+
+competitive_benchmarks:
+  - benchmark_id: BENCH-001
+    competitor_name: EHR
+    comparison_category: VBC functionality
+    benchmark_statement: Navina is positioned as complementing EHRs with purpose-built, evidence-driven VBC insights.
+    navina_capabilities:
+      - capture chronic conditions from external data sources such as claims and HIE
+      - use conversational dialogue
+      - AI-powered intelligent alerts
+      - support CMS-HCC, HHS-HCC, RxHCC, and ESRD risk models
+      - identify new suspected conditions from unstructured data
+      - search full patient record including scanned documents
+      - organize patient information for review
+    evidence_source: SRC-001
+    confidence_level: medium
+    comparison_type: product_positioning
+    neutrality_check:
+      source_backed: true
+      generated_opinion: false
+      named_competitor: false
+
+  - benchmark_id: BENCH-002
+    competitor_name: Claims-only risk gap workflows
+    comparison_category: risk_adjustment_evidence
+    benchmark_statement: Sales deck states that risk gaps based solely on claims have 40% clinician acceptance.
+    evidence_source: SRC-001
+    confidence_level: medium
+    comparison_type: workflow
+    neutrality_check:
+      source_backed: true
+      generated_opinion: false
+      named_competitor: false
+
+  - benchmark_id: BENCH-003
+    competitor_name: Traditional retrospective HCC workflows
+    comparison_category: risk_adjustment_workflow
+    benchmark_statement: Navina is positioned around prospective, point-of-care and coder-provider workflows rather than retrospective chart chasing alone.
+    evidence_source:
+      - SRC-001
+      - SRC-003
+      - SRC-005
+    confidence_level: high
+    comparison_type: workflow
+    neutrality_check:
+      source_backed: true
+      generated_opinion: false
+      named_competitor: false
+
+awards_recognition_certifications:
+  - recognition_id: REC-001
+    name: Best in KLAS
+    organization: KLAS
+    category: Clinician Digital Workflow
+    date: 2025
+    source_ids: [SRC-001, SRC-004]
+    confidence_level: medium
+    verification_status: needs_external_verification
+
+  - recognition_id: REC-002
+    name: Gold Globee / Stevie-related award
+    organization: Globee or Stevie Awards
+    date: 2025
+    source_ids: [SRC-004]
+    confidence_level: low
+    verification_status: needs_exact_award_name
+
+  - recognition_id: REC-003
+    name: MedTech Breakthrough AI Award
+    organization: MedTech Breakthrough
+    date: unknown
+    source_ids: [SRC-004]
+    confidence_level: medium
+    verification_status: needs_external_verification
+
+  - recognition_id: REC-004
+    name: CB Insights AI 100
+    organization: CB Insights
+    date: 2023
+    source_ids: [SRC-004]
+    confidence_level: medium
+
+  - recognition_id: REC-005
+    name: CB Insights Digital Health 50
+    organization: CB Insights
+    date: 2023
+    source_ids: [SRC-004]
+    confidence_level: medium
+
+  - recognition_id: REC-006
+    name: KLAS Emerging Solutions Top 20
+    organization: KLAS
+    date: 2024
+    source_ids: [SRC-004]
+    confidence_level: medium
+
+  - recognition_id: REC-007
+    name: ISO27001:2022 certification
+    organization: IQNet
+    source_ids: [SRC-001]
+    confidence_level: medium
+    verification_status: needs_certificate_source
+
+  - recognition_id: REC-008
+    name: SOC 2 Type II
+    organization: AICPA / Ernst & Young
+    source_ids: [SRC-001, SRC-004]
+    confidence_level: medium
+    verification_status: needs_report_source
+
+  - recognition_id: REC-009
+    name: HIPAA compliance / report
+    organization: Ernst & Young
+    source_ids: [SRC-001, SRC-004]
+    confidence_level: medium
+    verification_status: needs_report_source
+
+messaging_library:
+  - message_id: MSG-001
+    messaging_type: executive
+    original_text: "Meet the clinician-first AI platform for value-based success"
+    source_id: SRC-001
+    stability: semi_stable
+    usage_context: sales_deck_opening
+
+  - message_id: MSG-002
+    messaging_type: product
+    original_text: "Your patient's full picture, before you walk in the room"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: provider_training
+
+  - message_id: MSG-003
+    messaging_type: product
+    original_text: "Review any case in minutes"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: provider_training
+
+  - message_id: MSG-004
+    messaging_type: product
+    original_text: "Actionable risk adjustment insights"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: diagnosis_insights
+
+  - message_id: MSG-005
+    messaging_type: product
+    original_text: "Complete patient portrait"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: clinical_summary
+
+  - message_id: MSG-006
+    messaging_type: product
+    original_text: "Advanced search and document exploration"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: clinical_documents
+
+  - message_id: MSG-007
+    messaging_type: product
+    original_text: "Care gap alerts at the point-of-care"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: quality_insights
+
+  - message_id: MSG-008
+    messaging_type: executive
+    original_text: "Healthier patients, healthier economics. AI's double win."
+    source_ids: [SRC-004, SRC-005]
+    stability: campaign_specific
+    usage_context: external_one_pagers
+
+  - message_id: MSG-009
+    messaging_type: sales
+    original_text: "Drive value-based care success across your network"
+    source_id: SRC-005
+    stability: campaign_specific
+    usage_context: MSO_ACO_one_pager
+
+  - message_id: MSG-010
+    messaging_type: product
+    original_text: "AI insights powered by clinical evidence"
+    source_id: SRC-001
+    stability: semi_stable
+    usage_context: sales_deck
+
+source_registry:
+  - source_id: SRC-001
+    source_name: Navina sales deck 2026
+    source_type: Google Slides presentation
+    date: 2026
+    confidentiality: confidential
+    key_topics:
+      - company scale
+      - platform positioning
+      - VBC data challenges
+      - product suite
+      - risk adjustment
+      - clinician copilot
+      - HEDIS / Stars
+      - performance management
+      - HCC coding teams
+      - customer evidence
+      - case studies
+      - security
+      - implementation
+    sections_populated:
+      - company_profile
+      - product_knowledge
+      - kpi_repository
+      - customer_evidence
+      - competitive_positioning
+      - competitive_benchmarks
+      - awards_recognition_certifications
+      - messaging_library
+      - source_registry
+
+  - source_id: SRC-002
+    source_name: Provider Training Deck Athena
+    source_type: Google Slides training deck
+    date: unknown
+    confidentiality: confidential
+    key_topics:
+      - Patient Portrait
+      - Athena access
+      - Diagnosis Insights
+      - Clinical Summary
+      - Clinical Documents
+      - Quality Insights
+      - ASCVD workflow
+      - FAQ
+      - support workflows
+    sections_populated:
+      - product_knowledge
+      - clinical_vbc_knowledge
+      - messaging_library
+      - source_registry
+
+  - source_id: SRC-003
+    source_name: Coder Training Deck
+    source_type: Google Slides training deck
+    date: unknown
+    confidentiality: confidential
+    key_topics:
+      - coder workspace
+      - diagnosis insights
+      - HCC gaps
+      - suspected vs recaptured conditions
+      - companion codes
+      - manual diagnosis addition
+      - clinical summary
+      - clinical documents
+      - quality insights
+      - close-the-loop provider visibility
+    sections_populated:
+      - product_knowledge
+      - clinical_vbc_knowledge
+      - competitive_positioning
+      - source_registry
+
+  - source_id: SRC-004
+    source_name: 2026 Navina overview
+    source_type: PDF one-pager
+    date: 2026
+    confidentiality: external_or_sales
+    key_topics:
+      - company description
+      - clinician copilot
+      - risk adjustment
+      - quality performance
+      - network management
+      - KPIs
+      - customer quote
+      - recognition
+    sections_populated:
+      - company_profile
+      - product_knowledge
+      - kpi_repository
+      - customer_evidence
+      - messaging_library
+      - awards_recognition_certifications
+
+  - source_id: SRC-005
+    source_name: Navina MSO one pager
+    source_type: PDF one-pager
+    date: unknown
+    confidentiality: external_or_sales
+    key_topics:
+      - MSO / ACO positioning
+      - risk adjustment
+      - provider engagement
+      - quality performance
+      - network management
+      - KPIs
+      - EHR support
+    sections_populated:
+      - company_profile
+      - product_knowledge
+      - kpi_repository
+      - competitive_positioning
+      - messaging_library
+
+  - source_id: SRC-006
+    source_name: Navina Case Studies 2026
+    source_type: PDF case study deck
+    date: March 2026
+    confidentiality: confidential
+    key_topics:
+      - clinician adoption
+      - weekly active providers
+      - AI suggestion acceptance
+      - AAFP findings
+      - RAF impact
+      - quality performance
+      - anonymized customer cases
+    sections_populated:
+      - kpi_repository
+      - independent_studies
+      - customer_evidence
+      - competitive_positioning
+
+ai_retrieval_recommendations:
+  battlecard_generation:
+    retrieve:
+      - competitive_positioning
+      - competitive_benchmarks
+      - product_knowledge.filtered_by_use_case
+      - kpi_repository.filtered_by_claim
+      - customer_evidence.filtered_by_relevance
+      - source_registry.minimal_citations
+    exclude:
+      - operational training steps
+      - full FAQ content
+      - raw messaging unless user asks for messaging
+
+  competitor_deep_dive:
+    retrieve:
+      - competitive_benchmarks
+      - competitor_registry
+      - product_knowledge.filtered_by_category
+      - supporting evidence from source_registry
+    exclude:
+      - customer quotes unless competitor-relevant
+      - unsupported superiority claims
+
+  executive_brief:
+    retrieve:
+      - company_profile
+      - strategic_positioning
+      - high_confidence_kpis
+      - independent_studies
+      - customer_evidence
+      - awards_recognition_certifications
+    exclude:
+      - Athena access workflow
+      - coder workflow details
+      - FAQs
+
+  product_overview:
+    retrieve:
+      - product_knowledge
+      - workflows
+      - integrations
+      - user_personas
+      - clinical_vbc_knowledge.related
+    exclude:
+      - competitive_benchmarks
+      - sales messaging
+      - customer case metrics unless requested
+
+  provider_training_answer:
+    retrieve:
+      - Patient Portrait
+      - Diagnosis Insights
+      - Clinical Summary
+      - Clinical Documents
+      - Quality Insights
+      - Athena access workflow
+      - FAQ
+    exclude:
+      - competitive positioning
+      - sales deck messaging
+      - anonymized customer case studies
+
+  coder_training_answer:
+    retrieve:
+      - Coder Workspace
+      - Diagnosis Insights
+      - HCC gaps
+      - suspected vs recaptured definitions
+      - companion codes
+      - manual diagnosis workflows
+      - close-the-loop statuses
+      - Clinical Documents
+    exclude:
+      - executive messaging
+      - broad company profile
+
+  KPI_answer:
+    retrieve:
+      - kpi_repository.filtered_by_metric
+      - linked_customer_evidence
+      - linked_study
+      - source_registry
+    conflict_policy:
+      - preserve all metric variants
+      - show source, period, and scope
+      - do not combine customer-specific and global averages
+
+  customer_proof_request:
+    retrieve:
+      - customer_evidence
+      - linked_kpis
+      - linked_quotes
+      - caveats
+      - confidentiality_status
+    exclude:
+      - logo-only customer references unless requested
+
+  clinical_domain_answer:
+    retrieve:
+      - clinical_vbc_knowledge
+      - product_knowledge.only_if_navina_workflow_requested
+    exclude:
+      - messaging_library
+      - competitive claims
+
+  messaging_request:
+    retrieve:
+      - messaging_library
+      - linked_facts_for_validation
+    exclude:
+      - facts not approved for messaging
+
+review_queue:
+  - review_id: REVIEW-001
+    topic: Weekly active providers vs acceptance rate parsing
+    issue: Some parsed text transposes 77% and 86%; visual deck and repeated source context support 86% weekly active providers and 77% accepted AI suggestions.
+    current_resolution: Use 86% WAP and 77% acceptance as canonical.
+    status: resolved_for_v0.3
+
+  - review_id: REVIEW-002
+    topic: 43% vs 49% diagnosis increase
+    issue: 43% appears as 2025 average increase in identified diagnoses; 49% appears in AAFP/case-study context as increase in diagnoses found.
+    current_resolution: Preserve as separate KPIs with source and scope.
+    status: resolved_for_v0.3
+
+  - review_id: REVIEW-003
+    topic: 9-minute time saving wording
+    issue: Sources describe this as visit prep per complex patient and also as chart review / visit preparation burden.
+    current_resolution: Store as same metric family with wording variants.
+    status: resolved_for_v0.3
+
+  - review_id: REVIEW-004
+    topic: Awards and certifications
+    issue: Decks show badges, but exact award names, dates, and certificate validity require primary-source verification.
+    current_resolution: Store with medium/low confidence and verification_status.
+    status: open
+
+  - review_id: REVIEW-005
+    topic: Customer case confidentiality
+    issue: Several cases are anonymized and include caveats that results vary.
+    current_resolution: Store as anonymized customer evidence; do not use customer names or generalized promises.
+    status: resolved_for_v0.3
+
+  - review_id: REVIEW-006
+    topic: Operational training details
+    issue: Athena extension, login, FAQ, app URLs, and UI behaviors may change.
+    current_resolution: Store under Product Knowledge / integration workflow with semi-stable or operational status, not stable company profile.
+    status: resolved_for_v0.3
+
+canonical_boundaries:
+  stable_company_knowledge:
+    include:
+      - company description
+      - market focus
+      - target customers
+      - product pillars
+    exclude:
+      - campaign slogans
+      - implementation timelines
+      - current UI instructions
+
+  factual_product_knowledge:
+    include:
+      - modules
+      - workflows
+      - data sources
+      - personas
+      - capabilities
+    exclude:
+      - superiority claims
+      - sales wording
+
+  evidence:
+    include:
+      - KPIs
+      - customer cases
+      - quotes
+      - study findings
+    handling:
+      - preserve source
+      - preserve time period
+      - preserve caveats
+      - preserve customer-specific scope
+
+  messaging:
+    include:
+      - original phrasing only
+    handling:
+      - do not rewrite
+      - do not convert messaging into fact unless independently evidenced
+
+  competitive_knowledge:
+    include:
+      - evidence-backed comparisons
+      - EHR complement positioning
+      - claims-only or retrospective workflow comparisons
+    exclude:
+      - unsupported competitor opinions
+      - inferred superiority
+
+navina_product_map_v0_3:
+  platform:
+    - Navina Platform
+
+  clinician_facing_modules:
+    - Patient Portrait
+    - Diagnosis Insights
+    - Clinical Summary
+    - Clinical Documents
+    - Quality Insights
+    - Clinician Copilot / Ambient
+
+  coder_facing_modules:
+    - Coder Workspace
+    - Diagnosis Insights
+    - Clinical Documents
+    - Clinical Summary
+    - Close-the-loop review
+
+  operations_and_management_modules:
+    - Quality Workspace
+    - Performance Management
+    - Network Analytics
+    - RAF tracking
+    - Provider performance reporting
+
+  core_data_sources:
+    - EHR
+    - HIE
+    - Claims
+    - Payer data
+    - Data aggregators
+    - Labs
+    - Vitals
+    - Medications
+    - Consult notes
+    - Imaging
+    - Echocardiograms
+    - Vascular studies
+    - Scanned documents
+    - Free text
+    - Ambient dialogue
+    - PHQ scores
+
+  core_outputs:
+    - Patient portrait
+    - HCC recommendations
+    - Suspected diagnoses
+    - Recapture opportunities
+    - AI-generated assessment
+    - Evidence-linked documentation
+    - Quality care gap alerts
+    - CPT II code support
+    - Orders / order sets for select measures
+    - RAF trends
+    - Quality trends
+    - Provider performance insights
