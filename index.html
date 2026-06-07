@@ -3848,7 +3848,9 @@ Source: [website or review source] at end of section.
     const officialSources = base
       ? `- ${base}: check /news, /newsroom, /press, /blog, /resources, /case-studies\n- LinkedIn: search "${c}" company page → Posts tab`
       : `- Search "${c}" official website: /news, /newsroom, /press, /blog, /resources\n- LinkedIn: search "${c}" company page → Posts tab`;
-    return `## ROLE
+    return `${driveContext(c, 'news')}
+
+## ROLE
 You are a senior competitive intelligence analyst at Navina.
 You are preparing a briefing for a **${persona}** who needs current intelligence on **${c}**.
 
