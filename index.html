@@ -4041,26 +4041,17 @@ Do not include a Navina KPI table. Do not compare to Navina metrics.${notes ? `\
     const base = company?.website?.replace(/\/$/, '') || '';
     return `${driveContext(c, 'exec-brief')}
 
-Generate a concise Executive Brief on ${c} for a ${persona}. Target: 200–350 words total. Be sharp. No filler.
+Write a single concise paragraph about ${c}. 75–90 words. No headers. No bullets. No sections.
 
-## BOTTOM LINE
-1–2 sentences. What is ${c} and why does it matter right now?
+Cover in one flowing paragraph:
+– What the company does and its core product focus
+– Primary market segment and customer types
+– Founded year, HQ, and approximate employee count
+– Total funding or ownership status (PE-backed, public, etc.)
+– One or two notable recent facts if directly relevant (acquisition, major customer milestone)
 
-## WHY IT MATTERS
-3 bullets max. What makes ${c} strategically significant in this market?
-Focus on: market position · customer scale · recent momentum · competitive reach.
-
-## KEY SIGNALS
-2–3 bullets. Most important recent developments — last 90 days preferred.
-Each: **[Month YYYY]** — one sentence. Source: [domain or URL]
-If no recent news: "No significant news in the last 90 days."
-
-## RISKS / WATCH ITEMS
-2–3 bullets. What to monitor. Format: **[Signal]** — why it matters.
-Example: new EHR integration announced · funding round closed · product expansion into adjacent market.
-
-${base ? `Research: ${base} (/news, /blog, /press) · ` : ''}beckershospitalreview.com · businesswire.com · prnewswire.com · crunchbase.com
-Source: [company website or crunchbase]${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+Plain, factual, neutral language. No marketing words. No opinions. No Navina comparison.
+Read: ${base ? base : c + ' website'} and crunchbase.com for verified facts.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
 };
