@@ -1657,8 +1657,7 @@ async function sendFollowUp() {
 
   input.value = '';
   input.style.height = 'auto';
-  chatHistory.push({ role: 'user', content: text });
-  appendChatMessage('user', text);
+  appendChatMessage('user', text);  // show original text in UI
 
   const messagesEl = document.getElementById('chat-messages');
   const thinkingId = 'thinking-' + Date.now();
@@ -1668,7 +1667,7 @@ async function sendFollowUp() {
         <div class="chat-msg-avatar">J</div>
         <div class="chat-msg-name">Joey</div>
       </div>
-      <div class="chat-thinking-body">
+      <div class="chat-thinking-body" id="${thinkingId}-body">
         <div class="chat-dots"><span></span><span></span><span></span></div>
         Thinking...
       </div>
@@ -1677,6 +1676,18 @@ async function sendFollowUp() {
 
   setGenerating(true);
   try {
+    // Fetch any Notion/Drive URLs in the message before sending to Claude
+    const { prompt: enrichedText, sourcesLoaded } = await enrichPromptWithContent(text);
+
+    // Update thinking indicator if sources were loaded
+    if (sourcesLoaded.length > 0) {
+      const bodyEl = document.getElementById(thinkingId + '-body');
+      if (bodyEl) bodyEl.innerHTML = `
+        <div class="chat-dots"><span></span><span></span><span></span></div>
+        📚 Loaded: ${sourcesLoaded.join(', ')} · Reading content...`;
+    }
+
+    chatHistory.push({ role: 'user', content: enrichedText });  // push enriched version
     const reply = await callClaudeAPI(chatHistory);
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
@@ -1984,7 +1995,8 @@ async function enrichPromptWithContent(prompt) {
   const sourcesLoaded = [];
 
   // ── Notion URLs → use /notion-page API ──────────────
-  const notionPattern = /https:\/\/www\.notion\.so\/[^\s\n)"]+/g;
+  // Match both www.notion.so and app.notion.com formats
+  const notionPattern = /https:\/\/(?:www\.notion\.so|app\.notion\.com\/p)[^\s\n)"]+/g;
   const notionUrls = [...new Set(prompt.match(notionPattern) || [])];
 
   await Promise.all(notionUrls.map(async url => {
