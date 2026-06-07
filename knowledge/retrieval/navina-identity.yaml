@@ -1,0 +1,123 @@
+# Navina Identity — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: company_profile, navina_product_map_v0_3
+# Use when: any request that needs basic Navina context
+
+retrieval_asset:
+  name: navina-identity
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [company_profile, navina_product_map_v0_3]
+  retrieval_priority: medium
+  load_when:
+    - all_use_cases
+  exclude_when: []
+
+company_profile:
+  company_name: Navina
+
+  company_description:
+    value: Clinical intelligence platform for value-based care.
+    evidence_sources: [SRC-004, SRC-006, SRC-007]
+    confidence_level: high
+    stability: stable
+
+  strategic_positioning:
+    - value: Clinician-first AI platform for value-based success.
+      evidence_sources: [SRC-001]
+      confidence_level: high
+      stability: semi_stable
+      notes: Messaging-like positioning; store as strategic positioning, not product fact.
+
+    - value: Point-of-care intelligence supporting system-wide value-based care performance.
+      evidence_sources: [SRC-001]
+      confidence_level: high
+      stability: semi_stable
+
+    - value: Clinical intelligence from population management to the point of care.
+      evidence_sources: [SRC-005, SRC-007]
+      confidence_level: high
+      stability: semi_stable
+
+  primary_market_focus:
+    - value: Value-based care organizations
+      evidence_sources: [SRC-001, SRC-004, SRC-005, SRC-006]
+      confidence_level: high
+      stability: stable
+
+    - value: Risk adjustment, HCC documentation, HEDIS/Stars quality performance, clinician workflow efficiency, and network performance management.
+      evidence_sources: [SRC-001, SRC-004, SRC-005, SRC-006]
+      confidence_level: high
+      stability: stable
+
+  target_customers:
+    - customer_segment: Provider groups
+      confidence_level: high
+      source_ids: [SRC-001, SRC-004, SRC-006]
+
+    - customer_segment: MSOs
+      confidence_level: high
+      source_ids: [SRC-005]
+
+    - customer_segment: ACOs
+      confidence_level: high
+      source_ids: [SRC-005]
+
+    - customer_segment: Health plans
+      confidence_level: medium
+      source_ids: [prior_source_health_plan_one_pager]
+
+    - customer_segment: Risk-bearing provider organizations
+      confidence_level: high
+      source_ids: [SRC-006]
+
+    - customer_segment: HCC coding teams / CDI teams
+      confidence_level: high
+      source_ids: [SRC-002, SRC-003]
+
+    - customer_segment: Primary care clinicians
+      confidence_level: high
+      source_ids: [SRC-002, SRC-006]
+
+  business_model:
+    value: Not explicitly defined in the analyzed sources.
+    confidence_level: unknown
+    stability: unknown
+    notes: Do not infer pricing or contracting model.
+
+  key_product_pillars:
+    - Clinical intelligence / Patient Portrait
+    - Risk Adjustment / HCC
+    - Coder Workspace
+    - Clinician Copilot
+    - Quality / HEDIS / Stars
+    - Clinical Summary
+    - Clinical Documents / document intelligence
+    - Performance Management / network analytics
+    - Ambient documentation
+
+navina_product_map_v0_3:
+  platform:
+    - Navina Platform
+
+  clinician_facing_modules:
+    - Patient Portrait
+    - Diagnosis Insights
+    - Clinical Summary
+    - Clinical Documents
+    - Quality Insights
+    - Clinician Copilot / Ambient
+
+  coder_facing_modules:
+    - Coder Workspace
+    - Diagnosis Insights
+    - Clinical Documents
+    - Clinical Summary
+    - Close-the-loop review
+
+  operations_and_management_modules:
+    - Quality Workspace
+    - Performance Management
+    - Network Analytics
+    - RAF tracking
+    - Provider performance reporting

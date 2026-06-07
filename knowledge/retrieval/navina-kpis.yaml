@@ -1,0 +1,302 @@
+# Navina KPIs — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: kpi_repository (KPI-001 to KPI-027), quality_measure_kpis, review_queue (REVIEW-001 to REVIEW-003)
+# Use when: Battlecard, Exec Brief, Case Studies, Sales/Product/Clinical/Executive personas
+
+retrieval_asset:
+  name: navina-kpis
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [kpi_repository, quality_measure_kpis, review_queue_items_001_003]
+  retrieval_priority: high
+  load_when:
+    - battlecard
+    - exec_brief
+    - case_studies
+    - strengths_weaknesses
+    - deep_dive
+  exclude_when:
+    - latest_news
+  conflict_policy:
+    - Preserve all metric variants with different scopes
+    - Show source, time period, and scope for every metric
+    - Do not combine customer-specific and global averages
+
+kpi_repository:
+  - kpi_id: KPI-001
+    metric_name: Clinics
+    value: 1300+
+    source_ids: [SRC-001]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-002
+    metric_name: Clinicians and care team members
+    value: 20000+
+    source_ids: [SRC-001]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-003
+    metric_name: Lives
+    value: 3500000+
+    source_ids: [SRC-001]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-004
+    metric_name: Weekly active providers
+    value: 86%
+    time_period: 2025 average across Navina customers
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: high
+    conflict_status: canonical
+    notes: In parsed text from one source, 77/86 appears transposed; visual evidence and repeated usage support 86% weekly active providers.
+
+  - kpi_id: KPI-005
+    metric_name: AI suggestions accepted by clinicians
+    value: 77%
+    time_period: 2025 average across Navina customers
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-006
+    metric_name: Diagnosis recommendation address rate
+    value: 90%
+    time_period: 2025 average across Navina customers
+    source_ids: [SRC-005]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-007
+    metric_name: Increase in identified diagnoses
+    value: 43%
+    comparator: vs prior year
+    source_ids: [SRC-004, SRC-005]
+    confidence_level: high
+    conflict_status: canonical
+
+  - kpi_id: KPI-008
+    metric_name: Time saved on chart review / visit preparation
+    value: 9
+    unit: minutes
+    source_ids: [SRC-004, SRC-006]
+    confidence_level: high
+    conflict_status: canonical_with_scope_variation
+    notes: Source wording varies between "visit prep per complex patient" and "chart review reducing visit preparation burden."
+
+  - kpi_id: KPI-009
+    metric_name: Increase in diagnoses found
+    value: 49%
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: medium
+    conflict_status: alternate_version
+    notes: Preserve separately from 43% increase in identified diagnoses because source context differs.
+
+  - kpi_id: KPI-010
+    metric_name: Increase in physician satisfaction rate
+    value: 21%
+    source_ids: [SRC-001, SRC-006]
+    confidence_level: medium
+    conflict_status: canonical_pending_study_source
+
+  - kpi_id: KPI-011
+    metric_name: Suspecting engine HCC boost
+    value: 67%
+    scope: Anonymized customer case; additional suspected HCCs on top of recaptured HCCs
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-012
+    metric_name: Suspect condition accept rate
+    value: 61%
+    scope: Anonymized 930k-lives customer case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-013
+    metric_name: Recapture accept rate
+    value: 90%
+    scope: Anonymized 930k-lives customer case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-014
+    metric_name: Overall acceptance rate
+    value: 78%
+    scope: Anonymized 930k-lives customer case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-015
+    metric_name: RAF increase in first year
+    value: 30%
+    scope: High-performing value-based care enabler case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-016
+    metric_name: RAF EOY score before Navina
+    value: 0.96
+    time_period: 2024 EOY
+    scope: High-performing value-based care enabler case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-017
+    metric_name: RAF EOY score after Navina
+    value: 1.25
+    time_period: 2025 EOY
+    scope: High-performing value-based care enabler case
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-018
+    metric_name: RAF gain for low usage providers
+    value: 11.6%
+    usage_band: 0%-10%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific_or_analysis
+
+  - kpi_id: KPI-019
+    metric_name: RAF gain for medium usage providers
+    value: 21.7%
+    usage_band: 10%-40%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific_or_analysis
+
+  - kpi_id: KPI-020
+    metric_name: RAF gain for high usage providers
+    value: 31.4%
+    usage_band: 40%-100%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific_or_analysis
+
+  - kpi_id: KPI-021
+    metric_name: Quality performance realized increase
+    value: 17%
+    scope: Anonymized risk-bearing provider organization, 31K lives, 29 providers
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-022
+    metric_name: Quality performance potential increase
+    value: 28%
+    scope: Anonymized risk-bearing provider organization, 31K lives, 29 providers
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-023
+    metric_name: Initial quality performance
+    value: 54%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-024
+    metric_name: Current quality performance
+    value: 71%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-025
+    metric_name: Potential quality performance
+    value: 82%
+    source_ids: [SRC-006]
+    confidence_level: high
+    conflict_status: customer_specific
+
+  - kpi_id: KPI-026
+    metric_name: Implementation duration
+    value: 8-10
+    unit: weeks per instance
+    source_ids: [SRC-001]
+    confidence_level: medium
+    conflict_status: operational
+
+  - kpi_id: KPI-027
+    metric_name: Provider training duration
+    value: <1
+    unit: hour
+    source_ids: [SRC-001]
+    confidence_level: medium
+    conflict_status: operational
+
+quality_measure_kpis:
+  - measure: Kidney Health Evaluation
+    initial_rate: 55%
+    final_plus_potential_rate: 81%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Glycemic Status <8%
+    initial_rate: 38%
+    final_plus_potential_rate: 69%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Diabetic Eye Exam
+    initial_rate: 57%
+    final_plus_potential_rate: 77%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Controlling High Blood Pressure
+    initial_rate: 59%
+    final_plus_potential_rate: 89%
+    cms_star_boost: 2_to_5
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Colorectal Cancer Screening
+    initial_rate: 60%
+    final_plus_potential_rate: 79%
+    cms_star_boost: 2_to_4
+    source_id: SRC-006
+    confidence_level: high
+
+  - measure: Breast Cancer Screening
+    initial_rate: 72%
+    final_plus_potential_rate: 80%
+    cms_star_boost: 4_to_5
+    source_id: SRC-006
+    confidence_level: high
+
+  footnotes:
+    - Current state as of May 15, 2024
+    - Reporting period of 2024 only
+    - Potential includes exclusion for simplification
+    - Initial rate derived from first seen status of all measures ingested
+
+conflict_resolutions:
+  - review_id: REVIEW-001
+    topic: Weekly active providers vs acceptance rate parsing
+    resolution: Use 86% weekly active providers and 77% AI suggestions accepted as canonical. Some parsed sources transpose these; visual deck evidence is definitive.
+    status: resolved_for_v0.3
+
+  - review_id: REVIEW-002
+    topic: 43% vs 49% diagnosis increase
+    resolution: KPI-007 (43%) and KPI-009 (49%) are preserved as separate metrics — different source contexts. Do not merge or average.
+    status: resolved_for_v0.3
+
+  - review_id: REVIEW-003
+    topic: 9-minute time saving wording
+    resolution: KPI-008 stored as same metric family with wording variants across sources. Both refer to visit prep / chart review time saved.
+    status: resolved_for_v0.3

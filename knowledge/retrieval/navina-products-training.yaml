@@ -1,0 +1,58 @@
+# Navina Products — Training & Operational Workflows
+# Derived from: knowledge/navina-master.yaml
+# Sections: product_knowledge PROD-010 (Athena EHR Access)
+# IMPORTANT: Do NOT load for standard Competitive Intelligence generation.
+# Load only for: provider training questions, coder training questions, EHR access and operational workflow questions.
+
+retrieval_asset:
+  name: navina-products-training
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [product_knowledge.PROD-010]
+  retrieval_priority: low
+  load_when:
+    - provider_training_answer
+    - coder_training_answer
+    - user asks about EHR access, Athena setup, or Navina installation
+  exclude_when:
+    - all_ci_generation_use_cases
+  ci_generation_excluded: true
+  reason: Operational training detail. Semi-stable. Not relevant for external competitive intelligence use cases.
+
+product_knowledge:
+  - product_id: PROD-010
+    name: Athena EHR Access
+    type: integration_workflow
+
+    description:
+      value: Athena-specific access workflow for launching Navina from the EHR schedule, chart, or top navigation.
+      source_ids: [SRC-002]
+      confidence_level: high
+      stability: semi_stable
+      notes: Operational training detail; do not use in external messaging unless current.
+
+    capabilities:
+      - name: Chrome extension
+        description: Providers install Navina extension through app.navina.ai/athena.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Athena schedule access
+        description: Navina icon appears next to each patient's name on the schedule page.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Athena chart access
+        description: Navina is accessible through the EHR patient chart, with tabs appearing on the right-hand side.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Navina app menu access
+        description: Users can access Navina from the Athena top navigation bar via apps dropdown.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Session dependency
+        description: app.navina.ai works only if the user is logged into Athena in a browser tab.
+        source_ids: [SRC-002]
+        confidence_level: high

@@ -1,0 +1,124 @@
+# Navina Competitive Positioning — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: competitive_positioning (POS-001 to POS-007), competitive_benchmarks (BENCH-001 to BENCH-003), canonical_boundaries.competitive_knowledge
+# Use when: Battlecard, Strengths & Weaknesses, Deep Dive, Sales/Marketing/CI Analyst personas
+
+retrieval_asset:
+  name: navina-positioning
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [competitive_positioning, competitive_benchmarks, canonical_boundaries.competitive_knowledge]
+  retrieval_priority: critical
+  load_when:
+    - battlecard
+    - strengths_weaknesses
+    - deep_dive
+  exclude_when:
+    - latest_news
+    - product_overview
+    - exec_brief
+    - case_studies
+  canonical_boundary:
+    include:
+      - evidence-backed comparisons
+      - EHR complement positioning
+      - claims-only or retrospective workflow comparisons
+    exclude:
+      - unsupported competitor opinions
+      - inferred superiority
+
+competitive_positioning:
+  - positioning_id: POS-001
+    positioning_type: workflow_advantage
+    statement: Navina embeds risk and quality insights into clinician and EHR workflows where supported.
+    supporting_evidence: [PROD-003, PROD-007, PROD-010, SRC-002, SRC-004, SRC-005]
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-002
+    positioning_type: clinical_advantage
+    statement: Navina links AI-generated HCC and quality insights to clinical evidence from multiple data sources.
+    supporting_evidence: [PROD-003, PROD-006, SRC-001, SRC-002, SRC-003]
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-003
+    positioning_type: product_advantage
+    statement: Navina supports both provider and coder workflows for HCC review, documentation, and post-visit loop closure.
+    supporting_evidence: [PROD-003, PROD-004, SRC-003]
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-004
+    positioning_type: adoption_advantage
+    statement: Navina has evidence of high clinician engagement and usage.
+    supporting_evidence: [KPI-004, KPI-005, CUST-001, SRC-006]
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-005
+    positioning_type: data_advantage
+    statement: Navina can use structured and unstructured data, including scanned documents, imaging, HIE, claims, labs, and free text, to support risk and quality insights.
+    supporting_evidence: [PROD-001, PROD-003, PROD-006, SRC-001, SRC-002, SRC-003]
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-006
+    positioning_type: quality_advantage
+    statement: Navina supports point-of-care quality gap closure workflows with evidence, notes, CPT II code support, and order workflows.
+    supporting_evidence: [PROD-007, quality_measure_kpis, SRC-002, SRC-006]
+    confidence_level: high
+    unsupported_claim_risk: low
+
+  - positioning_id: POS-007
+    positioning_type: implementation_advantage
+    statement: Navina sources claim streamlined deployment and short provider training time.
+    supporting_evidence: [KPI-026, KPI-027, CUST-002]
+    confidence_level: medium
+    unsupported_claim_risk: medium
+    notes: Treat as operational evidence, not universal guarantee.
+
+competitive_benchmarks:
+  - benchmark_id: BENCH-001
+    competitor_name: EHR
+    comparison_category: VBC functionality
+    benchmark_statement: Navina is positioned as complementing EHRs with purpose-built, evidence-driven VBC insights.
+    navina_capabilities:
+      - capture chronic conditions from external data sources such as claims and HIE
+      - use conversational dialogue
+      - AI-powered intelligent alerts
+      - support CMS-HCC, HHS-HCC, RxHCC, and ESRD risk models
+      - identify new suspected conditions from unstructured data
+      - search full patient record including scanned documents
+      - organize patient information for review
+    evidence_source: SRC-001
+    confidence_level: medium
+    comparison_type: product_positioning
+    neutrality_check:
+      source_backed: true
+      generated_opinion: false
+      named_competitor: false
+
+  - benchmark_id: BENCH-002
+    competitor_name: Claims-only risk gap workflows
+    comparison_category: risk_adjustment_evidence
+    benchmark_statement: Sales deck states that risk gaps based solely on claims have 40% clinician acceptance.
+    evidence_source: SRC-001
+    confidence_level: medium
+    comparison_type: workflow
+    neutrality_check:
+      source_backed: true
+      generated_opinion: false
+      named_competitor: false
+
+  - benchmark_id: BENCH-003
+    competitor_name: Traditional retrospective HCC workflows
+    comparison_category: risk_adjustment_workflow
+    benchmark_statement: Navina is positioned around prospective, point-of-care and coder-provider workflows rather than retrospective chart chasing alone.
+    evidence_source: [SRC-001, SRC-003, SRC-005]
+    confidence_level: high
+    comparison_type: workflow
+    neutrality_check:
+      source_backed: true
+      generated_opinion: false
+      named_competitor: false

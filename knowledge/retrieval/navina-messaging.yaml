@@ -1,0 +1,100 @@
+# Navina Messaging Library — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: messaging_library (MSG-001 to MSG-010), canonical_boundaries.messaging
+# Use when: Marketing/Strategy persona, messaging requests
+
+retrieval_asset:
+  name: navina-messaging
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [messaging_library, canonical_boundaries.messaging]
+  retrieval_priority: low
+  runtime_scope: messaging_only
+  load_conditions:
+    - user explicitly requests messaging analysis or copy review
+    - use_case: messaging_request
+  do_not_load_for:
+    - Battlecard
+    - Deep Dive
+    - Exec Brief
+    - Product Overview
+    - Latest News
+    - Strengths & Weaknesses
+    - Case Studies
+  canonical_boundary:
+    include:
+      - original phrasing only
+    handling:
+      - do not rewrite
+      - do not convert messaging into fact unless independently evidenced
+
+messaging_library:
+  - message_id: MSG-001
+    messaging_type: executive
+    original_text: "Meet the clinician-first AI platform for value-based success"
+    source_id: SRC-001
+    stability: semi_stable
+    usage_context: sales_deck_opening
+
+  - message_id: MSG-002
+    messaging_type: product
+    original_text: "Your patient's full picture, before you walk in the room"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: provider_training
+
+  - message_id: MSG-003
+    messaging_type: product
+    original_text: "Review any case in minutes"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: provider_training
+
+  - message_id: MSG-004
+    messaging_type: product
+    original_text: "Actionable risk adjustment insights"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: diagnosis_insights
+
+  - message_id: MSG-005
+    messaging_type: product
+    original_text: "Complete patient portrait"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: clinical_summary
+
+  - message_id: MSG-006
+    messaging_type: product
+    original_text: "Advanced search and document exploration"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: clinical_documents
+
+  - message_id: MSG-007
+    messaging_type: product
+    original_text: "Care gap alerts at the point-of-care"
+    source_id: SRC-002
+    stability: semi_stable
+    usage_context: quality_insights
+
+  - message_id: MSG-008
+    messaging_type: executive
+    original_text: "Healthier patients, healthier economics. AI's double win."
+    source_ids: [SRC-004, SRC-005]
+    stability: campaign_specific
+    usage_context: external_one_pagers
+
+  - message_id: MSG-009
+    messaging_type: sales
+    original_text: "Drive value-based care success across your network"
+    source_id: SRC-005
+    stability: campaign_specific
+    usage_context: MSO_ACO_one_pager
+
+  - message_id: MSG-010
+    messaging_type: product
+    original_text: "AI insights powered by clinical evidence"
+    source_id: SRC-001
+    stability: semi_stable
+    usage_context: sales_deck

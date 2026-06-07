@@ -1,0 +1,276 @@
+# Navina Retrieval Manifest
+# Single source of truth for all retrieval assets.
+# Used by the Context Loader (loadNavinaContext) to resolve which assets to inject per request.
+# Do not modify knowledge content here — this is metadata only.
+
+manifest:
+  version: v0.3
+  last_updated: 2026-06-07
+  derived_from: knowledge/navina-master.yaml
+  total_assets: 10
+
+  loading_rule: >
+    assets = union(USE_CASE_ASSETS[useCase], PERSONA_ASSETS[persona])
+    navina-identity and navina-sources are always loaded as baseline.
+
+assets:
+  - filename: navina-identity.yaml
+    purpose: Company description, market focus, target customers, key product pillars, and flat module map. Baseline context for every request.
+    retrieval_priority: medium
+    primary_use_cases:
+      - all_use_cases
+    primary_personas:
+      - all
+    approximate_size_kb: 3.4
+    always_load: true
+
+  - filename: navina-sources.yaml
+    purpose: Resolves SRC-001 through SRC-006 source identifiers cited throughout all other retrieval assets. Enables accurate citation.
+    retrieval_priority: medium
+    primary_use_cases:
+      - all_use_cases
+    primary_personas:
+      - all
+    approximate_size_kb: 2.5
+    always_load: true
+
+  - filename: navina-products.yaml
+    purpose: Full product knowledge — PROD-001 through PROD-009. Modules, capabilities, workflows, data sources, user personas.
+    retrieval_priority: high
+    primary_use_cases:
+      - product_overview
+      - deep_dive
+      - strengths_weaknesses
+    exclude_use_cases:
+      - latest_news
+      - exec_brief
+      - case_studies
+      - battlecard
+    primary_personas:
+      - Product
+      - Clinical
+      - CI Analyst
+    approximate_size_kb: 17.0
+
+  - filename: navina-products-training.yaml
+    purpose: Operational training asset — PROD-010 Athena EHR Access only. For provider and coder training questions exclusively.
+    retrieval_priority: low
+    primary_use_cases:
+      - provider_training_answer
+      - coder_training_answer
+    exclude_use_cases:
+      - all_ci_generation_use_cases
+    primary_personas:
+      - Clinical
+      - Product
+    approximate_size_kb: 2.2
+    ci_generation_excluded: true
+
+  - filename: navina-clinical-vbc.yaml
+    purpose: Clinical and VBC domain concepts — HCC gap, suspected condition, recapture, RAF, HEDIS/Stars, care gap closure, point-of-care documentation.
+    retrieval_priority: medium
+    primary_use_cases:
+      - product_overview
+      - deep_dive
+    exclude_use_cases:
+      - latest_news
+      - exec_brief
+      - case_studies
+      - battlecard
+    primary_personas:
+      - Clinical
+      - Product
+    secondary_personas:
+      - CI Analyst
+    approximate_size_kb: 3.2
+
+  - filename: navina-kpis.yaml
+    purpose: Canonical metric repository — KPI-001 through KPI-027, quality measure KPIs, and conflict resolutions. Single source of truth for all numeric claims.
+    retrieval_priority: high
+    primary_use_cases:
+      - battlecard
+      - exec_brief
+      - case_studies
+      - strengths_weaknesses
+      - deep_dive
+    exclude_use_cases:
+      - latest_news
+    primary_personas:
+      - Sales
+      - Product
+      - Clinical
+      - Executive
+      - CI Analyst
+    approximate_size_kb: 8.6
+
+  - filename: navina-evidence.yaml
+    purpose: Independent studies (AAFP, Phyx) and anonymized customer cases (CUST-001 to CUST-007). Narrative outcomes, quotes, and caveats. Metric values resolved via linked_kpi_ids in navina-kpis.yaml.
+    retrieval_priority: high
+    primary_use_cases:
+      - battlecard
+      - exec_brief
+      - case_studies
+      - deep_dive
+      - strengths_weaknesses
+    exclude_use_cases:
+      - latest_news
+      - product_overview
+    primary_personas:
+      - Sales
+      - Clinical
+      - Executive
+      - CI Analyst
+    load_alongside: navina-kpis.yaml
+    approximate_size_kb: 6.5
+
+  - filename: navina-positioning.yaml
+    purpose: Evidence-backed competitive positioning (POS-001 to POS-007) and workflow benchmarks (BENCH-001 to BENCH-003) against EHR, claims-only, and retrospective HCC workflows.
+    retrieval_priority: critical
+    primary_use_cases:
+      - battlecard
+      - strengths_weaknesses
+      - deep_dive
+    exclude_use_cases:
+      - latest_news
+      - product_overview
+      - exec_brief
+      - case_studies
+    primary_personas:
+      - Sales
+      - Marketing
+      - CI Analyst
+    approximate_size_kb: 4.8
+
+  - filename: navina-recognition.yaml
+    purpose: Awards, analyst recognitions, and certifications (REC-001 to REC-009). Includes suppress_by_default flags for unverified items.
+    retrieval_priority: low
+    primary_use_cases:
+      - exec_brief
+      - battlecard
+    exclude_use_cases:
+      - latest_news
+      - product_overview
+      - case_studies
+      - strengths_weaknesses
+    primary_personas:
+      - Sales
+      - Executive
+      - Marketing
+    approximate_size_kb: 3.0
+    suppress_note: REC-002 is suppressed by default due to low confidence and unverified award name.
+
+  - filename: navina-messaging.yaml
+    purpose: Approved original messaging strings from internal decks (MSG-001 to MSG-010). For messaging analysis only.
+    retrieval_priority: low
+    runtime_scope: messaging_only
+    primary_use_cases:
+      - messaging_request
+    exclude_use_cases:
+      - battlecard
+      - deep_dive
+      - exec_brief
+      - product_overview
+      - latest_news
+      - strengths_weaknesses
+      - case_studies
+    primary_personas:
+      - Marketing
+    approximate_size_kb: 2.9
+
+use_case_asset_map:
+  battlecard:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+    - navina-positioning.yaml
+    - navina-recognition.yaml
+
+  exec_brief:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+    - navina-recognition.yaml
+
+  product_overview:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-products.yaml
+    - navina-clinical-vbc.yaml
+
+  deep_dive:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-products.yaml
+    - navina-clinical-vbc.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+    - navina-positioning.yaml
+
+  strengths_weaknesses:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-products.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+    - navina-positioning.yaml
+
+  latest_news:
+    - navina-identity.yaml
+    - navina-sources.yaml
+
+  case_studies:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+
+persona_asset_map:
+  Sales:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+    - navina-positioning.yaml
+    - navina-recognition.yaml
+
+  Product:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-products.yaml
+    - navina-clinical-vbc.yaml
+    - navina-kpis.yaml
+
+  Clinical:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-products.yaml
+    - navina-clinical-vbc.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+
+  Executive:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+    - navina-recognition.yaml
+
+  Marketing:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-kpis.yaml
+    - navina-positioning.yaml
+    - navina-recognition.yaml
+    - navina-messaging.yaml
+
+  CI Analyst:
+    - navina-identity.yaml
+    - navina-sources.yaml
+    - navina-products.yaml
+    - navina-clinical-vbc.yaml
+    - navina-kpis.yaml
+    - navina-evidence.yaml
+    - navina-positioning.yaml
+    - navina-recognition.yaml

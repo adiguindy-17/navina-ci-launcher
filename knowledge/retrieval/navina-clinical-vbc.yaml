@@ -1,0 +1,89 @@
+# Navina Clinical & VBC Knowledge — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: clinical_vbc_knowledge (VBC-001 to VBC-009)
+# Use when: Product Overview, Clinical persona, provider/coder training questions
+
+retrieval_asset:
+  name: navina-clinical-vbc
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [clinical_vbc_knowledge]
+  retrieval_priority: medium
+  primary_personas: [Clinical, Product]
+  secondary_personas: [CI Analyst]
+  load_when:
+    - product_overview
+    - deep_dive
+  exclude_when:
+    - latest_news
+    - exec_brief
+    - case_studies
+    - battlecard
+  load_note: Do not load for Sales, Executive, or Marketing personas unless use case explicitly requires clinical domain grounding.
+
+clinical_vbc_knowledge:
+  - domain_id: VBC-001
+    domain_area: Value-based care
+    concept_name: Clinician engagement dependency
+    knowledge_statement: VBC success depends on clinician engagement because clinicians must act on risk and quality gaps.
+    source_ids: [SRC-001]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-002
+    domain_area: Risk adjustment
+    concept_name: HCC gap
+    knowledge_statement: HCC gap refers to an HCC group not yet documented or addressed in the relevant reporting year.
+    source_ids: [SRC-002, SRC-003]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-003
+    domain_area: Risk adjustment
+    concept_name: Suspected condition
+    knowledge_statement: Suspected conditions are condition recommendations inferred from clinical evidence and require clinician validation.
+    source_ids: [SRC-003]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-004
+    domain_area: Risk adjustment
+    concept_name: Recapture
+    knowledge_statement: Recaptured conditions are previously documented conditions that may need to be re-addressed in the current reporting period.
+    source_ids: [SRC-003, SRC-006]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-005
+    domain_area: Risk adjustment
+    concept_name: RAF
+    knowledge_statement: RAF reflects documentation completeness and patient risk burden; higher documentation completeness can increase RAF capture.
+    source_ids: [SRC-006]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-006
+    domain_area: Quality
+    concept_name: HEDIS / Stars
+    knowledge_statement: Quality performance is tracked through HEDIS and Stars-related measures, including measure closure, exclusions, compliant status, and open care gaps.
+    source_ids: [SRC-002, SRC-004, SRC-005, SRC-006]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-007
+    domain_area: Quality
+    concept_name: Care gap closure
+    knowledge_statement: Care gaps can be surfaced at the point of care with supporting evidence, care team notes, CPT II code workflows, and order creation workflows.
+    source_ids: [SRC-002, SRC-004, SRC-005]
+    confidence_level: high
+    stability: stable
+
+  - domain_id: VBC-008
+    domain_area: Clinical documentation
+    concept_name: Point-of-care documentation
+    knowledge_statement: Documentation integrated into clinician workflow reduces post-visit burden and supports risk and quality workflows.
+    source_ids: [SRC-001, SRC-002, SRC-004]
+    confidence_level: high
+    stability: stable
+
+  # VBC-009 (Evidence-backed AI insight) removed — belongs in system prompt behavior rules, not domain knowledge.

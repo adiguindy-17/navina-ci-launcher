@@ -1,0 +1,481 @@
+# Navina Products — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: product_knowledge (PROD-001 to PROD-010)
+# Use when: Product Overview, Deep Dive, provider/coder training questions
+
+retrieval_asset:
+  name: navina-products
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [product_knowledge]
+  canonical_boundary: factual_product_knowledge
+  boundary_note: Include modules, workflows, data sources, personas, capabilities. Exclude superiority claims and sales wording.
+  retrieval_priority: high
+  load_when:
+    - product_overview
+    - deep_dive
+    - strengths_weaknesses
+  exclude_when:
+    - latest_news
+    - exec_brief
+    - case_studies
+    - battlecard
+
+product_knowledge:
+  - product_id: PROD-001
+    name: Navina Platform
+    type: platform
+
+    description:
+      value: AI-powered value-based care platform that ingests data from multiple clinical and administrative sources, structures and reconciles it, and surfaces patient-level and population-level insights to clinicians, coders, care teams, and managers.
+      source_ids: [SRC-001, SRC-002, SRC-003, SRC-004, SRC-005]
+      confidence_level: high
+
+    capabilities:
+      - name: Multi-source data ingestion
+        description: Reads EHR, HIE, claims, payer data, data aggregators, ambient conversation data, labs, vitals, medications, encounters, problem lists, consult notes, imaging, echocardiograms, vascular studies, PHQ scores, scanned documents, and unstructured medical text.
+        source_ids: [SRC-001, SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Data normalization and structuring
+        description: Performs multimodal interpretation, medical data structuring into ontologies, entity extraction, classification, clinical inference, data reconciliation, and patient portrait generation.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: Clinical evidence linking
+        description: Connects AI-generated insights and diagnosis suggestions to supporting clinical evidence.
+        source_ids: [SRC-001, SRC-002, SRC-003, SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: Point-of-care interface
+        description: Provides contextual interface embedded into clinician workflows and EHR screens where supported.
+        source_ids: [SRC-001, SRC-002, SRC-004]
+        confidence_level: high
+
+      - name: Web fallback
+        description: A web-based Navina version is used for cases where native EHR workflow is not supported.
+        source_ids: [SRC-001]
+        confidence_level: medium
+
+    user_personas:
+      - Clinician
+      - Coder
+      - CDI / MRA team
+      - Quality team
+      - Care team
+      - Network manager
+      - MSO / ACO operator
+      - VBC executive
+
+  - product_id: PROD-002
+    name: Patient Portrait
+    type: product_experience
+
+    description:
+      value: Consolidated patient-level view aggregating clinical information from all available sources before or during the visit.
+      source_ids: [SRC-002, SRC-003]
+      confidence_level: high
+
+    capabilities:
+      - name: Full patient picture
+        description: Provides the patient's full picture before the provider enters the room.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Quick case review
+        description: Designed to support review of cases in minutes.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Risk and quality gap identification
+        description: Surfaces potential quality and risk gaps based on patient data.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: One-click documentation
+        description: Enables action and documentation with a click.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+    input_data:
+      - encounters
+      - problem list
+      - labs
+      - vitals
+      - medications
+      - consult notes
+      - imaging
+      - echocardiograms
+      - vascular studies
+      - claims
+      - PHQ scores
+      - unstructured medical text
+
+    surfaced_outputs:
+      - HCC diagnosis recommendations
+      - quality care gaps
+      - clinical summary
+      - document record access
+
+  - product_id: PROD-003
+    name: Diagnosis Insights
+    type: module
+
+    description:
+      value: Point-of-care risk adjustment module surfacing AI-powered HCC recommendations grounded in patient clinical data.
+      source_ids: [SRC-002, SRC-003, SRC-004, SRC-005]
+      confidence_level: high
+
+    capabilities:
+      - name: HCC recommendations
+        description: Generates HCC diagnosis recommendations based on patient data including scanned documents, imaging, free text, HIE, claims, labs, and other sources.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: User actions on recommendations
+        description: Users can accept, reject, or hold Navina's HCC recommendations and provide reasoning.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Confirm and push to EHR
+        description: Saves actions and pushes accepted diagnoses, including attached notes, to the assessment section within the EHR.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: View details
+        description: Shows sources of recommendations, including imaging, labs, HIE, claims, and related evidence.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: AI-generated assessment
+        description: Provides AI-generated assessment alongside suggested diagnoses using available clinical data.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Editable assessment
+        description: Users can review and edit Navina's suggested assessment before adding to EHR.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Add to EHR
+        description: Automatically accepts the suggested diagnosis along with supporting documentation.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Companion codes
+        description: Companion codes are coded together; accepting one code automatically accepts the other.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: HCC gap label
+        description: Displays HCC groups not yet documented in the EHR for the year and sorts recommendations by HCC group weight.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Progress bar
+        description: Tracks how many gaps have been closed.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Red hints
+        description: Red hint numbers indicate number of unique or outstanding HCC gaps for a patient.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+    workflows:
+      - workflow_id: WF-DX-001
+        name: Provider diagnosis workflow
+        steps:
+          - Open patient from Athena schedule or chart
+          - Review red hint / HCC gap count
+          - Open Diagnosis Insights
+          - Review suggested HCCs and evidence
+          - Accept, reject, or hold recommendation
+          - Edit AI-generated assessment if needed
+          - Confirm / Add to EHR
+          - Push accepted diagnosis and notes into EHR assessment section
+
+      - workflow_id: WF-DX-002
+        name: Coder diagnosis workflow
+        steps:
+          - Open Diagnosis Insights
+          - Review Open recommendations
+          - Accept or reject recommendations
+          - Add manual diagnosis if appropriate
+          - Add notes for provider
+          - Finish Scrub to send selected diagnoses to provider
+          - Update Scrub if diagnosis list changes
+          - Review post-visit provider action status
+
+    recommendation_states:
+      provider_view:
+        - accepted
+        - rejected
+        - held
+      coder_view:
+        - open
+        - pending_provider
+        - addressed
+        - accepted
+        - ignored
+        - rejected
+        - on_hold
+
+  - product_id: PROD-004
+    name: Coder Workspace
+    type: module
+
+    description:
+      value: Dedicated workspace for HCC coding teams to review, add, reject, and route diagnosis recommendations to providers.
+      source_ids: [SRC-003, SRC-001]
+      confidence_level: high
+
+    capabilities:
+      - name: Scrubbing workflow
+        description: Coders review Navina recommendations, accept or reject them, and send accepted items to providers.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Manual diagnosis addition
+        description: Coders can manually add diagnoses, select ICD-10 codes, choose supporting source type, attach notes, and send to providers.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Add diagnosis from document
+        description: Coders can add a diagnosis directly from a document, attaching the document as supporting evidence.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Provider communication
+        description: Coder notes are visible to providers in their view.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Companion code linking
+        description: Supports automatic or manual linking of companion diagnosis codes.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Outdated ICD code handling
+        description: Displays outdated or non-billable ICD code recommendations with alternative code selection.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+      - name: Close-the-loop visibility
+        description: Coders can review provider decisions after visit completion, including accepted, ignored, rejected, and on-hold statuses.
+        source_ids: [SRC-003]
+        confidence_level: high
+
+    user_personas:
+      - HCC coder
+      - MRA team
+      - CDI team
+      - Risk adjustment operations
+
+  - product_id: PROD-005
+    name: Clinical Summary
+    type: module
+
+    description:
+      value: Consolidated view of a patient's clinical picture aggregated from available data sources for quick and accurate chart review.
+      source_ids: [SRC-002, SRC-003]
+      confidence_level: high
+
+    capabilities:
+      - name: Diagnosis overview
+        description: Shows the patient's clinical problem list and relevant medications, labs, and consult notes.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Medication summary
+        description: Presents active medications, dosages, and pending refills.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Labs summary
+        description: Presents most recent lab results.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Additional clinical info
+        description: Includes hospital notes, diagnostic imaging, family history, and surgical history.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Lab trend visualization
+        description: Shows diabetes-related lab trends from external sources such as HIE, with access to supporting lab documents.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Hospitalization and imaging notifications
+        description: Alerts users to highlighted hospitalizations and imaging documents.
+        source_ids: [SRC-003]
+        confidence_level: medium
+
+  - product_id: PROD-006
+    name: Clinical Documents
+    type: module
+
+    description:
+      value: Document intelligence and search module for navigating the full patient record regardless of how documents are labeled.
+      source_ids: [SRC-002, SRC-003]
+      confidence_level: high
+
+    capabilities:
+      - name: Advanced document search
+        description: Allows users to find documents in the patient record regardless of labels, including handwritten consult notes, imaging reports, and lab results.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Full-document search
+        description: Searches for any word or phrase and highlights search terms throughout the document.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: AI classifying label
+        description: Extracts document type labels using AI to provide context.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: ICD label extraction
+        description: Extracts ICD-10 codes from documents.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Date extraction
+        description: Displays clinical encounter date and EHR upload date when different.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+      - name: Document viewer
+        description: Supports access from anywhere in Navina, search within document, highlight and copy, and document-based diagnosis support.
+        source_ids: [SRC-002, SRC-003]
+        confidence_level: high
+
+  - product_id: PROD-007
+    name: Quality Insights / Quality Workspace
+    type: module
+
+    description:
+      value: Quality care gap module surfacing actionable point-of-care insights based on HEDIS guidelines and quality program requirements.
+      source_ids: [SRC-001, SRC-002, SRC-004, SRC-005]
+      confidence_level: high
+
+    capabilities:
+      - name: Point-of-care care gap alerts
+        description: Displays actionable care gap alerts at the point of care based on up-to-date HEDIS guidelines.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Open measures
+        description: Shows open measures requiring medical team attention.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Supporting evidence for measures
+        description: Users can review supporting evidence and take action on measures requiring action.
+        source_ids: [SRC-002]
+        confidence_level: high
+
+      - name: Care team notes
+        description: Displays notes from the care team for relevant measures.
+        source_ids: [SRC-002, SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: CPT II code push
+        description: Adds CPT II codes directly to Summary Report and Billing sections of the EHR where supported.
+        source_ids: [SRC-002]
+        confidence_level: medium
+
+      - name: Order creation
+        description: Creates orders and order sets for select measures with a single click.
+        source_ids: [SRC-002]
+        confidence_level: medium
+
+      - name: Patient cohorting
+        description: Supports patient cohorting and prioritization for quality measures.
+        source_ids: [SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: Measure prioritization
+        description: Prioritizes compliant, triple-weighted, and excludable measures.
+        source_ids: [SRC-004, SRC-005]
+        confidence_level: high
+
+  - product_id: PROD-008
+    name: Performance Management / Analytics
+    type: module
+
+    description:
+      value: Analytics layer providing visibility into value-based care metrics across clinicians, practices, networks, providers, payers, clinics, and regions.
+      source_ids: [SRC-001, SRC-004, SRC-005]
+      confidence_level: high
+
+    capabilities:
+      - name: RAF trend tracking
+        description: Tracks RAF trends across providers, clinics, regions, and networks.
+        source_ids: [SRC-001, SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: Quality performance tracking
+        description: Tracks quality performance and measure trends.
+        source_ids: [SRC-001, SRC-004, SRC-005, SRC-006]
+        confidence_level: high
+
+      - name: Utilization tracking
+        description: Tracks utilization-related metrics and trends.
+        source_ids: [SRC-001, SRC-004, SRC-005]
+        confidence_level: high
+
+      - name: Provider incentive support
+        description: Enables provider incentive programs based on real-time performance data.
+        source_ids: [SRC-001]
+        confidence_level: medium
+
+      - name: Same-year performance reporting
+        description: Actionable reports support same-year performance and population-health initiatives.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+  - product_id: PROD-009
+    name: Clinician Copilot / Ambient
+    type: module
+
+    description:
+      value: Clinician-facing workflow that combines pre-chart preparation, clinical intelligence, visit dialogue, coding, and documentation.
+      source_ids: [SRC-001, prior_ambient_training_deck]
+      confidence_level: high
+
+    capabilities:
+      - name: 2-minute chart review
+        description: Complete patient picture supports rapid chart review.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: Historical plus conversational reconciliation
+        description: Reconciles historical patient data with conversational dialogue.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: CPT / E/M / HCC suggestions
+        description: Suggests CPT, E/M, and HCC codes based on historical and visit data.
+        source_ids: [SRC-001]
+        confidence_level: medium
+
+      - name: Structured documentation
+        description: Generates structured documentation of visit and accepted codes.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: One-click EHR push
+        description: Pushes documentation to A&P, HPI, and other structured fields where supported.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+      - name: Ambient listening and auto-documentation
+        description: Captures visit dialogue and supports automated documentation.
+        source_ids: [SRC-001]
+        confidence_level: high
+
+  # PROD-010 (Athena EHR Access) moved to navina-products-training.yaml
+  # Reason: operational training detail; not relevant for competitive intelligence generation.

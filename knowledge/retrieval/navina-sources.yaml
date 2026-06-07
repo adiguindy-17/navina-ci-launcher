@@ -1,0 +1,82 @@
+# Navina Source Registry — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: source_registry (SRC-001 to SRC-006)
+# Use when: any retrieval asset is loaded — enables Joey to resolve source citations
+
+retrieval_asset:
+  name: navina-sources
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [source_registry]
+  retrieval_priority: medium
+  load_when:
+    - all_use_cases
+  exclude_when: []
+  load_with: always
+  purpose: Resolves SRC-* identifiers cited across all other retrieval assets.
+
+source_registry:
+  - source_id: SRC-001
+    source_name: Navina sales deck 2026
+    source_type: Google Slides presentation
+    date: 2026
+    confidentiality: confidential
+    key_topics:
+      - company scale and positioning
+      - product suite
+      - risk adjustment and clinician copilot
+      - HEDIS / Stars and performance management
+      - customer evidence and case studies
+      - security and implementation
+
+  - source_id: SRC-002
+    source_name: Provider Training Deck Athena
+    source_type: Google Slides training deck
+    date: unknown
+    confidentiality: confidential
+    key_topics:
+      - Patient Portrait and Athena access
+      - Diagnosis Insights and Clinical Summary
+      - Clinical Documents and Quality Insights
+      - ASCVD workflow and provider FAQ
+
+  - source_id: SRC-003
+    source_name: Coder Training Deck
+    source_type: Google Slides training deck
+    date: unknown
+    confidentiality: confidential
+    key_topics:
+      - Coder Workspace and scrubbing workflow
+      - HCC gaps, suspected vs recaptured conditions
+      - Companion codes and manual diagnosis addition
+      - Close-the-loop provider visibility
+
+  - source_id: SRC-004
+    source_name: 2026 Navina overview
+    source_type: PDF one-pager
+    date: 2026
+    confidentiality: external_or_sales
+    key_topics:
+      - Company description and product suite summary
+      - KPIs, customer quote, and recognition badges
+
+  - source_id: SRC-005
+    source_name: Navina MSO one pager
+    source_type: PDF one-pager
+    date: unknown
+    confidentiality: external_or_sales
+    key_topics:
+      - MSO / ACO positioning
+      - Risk adjustment, quality performance, network management
+      - KPIs and EHR support
+
+  - source_id: SRC-006
+    source_name: Navina Case Studies 2026
+    source_type: PDF case study deck
+    date: March 2026
+    confidentiality: confidential
+    key_topics:
+      - Clinician adoption and weekly active providers
+      - AI suggestion acceptance and AAFP findings
+      - RAF impact and quality performance
+      - Anonymized customer cases

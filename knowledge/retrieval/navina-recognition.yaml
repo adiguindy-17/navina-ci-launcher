@@ -1,0 +1,98 @@
+# Navina Recognition & Certifications — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: awards_recognition_certifications (REC-001 to REC-009), review_queue REVIEW-004
+# Use when: Exec Brief, Battlecard, Sales/Executive/Marketing personas
+
+retrieval_asset:
+  name: navina-recognition
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [awards_recognition_certifications, review_queue_item_004]
+  retrieval_priority: low
+  load_when:
+    - exec_brief
+    - battlecard
+  exclude_when:
+    - latest_news
+    - product_overview
+    - case_studies
+    - strengths_weaknesses
+  handling_note: Confidence levels and verification statuses are preserved. Do not present low-confidence or unverified awards as confirmed facts.
+  suppress_rule: Any item with suppress_by_default true must not be cited unless the user explicitly asks about it and it has been externally verified.
+
+awards_recognition_certifications:
+  - recognition_id: REC-001
+    name: Best in KLAS
+    organization: KLAS
+    category: Clinician Digital Workflow
+    date: 2025
+    source_ids: [SRC-001, SRC-004]
+    confidence_level: medium
+    verification_status: needs_external_verification
+
+  - recognition_id: REC-002
+    name: Gold Globee / Stevie-related award
+    organization: Globee or Stevie Awards
+    date: 2025
+    source_ids: [SRC-004]
+    confidence_level: low
+    verification_status: needs_exact_award_name
+    suppress_by_default: true
+    suppress_reason: confidence_level is low and exact award name is unverified; do not cite unless externally confirmed.
+
+  - recognition_id: REC-003
+    name: MedTech Breakthrough AI Award
+    organization: MedTech Breakthrough
+    date: unknown
+    source_ids: [SRC-004]
+    confidence_level: medium
+    verification_status: needs_external_verification
+
+  - recognition_id: REC-004
+    name: CB Insights AI 100
+    organization: CB Insights
+    date: 2023
+    source_ids: [SRC-004]
+    confidence_level: medium
+
+  - recognition_id: REC-005
+    name: CB Insights Digital Health 50
+    organization: CB Insights
+    date: 2023
+    source_ids: [SRC-004]
+    confidence_level: medium
+
+  - recognition_id: REC-006
+    name: KLAS Emerging Solutions Top 20
+    organization: KLAS
+    date: 2024
+    source_ids: [SRC-004]
+    confidence_level: medium
+
+  - recognition_id: REC-007
+    name: ISO27001:2022 certification
+    organization: IQNet
+    source_ids: [SRC-001]
+    confidence_level: medium
+    verification_status: needs_certificate_source
+
+  - recognition_id: REC-008
+    name: SOC 2 Type II
+    organization: AICPA / Ernst & Young
+    source_ids: [SRC-001, SRC-004]
+    confidence_level: medium
+    verification_status: needs_report_source
+
+  - recognition_id: REC-009
+    name: HIPAA compliance / report
+    organization: Ernst & Young
+    source_ids: [SRC-001, SRC-004]
+    confidence_level: medium
+    verification_status: needs_report_source
+
+open_review:
+  - review_id: REVIEW-004
+    topic: Awards and certifications
+    issue: Decks show badges, but exact award names, dates, and certificate validity require primary-source verification.
+    current_resolution: Store with medium/low confidence and verification_status.
+    status: open

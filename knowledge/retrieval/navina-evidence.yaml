@@ -1,0 +1,167 @@
+# Navina Evidence — Retrieval Asset
+# Derived from: knowledge/navina-master.yaml
+# Sections: independent_studies, customer_evidence
+# Use when: Battlecard, Exec Brief, Case Studies, Deep Dive, Sales/Clinical/Executive personas
+
+retrieval_asset:
+  name: navina-evidence
+  version: v0.3
+  derived_from: navina-master.yaml
+  master_sections: [independent_studies, customer_evidence]
+  retrieval_priority: high
+  load_when:
+    - battlecard
+    - exec_brief
+    - case_studies
+    - deep_dive
+    - strengths_weaknesses
+  exclude_when:
+    - latest_news
+    - product_overview
+  handling_note: Preserve source, time period, caveats, and customer-specific scope. Do not present anonymized cases as universal outcomes.
+  metric_values: Raw numeric KPI values are stored in navina-kpis.yaml. Customer cases here reference them via linked_kpi_ids. Load navina-kpis.yaml alongside this asset to resolve metric values.
+
+independent_studies:
+  - study_id: STUDY-001
+    study_name: AAFP report / AI Assistant for Clinical Review and Value-Based Care
+    study_type: independent_or_partnered_validation
+    source_ids: [SRC-001, SRC-006]
+    extracted_findings:
+      - metric_id: KPI-008
+        finding: 9 minutes saved on chart review / visit preparation
+      - metric_id: KPI-009
+        finding: 49% increase in diagnoses found
+      - metric_id: KPI-010
+        finding: 21% increase in physician satisfaction rate
+    quote:
+      speaker: Steven E. Waldren, MD, MS
+      title: Chief Medical Informatics Officer at the AAFP
+      quote_text: "Navina is an essential innovation for primary care physicians to streamline their clinical workflow and thrive in value-based care."
+    confidence_level: medium
+    notes: Full methodology and sample details should be preserved from source report when ingested.
+
+  - study_id: STUDY-002
+    study_name: Phyx Primary Care — Practicing Value-based Care with AI
+    study_type: independent_validation
+    source_ids: [prior_PHYX_report]
+    extracted_metrics:
+      - 40% reduction in clinical review time for complex visits
+      - 32% decrease in physician burnout
+      - +0.153 RAF increase
+      - +1.9 Star quality rating improvement
+      - 94% physicians found it easy to access/use
+      - 92% trusted HCC suggestions
+    confidence_level: high
+    notes: Retained from v0.1; not re-analyzed in the three requested decks.
+
+customer_evidence:
+  - customer_id: CUST-001
+    customer_name: Privia Health
+    customer_type: provider_network
+    evidence_type: named_customer_quote_and_usage_chart
+    source_ids: [SRC-004, SRC-006]
+    outcomes:
+      - High engagement from day one
+      - Provider count increased approximately 3x without reduction in usage
+    metrics:
+      - Weekly active providers shown around mid/high 80s to 90% range in chart
+      - Working providers increased from approximately 306 to around 1000 in the chart period
+    quote:
+      speaker: Dr. Keith Fernandez
+      title: EVP and Chief Clinical Officer, Privia Health
+      quote_text: "Navina's platform stands out because of its ability to reduce the burden on physicians while also giving a more appropriate history of the patients conditions. It backs up every insight and diagnosis with clinical evidence presented at the time of a patient visit."
+      approved_for_external_use: unknown
+    confidence_level: high
+
+  - customer_id: CUST-002
+    customer_name: Primus Health Networks
+    customer_type: MSO
+    evidence_type: named_customer_quote
+    source_ids: [SRC-001]
+    quote:
+      speaker: Rich Lucibella
+      title: Director at Primus Health Networks
+      quote_text: "I've never seen a roll out like this. I've never seen anything go as smoothly as this in my business. It's really been amazing from contracting to implementation to training and onboarding."
+      approved_for_external_use: unknown
+    confidence_level: high
+
+  - customer_id: CUST-003
+    customer_name: Anonymous risk-bearing provider organization
+    customer_type: risk_bearing_provider_organization
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    size:
+      lives_with_navina: 930000
+      providers: 1080
+      go_live_date: October 2023
+    outcomes:
+      - Navina suspecting engine drove significant additional HCCs on top of recaptured HCCs
+      - High overall acceptance rate across both recapture and suspected conditions
+    linked_kpi_ids: [KPI-011, KPI-012, KPI-013, KPI-014]
+    confidentiality: confidential_anonymized
+    caveat: Informational illustration; outcomes directionally correct but vary.
+
+  - customer_id: CUST-004
+    customer_name: Anonymous high-performing value-based care enabler
+    customer_type: value_based_care_enabler
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    outcomes:
+      - Significant RAF increase in first year with Navina
+      - Major two-decile RAF increase realized in first three quarters with Navina alone
+    linked_kpi_ids: [KPI-015, KPI-016, KPI-017]
+    confidentiality: confidential_anonymized
+    caveat: Risk adjustment policies and agreement periods subject to CMS changes; results vary.
+
+  - customer_id: CUST-005
+    customer_name: Anonymous large employed group
+    customer_type: employed_provider_group
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    size:
+      medicare_advantage_members: approximately_32500
+    outcomes:
+      - Durable growth in YoY RAF outcomes
+    metrics:
+      - 2021 RAF: 0.80
+      - 2022 RAF: 0.90
+      - 2023 RAF: 1.07
+      - 2024 RAF: 1.22
+      - 2025 RAF: 1.41
+    caveat: Eligible Navina members, MA, 65+, with at least one visit each year between 2021 and 2025.
+
+  - customer_id: CUST-006
+    customer_name: Anonymous high-performing ACO REACH partner
+    customer_type: ACO_REACH_partner
+    evidence_type: anonymized_case_study
+    source_ids: [SRC-006]
+    outcomes:
+      - Gap-closing velocity doubled
+      - 2023 year-end scores achieved by mid-2024
+    metrics:
+      - Prior RAF point: 1.17
+      - Prior RAF point: 1.27
+      - EOY 2024: 1.56
+      - Q3 2025: 1.46
+      - 2025 projection: 1.71
+    caveat: Informational illustration; outcomes directionally correct but vary.
+
+  - customer_id: CUST-007
+    customer_name: Anonymous risk-bearing provider organization
+    customer_type: risk_bearing_provider_organization
+    evidence_type: anonymized_quality_case_study
+    source_ids: [SRC-006]
+    size:
+      lives_with_navina: 31000
+      providers: 29
+    outcomes:
+      - Realized quality performance increase with Navina
+      - Significant additional potential quality performance identified
+    linked_kpi_ids: [KPI-021, KPI-022, KPI-023, KPI-024, KPI-025]
+    linked_quality_measures:
+      - Kidney Health Evaluation
+      - Glycemic Status <8%
+      - Diabetic Eye Exam
+      - Controlling High Blood Pressure
+      - Colorectal Cancer Screening
+      - Breast Cancer Screening
