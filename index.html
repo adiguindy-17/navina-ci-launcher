@@ -1168,7 +1168,6 @@
               <div class="gen-chip" onclick="selectTemplate(this,'exec-brief')">⚡ Exec Brief</div>
               <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">⚙️ Product Overview</div>
               <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚖️ Comparison</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'sw')">± S&amp;W</div>
               <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 Latest News</div>
               <div class="gen-chip" onclick="selectTemplate(this,'case-studies')">📊 Case Studies</div>
             </div>
@@ -2872,7 +2871,7 @@ function renderAdminPanel({ logins, usage }) {
 
   // ── Top analysis types ───────────────────────────────────────────────────
   const analysisLabelsMap = {
-    battlecard:'Comparison', 'deep-dive':'Deep Dive', compare:'Compare',
+    battlecard:'Comparison', 'deep-dive':'Deep Dive',
     sw:'S&W Analysis', news:'Latest News',
     'product-overview':'Product Overview', 'case-studies':'Case Studies',
     'exec-brief':'Exec Brief',
@@ -3359,7 +3358,7 @@ const DRIVE_BATTLECARD_OUTPUT_URL = 'https://drive.google.com/drive/folders/1t9C
 
 function getTemplateTypeForAnalysis(analysis) {
   if (analysis === 'battlecard' || analysis === 'compare' || analysis === 'navina-wins') return 'battlecard';
-  if (analysis === 'deep-dive' || analysis === 'sw' || analysis === 'kpi') return 'overview';
+  if (analysis === 'deep-dive' || analysis === 'kpi') return 'overview';
   return null;
 }
 
@@ -3796,38 +3795,78 @@ ${NAVINA_COMPETITIVE_CONTEXT}
 
 ---
 
-BATTLECARD: ${c.toUpperCase()} vs. NAVINA
-Produce exactly these 7 sections. No additional sections.
+You are generating a Comparison against Navina for: ${c}.
 
-## SNAPSHOT — ${c}
-3 bullets: core product · funding / ownership · headcount.
-Source: crunchbase.com or company website.
+Use all available sources in this priority order:
+1. Internal materials above (comparison decks, demo summaries, Notion pages).
+2. Navina context above (KPIs, proof points, product capabilities, studies).
+3. Reliable public sources about ${c}.
 
-## COMPETITOR STRENGTHS
-3–5 evidence-backed strengths. One source per bullet. Specific capabilities only — no generic praise.
+Produce exactly 7 sections. No other sections.
 
-## COMPETITOR WEAKNESSES
-3–5 evidence-backed gaps. One source per bullet.
-Focus: workflow limits · data depth · physician engagement · independent validation · deployment maturity.
-Label inferred: "(inferred — not confirmed)"
+---
 
-## WHERE NAVINA WINS
-4–5 bullets. Format: "[${c} specific gap] → [Navina proof point + metric from NAVINA KEY FACTS above]."
-Cite the exact metric and which gap it directly answers. No generic claims.
+## 1. ${c} — Snapshot
+3–4 bullets: core product · primary customer segment · main use case · scale/funding/ownership.
+No marketing language.
 
-## OBJECTIONS & RESPONSES
-| Objection | Navina Response | Proof Point |
+---
+
+## 2. Category & Comparison Lens
+Identify ${c}'s primary category:
+- Ambient AI / documentation
+- Risk adjustment / HCC / coding
+- Population health / VBC
+- EHR / workflow platform
+- Hybrid / other
+
+Then select 6–8 relevant dimensions from the matching set:
+
+Ambient AI / documentation → ambient documentation · voice workflow · clinical workflow depth · chart Q&A · coding support · EHR embedding · push-to-EHR · specialty coverage · physician adoption
+Risk adjustment / HCC → HCC workflow type · prospective vs. retrospective · RAF impact · CMS-HCC/HHS-HCC/RxHCC · coder workflow · CDI · chart review · audit readiness · provider prompts · EHR/payer integrations
+Population health / VBC → care gaps · HEDIS/Stars · claims + clinical aggregation · risk stratification · outreach · care management · provider engagement · quality programs
+EHR / workflow platform → supported EHRs · embedded vs. overlay · integration depth · bidirectional data · APIs/FHIR · workflow orchestration · native UI · end-user workflow burden
+
+---
+
+## 3. Head-to-Head Product Comparison
+| Dimension | ${c} | Navina | Assessment |
+Assessment: Navina advantage · Competitor advantage · Comparable · Insufficient evidence
+Include a short reason for each. No icons.
+
+---
+
+## 4. Where Navina Wins
+4–6 bullets. Each: **[${c} gap] → [Navina advantage] → [evidence from context]**
+Use internal materials when available. Mark inferred: *(inferred)*. Do not overstate.
+
+---
+
+## 5. ${c} — SWOT
+| Strengths | Weaknesses |
+|---|---|
+| 3–4 evidence-backed bullets | 3–4 evidence-backed bullets |
+
+| Opportunities | Threats (incl. Navina) |
+|---|---|
+| 2–3 bullets | 2–3 bullets |
+
+Mark inferred items. Keep it concise.
+
+---
+
+## 6. Outcomes & KPIs
+**${c} evidence:** published outcomes · case studies · independent validation · self-reported claims · evidence gaps.
+**Navina evidence:** relevant proof points, KPIs, studies from context above.
+Label every claim: independent · case study · self-reported · internal · inferred · insufficient.
+
+---
+
+## 7. Objections & Responses
+| Buyer Objection | Navina Response | Evidence |
 |---|---|---|
-3 rows. The 3 objections a ${persona} will face when competing against ${c}.
-
-## DISCOVERY QUESTIONS
-3 questions that expose ${c}'s workflow or data gaps.
-2 questions ${c} will struggle to answer.
-
-## TALK TRACK
-4 sentences. Tailored to ${persona}. Structure: Pain → Navina solution → proof point → call to action.
-
-Mark anything unverified as "Unknown".${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
+3 rows for a ${persona}. Factual responses only. If Navina does not clearly win, say so.
+If internal comparison materials are missing, state it explicitly.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'deep-dive': (c, persona, notes) => {
     const company = COMPANIES[c];
@@ -3943,44 +3982,6 @@ STRICT 90-DAY FILTER. Only items from the last 90 days.
 Persona emphasis for ${persona}: prioritize ${newsPersonaFocus}.
 Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [confirmed URL or "via domain"]
 2–4 items max. If no meaningful news in the last 90 days: write "No significant news in the last 90 days." Do not include older items to fill the section.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
-  },
-
-  'sw': (c, persona, notes) => {
-    const p = persona.toLowerCase();
-    const isSales = p.includes('sales');
-    const navinaImplications = isSales ? `
-
----
-
-## NAVINA IMPLICATIONS
-For each key weakness above: one bullet on the opportunity this creates for a ${persona} competing against ${c}.
-Grounded in Navina's known strengths: prospective workflow · evidence-backed AI · EHR-native · independent validation · 77% HCC acceptance rate vs. ~40% market average.
-3–4 bullets max. Keep it brief.` : '';
-    return `${driveContext(c, 'sw')}
-
-Produce a Strengths & Weaknesses assessment for ${c}. Exactly 3 sections${isSales ? ' + NAVINA IMPLICATIONS' : ''}. No company background, no product overview, no pricing, no news.
-
----
-
-## STRENGTHS
-3–5 bullets. Evidence-backed only. One source per bullet.
-Specific capabilities only: workflow depth · integration depth · ROI evidence · market traction · differentiation.
-List only what is confirmed — fewer bullets is better than padding.
-
----
-
-## WEAKNESSES
-3–5 bullets. Evidence-backed only. One source per bullet.
-Specific gaps only: missing integrations · retrospective-only workflow · weak engagement · limited data depth · no independent validation.
-Label inferred: "(inferred — not confirmed)" — fewer bullets is better than padding.
-
----
-
-## EVIDENCE & CONFIDENCE
-| Claim | Type | Confidence | Note |
-|---|---|---|---|
-List each strength and weakness. Confidence: Confirmed / Partial / Inferred.
-Flag: self-reported claims, missing independent validation, material data gaps.${navinaImplications}${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'news': (c, persona, notes) => {
@@ -4155,7 +4156,7 @@ Read: ${base ? base : c + ' website'} and crunchbase.com for verified facts.${no
 
 const analysisLabels = {
   'deep-dive':'Deep Dive','exec-brief':'Exec Brief','product-overview':'Product Overview',
-  'battlecard':'Comparison','sw':'S&W Analysis','news':'Latest News','case-studies':'Case Studies'
+  'battlecard':'Comparison','news':'Latest News','case-studies':'Case Studies'
 };
 
 // buildPrompt is an alias for buildFullPrompt (multi-select aware)
