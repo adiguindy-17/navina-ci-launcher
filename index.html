@@ -3707,38 +3707,36 @@ ${NAVINA_COMPETITIVE_CONTEXT}
 
 ---
 
-GENERATE A BATTLECARD: ${c.toUpperCase()} vs. NAVINA
+BATTLECARD: ${c.toUpperCase()} vs. NAVINA
+Produce exactly these 7 sections. No additional sections.
 
 ## SNAPSHOT — ${c}
-3 bullets: core product in one line · funding and ownership · headcount
-Source: [crunchbase.com or company website]
+3 bullets: core product · funding / ownership · headcount.
+Source: crunchbase.com or company website.
 
 ## COMPETITOR STRENGTHS
-3–5 genuine, evidence-backed strengths. One source citation per bullet.
-What does ${c} actually do well that matters in competitive situations?
+3–5 evidence-backed strengths. One source per bullet. Specific capabilities only — no generic praise.
 
 ## COMPETITOR WEAKNESSES
-3–5 real, evidence-backed gaps. One source citation per bullet.
-Focus on: workflow limitations · data depth · physician engagement · independent validation · deployment maturity.
-Label inferred items: "(inferred — not confirmed)"
+3–5 evidence-backed gaps. One source per bullet.
+Focus: workflow limits · data depth · physician engagement · independent validation · deployment maturity.
+Label inferred: "(inferred — not confirmed)"
 
 ## WHERE NAVINA WINS
-4–5 bullets. Each: specific dimension + Navina KPI or proof point from NAVINA KEY FACTS above + why it matters against ${c}'s specific limitation.
-Be specific — not "Navina has better adoption" but which metric, against which ${c} weakness.
+4–5 bullets. Format: "[${c} specific gap] → [Navina proof point + metric from NAVINA KEY FACTS above]."
+Cite the exact metric and which gap it directly answers. No generic claims.
 
 ## OBJECTIONS & RESPONSES
-| Likely Objection | Navina Response | Proof Point |
+| Objection | Navina Response | Proof Point |
 |---|---|---|
+3 rows. The 3 objections a ${persona} will face when competing against ${c}.
 
-3 most likely objections a ${persona} will face when competing against ${c}.
+## DISCOVERY QUESTIONS
+3 questions that expose ${c}'s workflow or data gaps.
+2 questions ${c} will struggle to answer.
 
-## QUESTIONS TO ASK
-3 discovery questions that expose ${c}'s workflow or data gaps.
-2 questions ${c} will struggle to answer (e.g., physician engagement rate · prospective vs. retrospective · independent study data · audit defensibility).
-
-## SALES TALK TRACK
-4 sentences max. Tailored to ${persona}.
-Pain → Navina solution → specific proof point → call to action.
+## TALK TRACK
+4 sentences. Tailored to ${persona}. Structure: Pain → Navina solution → proof point → call to action.
 
 Mark anything unverified as "Unknown".${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
@@ -3871,30 +3869,29 @@ Grounded in Navina's known strengths: prospective workflow · evidence-backed AI
 3–4 bullets max. Keep it brief.` : '';
     return `${driveContext(c, 'sw')}
 
-Build an analytical Strengths & Weaknesses assessment of ${c} for a ${persona}. Evidence-backed only. Competitor-first.
+Produce a Strengths & Weaknesses assessment for ${c}. Exactly 3 sections${isSales ? ' + NAVINA IMPLICATIONS' : ''}. No company background, no product overview, no pricing, no news.
 
 ---
 
 ## STRENGTHS
-3–5 bullets. Real, specific capabilities — workflow depth · integration depth · ROI evidence · market traction · differentiation.
-One source citation per bullet. Fewer if only 2–3 are genuinely evidenced.
-Source: [website or review source]
+3–5 bullets. Evidence-backed only. One source per bullet.
+Specific capabilities only: workflow depth · integration depth · ROI evidence · market traction · differentiation.
+List only what is confirmed — fewer bullets is better than padding.
 
 ---
 
 ## WEAKNESSES
-3–5 bullets. Real, specific gaps — missing integrations · retrospective-only workflow · weak engagement · limited data depth · no independent validation · deployment maturity.
-One source citation per bullet. Label inferred weaknesses: "(inferred — not confirmed)"
-Evidence: product reviews · customer feedback · product documentation gaps · public limitations.
-Fewer if only 2–3 are genuinely evidenced.
-Source: [website or review source]
+3–5 bullets. Evidence-backed only. One source per bullet.
+Specific gaps only: missing integrations · retrospective-only workflow · weak engagement · limited data depth · no independent validation.
+Label inferred: "(inferred — not confirmed)" — fewer bullets is better than padding.
 
 ---
 
 ## EVIDENCE & CONFIDENCE
-For each strength and weakness: rate confidence — Confirmed / Partial / Inferred.
-Note any claims that are self-reported only and lack independent validation.
-Note significant data gaps.${navinaImplications}${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+| Claim | Type | Confidence | Note |
+|---|---|---|---|
+List each strength and weakness. Confidence: Confirmed / Partial / Inferred.
+Flag: self-reported claims, missing independent validation, material data gaps.${navinaImplications}${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'news': (c, persona, notes) => {
@@ -3917,41 +3914,36 @@ Note significant data gaps.${navinaImplications}${notes ? `\n\n## CONTEXT\n${not
       : 'customer wins · named logos · enterprise deals · pricing signals · ROI claims';
     return `${driveContext(c, 'news')}
 
-Find the 4–6 most relevant recent developments about ${c} for a ${persona}.
+Find the 4–6 most significant developments about ${c} from the last 90 days.
+Persona emphasis for ${persona}: ${personaFocus}
 
 STRICT 90-DAY FILTER. Only items published in the last 90 days.
-Persona emphasis: ${personaFocus}
-Skip: generic thought leadership · vague AI messaging · event appearances · announcements with no concrete detail.
+If no qualifying news: write "No significant news in the last 90 days." Do not fill with older items.
 
-## SOURCES
-Official sources first:
+Search order:
 ${officialSources}
-
-Then search each for "${c}":
 – beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · modernhealthcare.com
-– hitconsultant.net · mobihealthnews.com · medcitynews.com · statnews.com
-– businesswire.com · prnewswire.com · globenewswire.com · klasresearch.com · crunchbase.com
+– businesswire.com · prnewswire.com · globenewswire.com · crunchbase.com
 
-## OUTPUT
-No intro. Start immediately with the first item.
+Skip: thought leadership · vague AI messaging · event appearances · announcements without concrete detail.
+
+---
+
+No intro. No company background. Start with the first item.
 
 **[Month DD, YYYY]** — Headline.
 1–2 sentences. Facts only: names, numbers, products, customers, integrations.
-Source: [confirmed URL — or "via domain" if URL unconfirmed]
+Source: [confirmed URL or "via domain"]
 
-Repeat for each item. 4–6 items max.
+Repeat. 4–6 items max.
 
 ---
 
 **Bottom Line**
-– Biggest development in the last 90 days — one sentence
-– One signal worth watching — one sentence
+– Biggest development in the last 90 days — one sentence.
+– One signal worth watching — one sentence.
 
-## RULES
-– STRICT 90-DAY FILTER. If no meaningful news in the last 90 days: write "No significant news in the last 90 days." Do not include older items.
-– No filler, no adjectives, no marketing language
-– Every item must contain at least one concrete detail (name, number, product, or customer)
-– Never construct or guess a URL${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+Do not add product overview, company background, S&W, or pricing.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'product-overview': (c, persona, notes) => {
@@ -3959,82 +3951,78 @@ Repeat for each item. 4–6 items max.
     const base = company?.website?.replace(/\/$/, '') || '';
     return `${driveContext(c, 'product-overview')}
 
-Build a focused product overview of ${c} for a ${persona}. Competitor-only. No Navina comparison.
-Primary source: ${base ? base + ' — product pages · features · integrations · case studies' : c + ' official website — product pages · features · integrations'}
+Produce a product overview for ${c}. Exactly 4 sections. No S&W, no company background, no pricing, no news.
+Primary source: ${base ? base + ' — product pages · features · integrations' : c + ' official website — product pages · features · integrations'}
 
 ---
 
 ## PRODUCT PILLARS
-Visit product pages first. Identify 2–3 main product pillars — name each explicitly.
-Under each pillar: 3–4 specific capabilities.
-Each capability: one line, max 12 words. Operational language only.
-  ✓ "Surfaces HCC gaps during visits with supporting evidence."
-  ✗ "Leverages AI to optimize clinical workflows."
-Capture: NLP depth · voice/ambient · bidirectional EHR push · prospective vs. retrospective · workflow triggers.
+Identify 2–3 product pillars from the product pages. Name each explicitly (e.g., "Risk Adjustment Engine", "Ambient Capture", "Analytics").
+Under each pillar: 3–4 specific capabilities. One line per capability, max 12 words. Operational language only.
+  ✓ "Surfaces HCC gaps during visits with supporting clinical evidence."
+  ✗ "Leverages AI to transform clinical workflows."
+Note: workflow type (prospective / retrospective) · NLP depth · EHR embedding · data sources.
 Source: [product page URL]
 
 ---
 
 ## WORKFLOW & DEPLOYMENT
-– **Workflow type:** prospective / retrospective / both — specify
-– **Access model:** EHR-native (embedded) / separate portal / both
-– **Implementation timeline:** if publicly mentioned
-– **User roles supported:** clinician / coder / care manager / administrator — specify which
+- **Workflow type:** prospective / retrospective / both — specify
+- **Access model:** EHR-native embedded / separate portal / both
+- **Implementation timeline:** if publicly mentioned
+- **User roles:** clinician / coder / care manager / administrator — specify which
 
 ---
 
 ## INTEGRATIONS
-– **EHR integrations:** list every named EHR — Epic, athenahealth, eClinicalWorks, etc. If none listed: "Unconfirmed"
-– **Data sources ingested:** claims / HIE / EHR / unstructured / imaging / labs — specify which
-– **API / interoperability:** FHIR support, HL7, or API platform — if known
+- **EHR integrations:** list every named EHR. If none named: "Not publicly listed."
+- **Data sources:** claims / HIE / EHR / unstructured / imaging / labs — specify which
+- **Interoperability:** FHIR, HL7, open API — if known
 Source: [integration page URL if found]
 
 ---
 
 ## RECENT PRODUCT UPDATES
-Search ${base ? base + ' (/news, /blog, /releases)' : c + ' website'} and: businesswire.com · prnewswire.com · mobihealthnews.com · fiercehealthcare.com
-Preferred timeframe: last 6 months. Always include the actual date.
-Focus only on: new features · new integrations · platform acquisitions.
-Skip: funding rounds, awards, executive hires, generic partnerships.
+Last 6 months only. Search: ${base ? base + ' (/news, /blog, /releases)' : c + ' website'} · businesswire.com · prnewswire.com · mobihealthnews.com
+Focus: new features · new integrations · platform changes.
+Skip: funding rounds · executive hires · awards · generic partnerships.
 Format: **[Month DD, YYYY]** — one sentence. Source: [confirmed URL or "via domain"]
-If nothing found: "No product updates found."${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+If nothing found: "No product updates found in the last 6 months."${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'case-studies': (c, persona, notes) =>
 `${driveContext(c, 'case-studies')}
 
-Build a competitor case study analysis for ${c}. Competitor-first. No Navina KPI tables.
-Research: company website (/case-studies, /outcomes, /resources, /customers), press releases, healthcare media.
+Produce a customer evidence analysis for ${c}. Exactly 3 sections. No product overview, no company background, no S&W.
+Research: ${c} website (/case-studies, /outcomes, /resources, /customers) · press releases · healthcare media.
 
 ---
 
 ## PUBLISHED CASE STUDIES
 For each case study found:
 **[Customer name or org type, year]** — [measurable outcome with numbers].
-Include: customer type and size · use case · outcome metric · evidence quality (self-reported / anonymized / independent).
+Include: customer type · use case · outcome metric · evidence quality (self-reported / anonymized / independent).
 Source: [domain]
-
-2–5 examples. If no published case studies found: write "No published case studies found." then list any available testimonials or outcome claims.
+2–5 examples. If none found: "No published case studies found." List available testimonials or outcome claims if present.
 
 ---
 
 ## CLAIMED METRICS & KPIs
-| Metric | ${c} Value | Source | Date | Evidence Quality |
+| Metric | Value | Source | Date | Evidence Quality |
 |---|---|---|---|---|
-
-Search for any publicly claimed metrics: HCC capture rate, clinician engagement, time savings, ROI, revenue uplift, quality improvement.
-Evidence Quality column: Confirmed (independent) / Self-reported (company materials) / Unverified.
-If no metrics found: "No public outcome data available."
+Metrics to find: HCC capture rate · clinician engagement · time savings · ROI · revenue uplift · quality improvement.
+Evidence Quality: Confirmed (independent) / Self-reported / Unverified.
+If none: "No public outcome data available."
 
 ---
 
 ## EVIDENCE QUALITY ASSESSMENT
-2–3 bullets:
-– What is confirmed by independent evidence
-– What is self-reported only and lacks independent validation
-– What is missing that a ${persona} should ask to pressure-test their claims
+3 bullets only:
+– What is independently confirmed
+– What is self-reported only and lacks validation
+– What a ${persona} should ask to pressure-test ${c}'s claims
 
-Do not include a Navina KPI table. Do not compare to Navina metrics.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
+Do not add Navina KPI comparison, product overview, or company background.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'exec-brief': (c, persona, notes) => {
     const company = COMPANIES[c];
