@@ -2527,8 +2527,8 @@ function renderMarkdown(text) {
     // Pass 3: Continuation join — single-newline continuations after a bullet
     // "- Funding: $72M;\n$125M debt" → "- Funding: $72M; $125M debt"
     // Only fires on single \n (never \n\n which = section break).
-    // Guards: not another bullet, not a heading, not a horizontal rule.
-    .replace(/(^[ \t]*[-*•] [^\n]+)\n(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?![ \t]*[-]{3,})(?=\S)/gm, '$1 ')
+    // Guards: not another bullet, not a heading, not a horizontal rule, not a table row.
+    .replace(/(^[ \t]*[-*•] [^\n]+)\n(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?![ \t]*[-]{3,})(?![ \t]*\|)(?=\S)/gm, '$1 ')
 
     // ── Fix AI mid-sentence line-break artifacts ──────────────────────────────
     // 1. Remove lines containing ONLY a comma (e.g. "2023\n\n,\n\nheadquartered" → "2023, headquartered")
@@ -3599,6 +3599,7 @@ OUTPUT STYLE
 - No marketing language. Banned: transformative, innovative, robust, cutting-edge, comprehensive, leverage, seamless, game-changing, powerful, holistic.
 - Tables only for true multi-column comparisons. Never for single-column lists.
 - If a section only has 2 supported items, write 2. Do not pad.
+- Never add a closing summary, conclusion paragraph, or sign-off sentence.
 - If the prompt contains INTERNAL NAVINA RESEARCH DATA: open with one line — 📚 Internal data loaded: [source names] — then begin the first section immediately.
 
 TIGHT LIST FORMAT — MANDATORY
@@ -3833,32 +3834,16 @@ No marketing language.
 
 ## 2. Product Overlap & Comparison
 
-Do not force ${c} into one category if it is hybrid.
-
-Build the comparison around product-to-product overlap, not company-to-company labels.
-
-Use the most relevant 5–8 rows only.
+Start with one line: **Category: [category or categories — may be hybrid]**
+Then produce the table immediately. No explanatory prose.
 
 | ${c} Product / Capability | Navina Equivalent | Key Difference | Assessment | Confidence |
-| ------------------------- | ----------------- | -------------- | ---------- | ---------- |
+| --- | --- | --- | --- | --- |
 
-Assessment must be one of:
-
-* Navina advantage
-* Competitor advantage
-* Comparable
-* Insufficient evidence
-
-Confidence must be one of:
-
-* High
-* Medium
-* Low
-* Insufficient
-
-Each row must include a short, evidence-based reason.
-Do not use icons.
-Do not use generic comparison dimensions unless they directly match the competitor's product.
+5–8 rows. Product-to-product only — not company-level labels.
+Assessment: Navina advantage · Competitor advantage · Comparable · Insufficient evidence
+Confidence: High · Medium · Low · Insufficient
+One short reason per row. No icons.
 
 ---
 
@@ -3891,26 +3876,20 @@ Rules:
 
 ## 4. ${c} — SWOT
 
-Create a concise competitor SWOT.
+This is where competitor strengths should appear. No separate "Where ${c} Wins" section.
+Every item must be backed by a source, product capability, market observation, or clearly marked inference. No generic items.
 
-This is where competitor strengths should appear. Do not create a separate "Where ${c} Wins" section.
+**Strengths**
+3–4 bullets, evidence-backed.
 
-Every item must be backed by a source, product capability, market observation, or clearly marked inference.
+**Weaknesses**
+3–4 bullets, evidence-backed. Mark inferred: *(inferred)*
 
-| Strengths | Weaknesses |
-| --------- | ---------- |
-| 3–4 bullets | 3–4 bullets |
+**Opportunities**
+2–3 bullets.
 
-| Opportunities | Threats, including Navina |
-| ------------- | ------------------------- |
-| 2–3 bullets | 2–3 bullets |
-
-Rules:
-
-* Keep competitor strengths factual and concise.
-* Do not over-focus on competitor advantages.
-* Do not repeat the full product comparison.
-* Do not create generic SWOT items.
+**Threats — including Navina**
+2–3 bullets.
 
 ---
 
@@ -3971,6 +3950,8 @@ ${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
       ? 'material developments only, signal confidence, source gaps, contradictions'
       : 'partnerships, funding, customer wins, market movement';
     return `${driveContext(c, 'deep-dive')}
+
+Produce exactly 9 sections. No other sections. No preamble.
 
 Research: ${websiteScope}
 External: beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · businesswire.com · prnewswire.com · klasresearch.com · crunchbase.com
