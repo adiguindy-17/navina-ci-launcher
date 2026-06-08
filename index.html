@@ -2469,10 +2469,22 @@ function renderMarkdown(text) {
     .replace(/\n{3,}/g, '\n\n')
 
     // ── Tight list enforcement ────────────────────────────────────────────────
-    // Collapse ANY blank lines immediately before a bullet line (- * •).
+    // Pass 1: Collapse ANY blank lines immediately before a bullet line (- * •).
     // Claude habitually emits loose lists; each <li> ending up in its own <ul>
     // creates visible block gaps. This collapses them before HTML conversion.
     .replace(/\n\n+(?=[ \t]*[-*•] )/g, '\n')
+
+    // Pass 2: Key-only bullet join — "- Founded:\n\nValue" → "- Founded: Value"
+    // Claude sometimes emits the label as a bullet and the value on the next line.
+    // Match: bullet line ending with colon, followed by blank line(s), then content
+    // that is NOT another bullet and NOT a heading. Join them onto one line.
+    .replace(/(^[ \t]*[-*•] [^\n]*:)[ \t]*\n{1,2}(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?=\S)/gm, '$1 ')
+
+    // Pass 3: Continuation join — single-newline continuations after a bullet
+    // "- Funding: $72M;\n$125M debt" → "- Funding: $72M; $125M debt"
+    // Only fires on single \n (never \n\n which = section break).
+    // Guards: not another bullet, not a heading, not a horizontal rule.
+    .replace(/(^[ \t]*[-*•] [^\n]+)\n(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?![ \t]*[-]{3,})(?=\S)/gm, '$1 ')
 
     // ── Fix AI mid-sentence line-break artifacts ──────────────────────────────
     // 1. Remove lines containing ONLY a comma (e.g. "2023\n\n,\n\nheadquartered" → "2023, headquartered")
