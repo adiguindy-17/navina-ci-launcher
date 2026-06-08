@@ -1134,7 +1134,7 @@
         <div class="kb-empty-state">
           <div class="kb-empty-icon">📂</div>
           <div class="kb-empty-text">Select a competitor to see existing materials</div>
-          <div class="kb-empty-sub">Battlecards, overviews, Drive folders & Notion pages</div>
+          <div class="kb-empty-sub">Comparisons, overviews, Drive folders & Notion pages</div>
         </div>
       </div>
     </div>
@@ -1167,7 +1167,7 @@
               <div class="gen-chip" onclick="selectTemplate(this,'deep-dive')">🔍 Deep Dive</div>
               <div class="gen-chip" onclick="selectTemplate(this,'exec-brief')">⚡ Exec Brief</div>
               <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">⚙️ Product Overview</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚔️ Battlecard</div>
+              <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚖️ Comparison</div>
               <div class="gen-chip" onclick="selectTemplate(this,'sw')">± S&amp;W</div>
               <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 Latest News</div>
               <div class="gen-chip" onclick="selectTemplate(this,'case-studies')">📊 Case Studies</div>
@@ -1266,7 +1266,7 @@
     <div class="modal-title">📊 Create in Google Drive</div>
     <div class="modal-sub" id="modal-sub">Creating a new file based on Navina's template and saving it to Drive.</div>
     <div id="modal-existing-box" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin:10px 0 4px;font-size:13px;">
-      <span style="font-weight:600;color:#16a34a;">📂 Existing battlecard found — </span>
+      <span style="font-weight:600;color:#16a34a;">📂 Existing comparison found — </span>
       <a id="modal-existing-link" href="#" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:underline;">Open in Drive →</a>
     </div>
     <div class="modal-steps">
@@ -1360,7 +1360,7 @@ const COMPANIES = {
     resources: {
       notionPage:    { label: 'Notion Page',          url: 'https://www.notion.so/navinaai/Stanson-Health-2cc31faa1fb780dcb6c0dae2a2a6debe',                  type: 'notion',      visibleInKB: true, usedInGenIntel: true  },
       overviewDeck:  { label: 'Company Overview Deck', url: 'https://docs.google.com/presentation/d/1kbhmY_fuF8SZsOfBwuB3WBxXORcCQVv72fQZ1pMN7C0/edit',       type: 'overview',    visibleInKB: true, usedInGenIntel: true  },
-      battlecard:    { label: 'Battlecard',            url: 'https://docs.google.com/presentation/d/1u2Klh6O-HD1Totkpmp2sXSJq9A_a-h8JD9W1Xylit9A/edit',       type: 'battlecard',  visibleInKB: true, usedInGenIntel: true  },
+      battlecard:    { label: 'Comparison',            url: 'https://docs.google.com/presentation/d/1u2Klh6O-HD1Totkpmp2sXSJq9A_a-h8JD9W1Xylit9A/edit',       type: 'battlecard',  visibleInKB: true, usedInGenIntel: true  },
       driveFolder:   { label: 'Drive Folder',          url: 'https://drive.google.com/drive/folders/1rJt_bQgrPJffq1S1Wb9TOx4DLbBpTl2r',                       type: 'folder',      visibleInKB: true, usedInGenIntel: false },
       demoSummary:   { label: 'Demo Summary',          url: 'https://docs.google.com/document/d/1r_GPbWON8Jra59pxysyexfcmJMyKs5PaoQj-4UF7qFY/edit',           type: 'summary',     visibleInKB: true, usedInGenIntel: true  },
       epicStansonDoc: { label: 'Epic & Stanson — New OPA/CDI Doc', url: 'https://drive.google.com/file/d/1j4Kcsg3IFGpFO_2aS3dzetR8DVrIYAIA/view', type: 'document', visibleInKB: true, usedInGenIntel: false },
@@ -1391,7 +1391,7 @@ const COMPANIES = {
     resources: {
       notionPage:    { label: 'Notion Page',          url: 'https://www.notion.so/navinaai/Persivia-30931faa1fb780c9a024f83df8e19fc9',                        type: 'notion',      visibleInKB: true, usedInGenIntel: true  },
       overviewDeck:  { label: 'Company Overview Deck', url: 'https://docs.google.com/presentation/d/1L2gC7djpx_6r0Zk6IcYVo1g6NihH4pjO-G7NfByM6tA/edit',       type: 'overview',    visibleInKB: true, usedInGenIntel: true  },
-      battlecard:    { label: 'Battlecard',            url: 'https://docs.google.com/presentation/d/1wZJ33WNko6JKA2idPZX23CW62mWTxrxsqE8yxaV7dTY/edit',       type: 'battlecard',  visibleInKB: true, usedInGenIntel: true  },
+      battlecard:    { label: 'Comparison',            url: 'https://docs.google.com/presentation/d/1wZJ33WNko6JKA2idPZX23CW62mWTxrxsqE8yxaV7dTY/edit',       type: 'battlecard',  visibleInKB: true, usedInGenIntel: true  },
       driveFolder:   { label: 'Drive Folder',          url: 'https://drive.google.com/drive/folders/1RkT1XKM3-yc--UWEE1guA7qRIjlHhHpV',                       type: 'folder',      visibleInKB: true, usedInGenIntel: false },
       demoSummary:   { label: 'Demo Summary',          url: 'https://drive.google.com/file/d/1VvARU7cXMXJelYPWBq90A8c8gVDsKUIl/view',                         type: 'summary',     visibleInKB: true, usedInGenIntel: true  },
     },
@@ -1633,7 +1633,7 @@ const COMPANIES = {
     resources: {
       notionPage:   { label: 'Notion Page',          url: 'https://www.notion.so/navinaai/Abridge-27e31faa1fb780078eeecfff9abc7c37',                        type: 'notion',     visibleInKB: true, usedInGenIntel: true  },
       overviewDeck: { label: 'Company Overview Deck', url: 'https://docs.google.com/presentation/d/1rd8GWpVmjF32Og0oob42JDxo9eb4pOYfkGeHp-z20Qk/edit',       type: 'overview',   visibleInKB: true, usedInGenIntel: true  },
-      battlecard:   { label: 'Battlecard (slide 3)',  url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
+      battlecard:   { label: 'Comparison',  url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
       driveFolder:  { label: 'Drive Folder',          url: 'https://drive.google.com/drive/folders/1hka1NsU6moYsfImGU7bL-YU-MVZmTKYj',                       type: 'folder',     visibleInKB: true, usedInGenIntel: false },
     },
     intelligenceProfile: {
@@ -1666,7 +1666,7 @@ const COMPANIES = {
     resources: {
       notionPage:   { label: 'Notion Page',          url: 'https://www.notion.so/navinaai/Ambience-AI-28631faa1fb78029b3c6da5ef1d23c25',                    type: 'notion',     visibleInKB: true, usedInGenIntel: true  },
       overviewDeck: { label: 'Company Overview Deck', url: 'https://docs.google.com/presentation/d/1WlKDGPBZO9u7lrOp53t-rANFdGu98dfjfHMItNX7New/edit',       type: 'overview',   visibleInKB: true, usedInGenIntel: true  },
-      battlecard:   { label: 'Battlecard',            url: 'https://docs.google.com/presentation/d/1r1I8oDdFoMWXhva73OGWM3lEgRWdz4xuwr46uElGHgk/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
+      battlecard:   { label: 'Comparison',            url: 'https://docs.google.com/presentation/d/1r1I8oDdFoMWXhva73OGWM3lEgRWdz4xuwr46uElGHgk/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
     },
     intelligenceProfile: {
       overview: `Ambience Healthcare is an enterprise ambient AI documentation platform targeting large health systems. Focuses on real-time clinical note generation during patient encounters. Strong in complex specialties. Received investment from OpenAI and positions itself as an AI-native clinical documentation solution. Documentation-only — no HCC coding, no risk adjustment, no quality/HEDIS.`,
@@ -1694,7 +1694,7 @@ const COMPANIES = {
     resources: {
       notionPage:    { label: 'Notion Page',          url: 'https://www.notion.so/navinaai/Suki-AI-28e31faa1fb780b98e6dee2bf3d9b33d',                        type: 'notion',     visibleInKB: true, usedInGenIntel: true  },
       overviewDeck:  { label: 'Company Overview Deck', url: 'https://docs.google.com/presentation/d/1D8lLcPP4dB9xykrvomRPm8rcppGm9KTDnWGnyWORPXI/edit',       type: 'overview',   visibleInKB: true, usedInGenIntel: true  },
-      battlecard:    { label: 'Battlecard (slide 2)',  url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
+      battlecard:    { label: 'Comparison',  url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
       driveFolder:   { label: 'Drive Folder',          url: 'https://drive.google.com/drive/folders/1qn09suUl9ON9C-VqbpgDH5YFR-N4q3CB',                       type: 'folder',     visibleInKB: true, usedInGenIntel: false },
       demoSummary:   { label: 'Demo Summary',          url: 'https://drive.google.com/file/d/1KyLVcAJjy1wUkWm_bCm-sCSu2-aAVnuL/view',                         type: 'summary',    visibleInKB: true, usedInGenIntel: true  },
       pricing:       { label: 'Pricing PDF',           url: 'https://drive.google.com/file/d/1clb0EVl2FYCI0KfoPjArSWyhPYDiArG9/view',                         type: 'pricing',    visibleInKB: true, usedInGenIntel: false },
@@ -1727,7 +1727,7 @@ const COMPANIES = {
     resources: {
       notionPage:      { label: 'Notion Page',               url: 'https://www.notion.so/navinaai/Nuance-Dax-Copilot-29231faa1fb78037bd36c2442bbf3af2',         type: 'notion',      visibleInKB: true, usedInGenIntel: true  },
       overviewDeck: { label: 'Ambient Main Deck',  url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', type: 'overview',   visibleInKB: true, usedInGenIntel: true  },
-      battlecard:   { label: 'Ambient Battlecards', url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
+      battlecard:   { label: 'Comparison', url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
     },
     intelligenceProfile: {
       overview: `Nuance DAX (Dragon Ambient eXperience) is Microsoft's ambient clinical intelligence product, evolved from Dragon Medical dictation. Market leader in clinical documentation by scale. Deep Epic integration. Now rebranded as Microsoft Dragon Copilot, integrating Azure AI and Teams. Sells to large health systems and integrated delivery networks. Documentation-focused — limited in VBC-specific workflows like HCC coding or quality gap closure.`,
@@ -1758,7 +1758,7 @@ const COMPANIES = {
     website: 'https://www.nabla.com/',
     resources: {
       overviewDeck: { label: 'Ambient Main Deck',  url: 'https://docs.google.com/presentation/d/1r8B7iWXxn0a7N31a7shLTJWU6jjx9dyorzMsLzM8QoQ/edit', type: 'overview',   visibleInKB: true, usedInGenIntel: true  },
-      battlecard:   { label: 'Ambient Battlecards', url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
+      battlecard:   { label: 'Comparison', url: 'https://docs.google.com/presentation/d/1OgxDQxP1hMZuHc9ATH-BO1xU3ciSn1pfsJGaUnP68Z4/edit', type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
     },
     intelligenceProfile: {
       overview: `Nabla is a French AI ambient documentation startup expanding aggressively in the US market. Core product: real-time ambient note generation during physician-patient encounters. Known for a clean UX and a developer-facing API (Nabla API) used to embed ambient documentation into existing health platforms. Supports multiple specialties. Documentation-only — no HCC coding, no risk adjustment, no quality/HEDIS.`,
@@ -1867,7 +1867,7 @@ const COMPANIES = {
     resources: {
       notionPage:   { label: 'Notion Page',          url: 'https://www.notion.so/navinaai/EPIC-35d31faa1fb780e9818acc4c27fa3615',                          type: 'notion',     visibleInKB: true, usedInGenIntel: true  },
       overviewDeck: { label: 'Company Overview Deck', url: 'https://docs.google.com/presentation/d/17ieKC-yWV69_5B6ixli1YheydnjNGztN-9GEDtGa-_o/edit',       type: 'overview',   visibleInKB: true, usedInGenIntel: true  },
-      battlecard:   { label: 'Battlecard (KP deck)',  url: 'https://docs.google.com/presentation/d/1PpvAYsS4KxxgM99kbfMAKZyOEJGMGDfyvDz0TcxS_wY/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
+      battlecard:   { label: 'Comparison',  url: 'https://docs.google.com/presentation/d/1PpvAYsS4KxxgM99kbfMAKZyOEJGMGDfyvDz0TcxS_wY/edit',       type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
       driveFolder:  { label: 'Drive Folder',          url: 'https://drive.google.com/drive/folders/1rF2pLa7ULuAG2Ex-slbbL8dNL1poicHD',                       type: 'folder',     visibleInKB: true, usedInGenIntel: false },
       epicStansonDoc:  { label: 'Epic & Stanson — New OPA/CDI Doc', url: 'https://drive.google.com/file/d/1j4Kcsg3IFGpFO_2aS3dzetR8DVrIYAIA/view',              type: 'document',    visibleInKB: true, usedInGenIntel: false },
     },
@@ -1932,7 +1932,7 @@ const COMPANIES = {
     resources: {
       notionPage:   { label: 'Notion Page',          url: 'https://www.notion.so/navinaai/eClinicalWorks-35c31faa1fb7801fa550efa21c083730',                type: 'notion',     visibleInKB: true, usedInGenIntel: true  },
       overviewDeck: { label: 'Company Overview Deck', url: 'https://docs.google.com/presentation/d/1I4l53I0uoOMh8hRyuej5x9lfKQadGej9nYvkAy3--qc/edit',     type: 'overview',   visibleInKB: true, usedInGenIntel: true  },
-      battlecard:   { label: 'Battlecard',            url: 'https://docs.google.com/presentation/d/1QEvD0ixBNFBjbN1C1sYemirmXjIm2UrrKen6kmFPJYc/edit',     type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
+      battlecard:   { label: 'Comparison',            url: 'https://docs.google.com/presentation/d/1QEvD0ixBNFBjbN1C1sYemirmXjIm2UrrKen6kmFPJYc/edit',     type: 'battlecard', visibleInKB: true, usedInGenIntel: true  },
       driveFolder:  { label: 'Drive Folder',          url: 'https://drive.google.com/drive/folders/1OTCVhQRe5aIiYswYtBk89RkG5lt6rDx2',                     type: 'folder',     visibleInKB: true, usedInGenIntel: false },
     },
     intelligenceProfile: {
@@ -2872,7 +2872,7 @@ function renderAdminPanel({ logins, usage }) {
 
   // ── Top analysis types ───────────────────────────────────────────────────
   const analysisLabelsMap = {
-    battlecard:'Battlecard', 'deep-dive':'Deep Dive', compare:'Compare',
+    battlecard:'Comparison', 'deep-dive':'Deep Dive', compare:'Compare',
     sw:'S&W Analysis', news:'Latest News',
     'product-overview':'Product Overview', 'case-studies':'Case Studies',
     'exec-brief':'Exec Brief',
@@ -3065,7 +3065,7 @@ function exportCSV(type) {
 
 const KB_TYPE_META = {
   notion:       { icon: '📓', typeLabel: 'Internal research page',  cssClass: 'type-notion'     },
-  battlecard:   { icon: '⚔️', typeLabel: 'Sales battlecard',        cssClass: 'type-battlecard' },
+  battlecard:   { icon: '⚖️', typeLabel: 'Comparison',        cssClass: 'type-battlecard' },
   overview:     { icon: '📊', typeLabel: 'Overview deck',           cssClass: 'type-overview'   },
   folder:       { icon: '📁', typeLabel: 'All files & materials',   cssClass: 'type-folder'     },
   demo:         { icon: '🎥', typeLabel: 'Video recording',         cssClass: 'type-demo'       },
@@ -3344,7 +3344,7 @@ const DRIVE_TEMPLATES = {
   battlecard: {
     id: '1XT35SBbUWll7I3e0oTKe2Kz7GcfLQGPy3MEkbGscERE',
     url: 'https://docs.google.com/presentation/d/1XT35SBbUWll7I3e0oTKe2Kz7GcfLQGPy3MEkbGscERE/edit',
-    label: 'Battle card template'
+    label: 'Comparison template'
   },
   overview: {
     id: '1wrZj6PMt_28sCVILwhPD-MGsSXdMiWZD4h3tTvjFEF0',
@@ -3390,7 +3390,7 @@ function openDriveModal() {
     document.getElementById('modal-step3-text').innerHTML =
       'Paste in Claude Code → Claude researches + writes <strong>navina-battlecard-input.txt</strong> to Drive → Apps Script auto-generates the presentation';
     document.getElementById('modal-sub').textContent =
-      `Will generate: "${selectedCompetitor} - Battlecard - ${today}" via research + Apps Script`;
+      `Will generate: "${selectedCompetitor} - Comparison - ${today}" via research + Apps Script`;
 
     drivePrompt =
 `BATTLECARD GENERATION REQUEST — ${selectedCompetitor}
@@ -4155,7 +4155,7 @@ Read: ${base ? base : c + ' website'} and crunchbase.com for verified facts.${no
 
 const analysisLabels = {
   'deep-dive':'Deep Dive','exec-brief':'Exec Brief','product-overview':'Product Overview',
-  'battlecard':'Battlecard','sw':'S&W Analysis','news':'Latest News','case-studies':'Case Studies'
+  'battlecard':'Comparison','sw':'S&W Analysis','news':'Latest News','case-studies':'Case Studies'
 };
 
 // buildPrompt is an alias for buildFullPrompt (multi-select aware)
