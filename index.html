@@ -3795,78 +3795,162 @@ ${NAVINA_COMPETITIVE_CONTEXT}
 
 ---
 
-You are generating a Comparison against Navina for: ${c}.
+You are generating a **Comparison against Navina** for: ${c}.
 
-Use all available sources in this priority order:
-1. Internal materials above (comparison decks, demo summaries, Notion pages).
-2. Navina context above (KPIs, proof points, product capabilities, studies).
+This use case replaces the old Battlecard and the separate Strengths & Weaknesses use case.
+
+Before writing the answer, analyze:
+
+* What products ${c} actually sells.
+* Which products overlap with Navina.
+* Which ${c} product maps to which Navina product.
+* Whether internal comparison materials exist above.
+* Which claims are supported, inferred, or missing evidence.
+* Confidence level by product area.
+
+Use sources in this order:
+
+1. Internal materials above: comparison decks, PDFs, Notion pages, demo summaries, battlecards.
+2. Navina context above: product capabilities, KPIs, proof points, studies, customer evidence.
 3. Reliable public sources about ${c}.
 
-Produce exactly 7 sections. No other sections.
+Produce exactly 5 sections. No extra sections.
 
 ---
 
 ## 1. ${c} — Snapshot
-3–4 bullets: core product · primary customer segment · main use case · scale/funding/ownership.
+
+3–4 bullets only:
+
+* Core products
+* Primary customer segment
+* Main use case category or categories
+* Scale, funding, ownership, or traction if available
+
 No marketing language.
 
 ---
 
-## 2. Category & Comparison Lens
-Identify ${c}'s primary category:
-- Ambient AI / documentation
-- Risk adjustment / HCC / coding
-- Population health / VBC
-- EHR / workflow platform
-- Hybrid / other
+## 2. Product Overlap & Comparison
 
-Then select 6–8 relevant dimensions from the matching set:
+Do not force ${c} into one category if it is hybrid.
 
-Ambient AI / documentation → ambient documentation · voice workflow · clinical workflow depth · chart Q&A · coding support · EHR embedding · push-to-EHR · specialty coverage · physician adoption
-Risk adjustment / HCC → HCC workflow type · prospective vs. retrospective · RAF impact · CMS-HCC/HHS-HCC/RxHCC · coder workflow · CDI · chart review · audit readiness · provider prompts · EHR/payer integrations
-Population health / VBC → care gaps · HEDIS/Stars · claims + clinical aggregation · risk stratification · outreach · care management · provider engagement · quality programs
-EHR / workflow platform → supported EHRs · embedded vs. overlay · integration depth · bidirectional data · APIs/FHIR · workflow orchestration · native UI · end-user workflow burden
+Build the comparison around product-to-product overlap, not company-to-company labels.
+
+Use the most relevant 5–8 rows only.
+
+| ${c} Product / Capability | Navina Equivalent | Key Difference | Assessment | Confidence |
+| ------------------------- | ----------------- | -------------- | ---------- | ---------- |
+
+Assessment must be one of:
+
+* Navina advantage
+* Competitor advantage
+* Comparable
+* Insufficient evidence
+
+Confidence must be one of:
+
+* High
+* Medium
+* Low
+* Insufficient
+
+Each row must include a short, evidence-based reason.
+Do not use icons.
+Do not use generic comparison dimensions unless they directly match the competitor's product.
 
 ---
 
-## 3. Head-to-Head Product Comparison
-| Dimension | ${c} | Navina | Assessment |
-Assessment: Navina advantage · Competitor advantage · Comparable · Insufficient evidence
-Include a short reason for each. No icons.
+## 3. Where Navina Wins
+
+This is the most important section.
+
+Rank 4–6 advantages from strongest to weakest buying impact.
+
+Prioritize:
+
+1. Product advantage
+2. Workflow advantage
+3. Evidence / KPI advantage
+4. Adoption advantage
+
+Use this structure for each bullet:
+**[${c} limitation or gap] → [Navina advantage] → [supporting evidence]**
+
+Rules:
+
+* Use competitor-specific gaps.
+* Use internal comparison materials when available.
+* Use Navina proof points only from the provided context.
+* Mark inferred items as *(inferred)*.
+* Do not overstate.
+* Do not include generic advantages.
 
 ---
 
-## 4. Where Navina Wins
-4–6 bullets. Each: **[${c} gap] → [Navina advantage] → [evidence from context]**
-Use internal materials when available. Mark inferred: *(inferred)*. Do not overstate.
+## 4. ${c} — SWOT
 
----
+Create a concise competitor SWOT.
 
-## 5. ${c} — SWOT
+This is where competitor strengths should appear. Do not create a separate "Where ${c} Wins" section.
+
+Every item must be backed by a source, product capability, market observation, or clearly marked inference.
+
 | Strengths | Weaknesses |
-|---|---|
-| 3–4 evidence-backed bullets | 3–4 evidence-backed bullets |
+| --------- | ---------- |
+| 3–4 bullets | 3–4 bullets |
 
-| Opportunities | Threats (incl. Navina) |
-|---|---|
+| Opportunities | Threats, including Navina |
+| ------------- | ------------------------- |
 | 2–3 bullets | 2–3 bullets |
 
-Mark inferred items. Keep it concise.
+Rules:
+
+* Keep competitor strengths factual and concise.
+* Do not over-focus on competitor advantages.
+* Do not repeat the full product comparison.
+* Do not create generic SWOT items.
 
 ---
 
-## 6. Outcomes & KPIs
-**${c} evidence:** published outcomes · case studies · independent validation · self-reported claims · evidence gaps.
-**Navina evidence:** relevant proof points, KPIs, studies from context above.
-Label every claim: independent · case study · self-reported · internal · inferred · insufficient.
+## 5. Outcomes, Evidence & Objections
 
----
+### KPI / Evidence Comparison
 
-## 7. Objections & Responses
+| KPI Area | ${c} Evidence | Navina Evidence | Evidence Quality |
+| -------- | ------------- | --------------- | ---------------- |
+
+Cover only KPI areas with available evidence. Possible areas:
+
+* Clinical outcomes
+* Risk adjustment / RAF
+* Quality / HEDIS / Stars
+* Productivity / time savings
+* Physician adoption
+* Customer outcomes
+
+Evidence Quality must be one of: High · Medium · Low · Insufficient
+
+Label claims as: independent · customer case study · self-reported · internal analysis · inferred · insufficient evidence
+
+### Objections & Responses for ${persona}
+
 | Buyer Objection | Navina Response | Evidence |
-|---|---|---|
-3 rows for a ${persona}. Factual responses only. If Navina does not clearly win, say so.
-If internal comparison materials are missing, state it explicitly.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
+| --------------- | --------------- | -------- |
+
+Create exactly 3 rows.
+
+Rules:
+
+* Responses must be factual, concise, and evidence-based.
+* Keep the emphasis on how Navina can win the deal.
+* If Navina does not clearly win, say so briefly and honestly.
+* Do not create discovery questions.
+* Do not create a talk track.
+* If internal materials are missing, state that explicitly.
+* Preserve source names whenever possible.
+${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'deep-dive': (c, persona, notes) => {
     const company = COMPANIES[c];
