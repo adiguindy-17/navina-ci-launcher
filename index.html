@@ -2468,6 +2468,12 @@ function renderMarkdown(text) {
     // Collapse 3+ consecutive blank lines to exactly 2
     .replace(/\n{3,}/g, '\n\n')
 
+    // ── Tight list enforcement ────────────────────────────────────────────────
+    // Collapse ANY blank lines immediately before a bullet line (- * •).
+    // Claude habitually emits loose lists; each <li> ending up in its own <ul>
+    // creates visible block gaps. This collapses them before HTML conversion.
+    .replace(/\n\n+(?=[ \t]*[-*•] )/g, '\n')
+
     // ── Fix AI mid-sentence line-break artifacts ──────────────────────────────
     // 1. Remove lines containing ONLY a comma (e.g. "2023\n\n,\n\nheadquartered" → "2023, headquartered")
     .replace(/\n+[ \t]*,[ \t]*\n+/g, ', ')
@@ -2566,11 +2572,15 @@ function renderMarkdown(text) {
 
   // 9. Unordered lists
   s = s.replace(/^[ \t]*[-*•] (.+)$/gm, '<li class="md-li">$1</li>');
+  // Collapse any remaining blank lines between converted <li> elements
+  // (safety net in case the pre-processor missed any case)
+  s = s.replace(/(<\/li>)\n\n+(?=<li class="md-li">)/g, '$1\n');
   s = s.replace(/(<li class="md-li">.*?<\/li>\n?)+/gs,
     m => `<ul class="md-ul">${m}</ul>`);
 
   // 10. Ordered lists
   s = s.replace(/^[ \t]*\d+\. (.+)$/gm, '<li class="md-li md-oli">$1</li>');
+  s = s.replace(/(<\/li>)\n\n+(?=<li class="md-li md-oli">)/g, '$1\n');
   s = s.replace(/(<li class="md-li md-oli">.*?<\/li>\n?)+/gs,
     m => `<ol class="md-ol">${m}</ol>`);
 
