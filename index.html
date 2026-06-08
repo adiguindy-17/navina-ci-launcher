@@ -4041,16 +4041,36 @@ Do not include a Navina KPI table. Do not compare to Navina metrics.${notes ? `\
     const base = company?.website?.replace(/\/$/, '') || '';
     return `${driveContext(c, 'exec-brief')}
 
-Write a single concise paragraph about ${c}. 75–90 words. No headers. No bullets. No sections.
+Produce a structured Exec Brief for ${c}. Use the exact format below. No added sections. No Navina comparison.
 
-Cover in one flowing paragraph:
-– What the company does and its core product focus
-– Primary market segment and customer types
-– Founded year, HQ, and approximate employee count
-– Total funding or ownership status (PE-backed, public, etc.)
-– One or two notable recent facts if directly relevant (acquisition, major customer milestone)
+---
 
-Plain, factual, neutral language. No marketing words. No opinions. No Navina comparison.
+## Core focus: [3–5 words only — the company's single defining focus, e.g. "Ambient AI documentation" or "Risk adjustment coding"]
+
+Write 1–2 sharp sentences explaining what the company does, its main product category, primary workflow, and target users or customers. Be factual and simple. No marketing language.
+
+**Core capabilities:**
+- 4–6 short bullets covering the company's main product capabilities
+- Each bullet names a specific feature, module, or function — do not describe abstract goals
+- Keep each bullet under 12 words
+- Evidence-backed only; do not infer capabilities not present in available sources
+
+**Clear limitations:**
+- 2–4 bullets based only on available evidence
+- Focus on: missing capabilities, unclear traction, weak integrations, lack of clinical proof, limited workflow depth, or company maturity gaps
+- Do not add generic weaknesses to fill space
+- If no meaningful limitations are found in available sources, omit this section entirely
+
+**General info:**
+- Founded: [year]
+- HQ: [city, state/country]
+- Employees: [approximate count, or "Not available"]
+- Funding: [total raised + most recent round with date, or ownership status if PE-backed/public]
+- M&A: [acquisitions or exits if relevant, or omit]
+- Partnerships: [major partnerships if publicly known, or omit]
+- Customers: [named customers if publicly disclosed, or "No named customers found"]
+
+Plain, factual, neutral language. No marketing words. No opinions.
 Read: ${base ? base : c + ' website'} and crunchbase.com for verified facts.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
