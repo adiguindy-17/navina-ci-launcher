@@ -260,7 +260,7 @@ export default {
       }
       try {
         const notionHeaders = {
-          'Authorization':  `Bearer ${env.NOTION_TOKEN}`,
+          'Authorization':  `Bearer ${env.NOTION_API_KEY}`,
           'Notion-Version': '2022-06-28',
         };
 
