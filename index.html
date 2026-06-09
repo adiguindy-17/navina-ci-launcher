@@ -3242,20 +3242,23 @@ function refreshCompetitorDisplay() {
 
 async function handleComposerSend() {
   if (isGenerating) return;
-  // If chat has messages → follow-up
-  if (chatHistory.length > 0) {
+  const text = document.getElementById('notes-input').value.trim();
+
+  // Text typed + existing conversation → follow-up (continue the thread)
+  if (text && chatHistory.length > 0) {
     await sendFollowUp();
     return;
   }
-  // First message
-  const text = document.getElementById('notes-input').value.trim();
+
+  // No text and no use case selected → show hint
   if (!text && !selectedAnalysis) { showToast('Type a question or select a use case'); return; }
   if (!text && selectedAnalysis && !selectedCompetitor) { showToast('← Select a competitor from the sidebar first'); return; }
-  // If text is present, always treat as free-form (text takes priority over template chips)
+
+  // Text only → free-form generation (new prompt, fresh context)
   if (text) {
     await generateFreeForm(text);
   } else {
-    // No text → use template (requires competitor + analysis, already guarded above)
+    // Template + competitor selected → new analysis (even if chat has prior messages)
     await generateWithAI();
   }
 }
