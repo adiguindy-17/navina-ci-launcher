@@ -2844,14 +2844,12 @@ async function fetchWebContext(c) {
 
   const base = company.website.replace(/\/$/, '');
 
-  // Pages to try — homepage + likely newsroom/press paths
+  // Pages to try — homepage + most likely news/content paths
   const candidates = [
-    { url: base,                       label: 'Official Website'  },
-    { url: base + '/newsroom',         label: 'Newsroom'          },
-    { url: base + '/news',             label: 'News'              },
-    { url: base + '/press-releases',   label: 'Press Releases'    },
-    { url: base + '/press',            label: 'Press'             },
-    { url: base + '/blog',             label: 'Blog'              },
+    { url: base,               label: 'Official Website' },
+    { url: base + '/newsroom', label: 'Newsroom'         },
+    { url: base + '/news',     label: 'News'             },
+    { url: base + '/blog',     label: 'Blog'             },
   ];
 
   const results = await Promise.allSettled(
@@ -2869,7 +2867,7 @@ async function fetchWebContext(c) {
     if (r.status === 'fulfilled' && r.value) {
       const { label, url, text } = r.value;
       sections.push(`### ${c} — ${label}\nSource: ${url}\n\n${text}`);
-      sources.push(`Web:${label}`);
+      sources.push(`🌐 ${label}`);
     }
   }
 
@@ -3982,8 +3980,8 @@ function driveContext(c, analysis = '') {
 
   // ── 1. Intelligence profile (if available) ───────────────────────────────
   const profile = company.intelligenceProfile || {};
-  // navinaDifferentiation is only relevant for comparison use cases (battlecard, sw)
-  const isComparisonUseCase = ['battlecard', 'sw'].includes(analysis);
+  // navinaDifferentiation is only relevant for the Comparison use case
+  const isComparisonUseCase = analysis === 'battlecard';
   if (profile.overview) {
     let kbBlock = `INTERNAL KNOWLEDGE — ${c} (pre-researched, use as foundation):\n`;
     kbBlock += `Category: ${company.category}\n\n`;
@@ -4005,7 +4003,7 @@ function driveContext(c, analysis = '') {
   }
 
   if (links.length > 0) {
-    parts.push(`INTERNAL MATERIALS — open and read before searching the web:\n${links.join('\n')}`);
+    parts.push(`INTERNAL MATERIALS — content from these sources is pre-fetched and appended below:\n${links.join('\n')}`);
   }
 
   if (parts.length === 0) return '';
@@ -4013,10 +4011,9 @@ function driveContext(c, analysis = '') {
   return `${parts.join('\n\n')}
 
 RESEARCH PROCESS:
-1. The competitor is the primary subject. Use the internal knowledge above as your foundation.
-2. Open any internal material links listed above for additional depth.
-3. Search the web for recent updates: news, product launches, funding, partnerships, leadership changes.
-4. Synthesize internal and web sources into one integrated competitor-first response.`;
+1. Use the internal knowledge and pre-fetched content below as your foundation.
+2. For Comparison analyses: live web content from the competitor's site is also injected below (marked 🌐).
+3. Synthesize all sources — internal, web, and your knowledge — into one integrated response.`;
 }
 
 function newsContext(c) {
@@ -4061,8 +4058,6 @@ ${NAVINA_COMPETITIVE_CONTEXT}
 
 You are generating a **Comparison against Navina** for: ${c}.
 
-This use case replaces the old Battlecard and the separate Strengths & Weaknesses use case.
-
 Before writing the answer, analyze:
 
 * What products ${c} actually sells.
@@ -4078,8 +4073,6 @@ Use sources in this order:
 2. Pre-fetched live web content above (marked 🌐): competitor website, newsroom, press releases.
 3. Navina context above: product capabilities, KPIs, proof points, studies, customer evidence.
 4. Your own knowledge about ${c} — only for well-established facts.
-
-For every factual claim: note the source type in parentheses — (internal) · (web) · (Navina data) · (inferred).
 
 Produce exactly 5 sections. No extra sections.
 
@@ -4133,7 +4126,7 @@ Rules:
 * Use competitor-specific gaps.
 * Use internal comparison materials when available.
 * Use Navina proof points only from the provided context.
-* Mark inferred items as *(inferred)*.
+* Mark inferred items as *(inferred)*. Mark web-sourced items as *(web)*.
 * Do not overstate.
 * Do not include generic advantages.
 
@@ -4145,10 +4138,10 @@ This is where competitor strengths should appear. No SWOT. No Opportunities. No 
 Every item must be backed by a source, product capability, market observation, or clearly marked inference. No generic items.
 
 **Strengths**
-3–4 bullets only. Evidence-backed. Short and specific.
+3–4 bullets only. Evidence-backed. Short and specific. Mark web-sourced: *(web)*.
 
 **Weaknesses**
-3–4 bullets only. Evidence-backed. Mark inferred: *(inferred)*
+3–4 bullets only. Evidence-backed. Mark inferred: *(inferred)*. Mark web-sourced: *(web)*.
 
 ---
 
