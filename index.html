@@ -2544,7 +2544,7 @@ function appendChatMessage(role, content, fbCtx = null) {
   } else {
     const escapedForAttr = content.replace(/\\/g,'\\\\').replace(/"/g,'&quot;').replace(/\n/g,'\\n');
     const fbBtn = fbCtx
-      ? `<button class="feedback-trigger-btn" onclick="openFeedbackPanel(this,${JSON.stringify(fbCtx.company)},${JSON.stringify(fbCtx.useCase)})">💬 Feedback</button>`
+      ? `<button class="feedback-trigger-btn" data-company="${escHtml(fbCtx.company)}" data-usecase="${escHtml(fbCtx.useCase)}" onclick="openFeedbackPanel(this)">💬 Feedback</button>`
       : '';
     html = `<div class="chat-msg-ai">
       <div class="chat-msg-ai-header">
@@ -3158,7 +3158,9 @@ const FEEDBACK_REPO = 'adiguindy-17/navina-ci-launcher';
 const FEEDBACK_FILE = 'feedback-log.json';
 let   feedbackCtx   = null; // { company, useCase, btnEl }
 
-function openFeedbackPanel(btnEl, company, useCase) {
+function openFeedbackPanel(btnEl) {
+  const company = btnEl.dataset.company || '';
+  const useCase = btnEl.dataset.usecase || '';
   feedbackCtx = { company, useCase, btnEl };
   document.getElementById('feedback-panel-sub').textContent = `${company} — ${useCase}`;
   document.getElementById('feedback-text').value = '';
