@@ -3173,8 +3173,9 @@ async function enrichPromptWithContent(prompt) {
   return { prompt: enrichedPrompt, sourcesLoaded };
 }
 
-async function logUsage() {
-  if (!selectedCompetitor || !selectedAnalysis) return;
+// source values: 'template' | 'freeform' | 'adhoc'
+// extra can override competitor/analysisType/persona for freeform/adhoc flows
+async function logUsage(extra = {}) {
   const user = JSON.parse(sessionStorage.getItem('navina_user') || '{}');
   if (!user.email) return;
   try {
@@ -3182,11 +3183,13 @@ async function logUsage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: user.email,
-        name: user.name,
-        competitor: selectedCompetitor,
-        analysisType: selectedAnalysis,
-        persona: selectedPersona,
+        email:        user.email,
+        name:         user.name,
+        competitor:   selectedCompetitor  || null,
+        analysisType: selectedAnalysis    || null,
+        persona:      selectedPersona     || null,
+        source:       'template',
+        ...extra,
       }),
     });
   } catch (e) { /* silent */ }
@@ -3302,17 +3305,19 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
   }).join('');
 
   // ── Usage table rows ────────────────────────────────────────────────────
+  const _sourceLabel = { template: '', freeform: '<span style="font-size:10px;background:#ede9fe;color:#7c3aed;border-radius:4px;padding:1px 5px;margin-left:4px">free-form</span>', adhoc: '<span style="font-size:10px;background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 5px;margin-left:4px">ad-hoc</span>' };
   const usageRows = [...usage].reverse().map((e,i) => {
     const dt = new Date(e.timestamp);
     const dateStr = dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
     const timeStr = dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    const aLabel  = analysisLabelsMap[e.analysisType] || e.analysisType;
+    const aLabel  = analysisLabelsMap[e.analysisType] || e.analysisType || '—';
+    const srcBadge = _sourceLabel[e.source] || '';
     return `<tr>
       <td style="color:#d1d5db;font-size:11px">${usage.length - i}</td>
       <td class="admin-td-time">${dateStr} ${timeStr}</td>
       <td><strong>${escHtml(e.name||'—')}</strong><br><span class="admin-td-email">${escHtml(e.email)}</span></td>
       <td><span class="admin-chip">${escHtml(e.competitor||'—')}</span></td>
-      <td>${escHtml(aLabel)}</td>
+      <td>${escHtml(aLabel)}${srcBadge}</td>
       <td style="color:#9ca3af;font-size:11px">${escHtml(e.persona||'—')}</td>
     </tr>`;
   }).join('');
@@ -3339,7 +3344,7 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
       <div class="admin-stat-card accent-amber">
         <div class="admin-stat-icon">📋</div>
         <div class="admin-stat-value">${usage.length}</div>
-        <div class="admin-stat-label">Prompts Copied</div>
+        <div class="admin-stat-label">Analyses Run</div>
       </div>
     </div>
 
@@ -3364,7 +3369,7 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
       <div class="admin-stat-card accent-amber">
         <div class="admin-stat-icon">📋</div>
         <div class="admin-stat-value">${teamUsage.length}</div>
-        <div class="admin-stat-label">Prompts Copied</div>
+        <div class="admin-stat-label">Analyses Run</div>
       </div>
     </div>
 
@@ -3406,7 +3411,7 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
     <!-- Usage analytics -->
     <div class="admin-section">
       <div class="admin-section-header">
-        <div class="admin-section-title">📋 Usage Analytics <span class="admin-section-count">${usage.length} prompts copied</span></div>
+        <div class="admin-section-title">📋 Usage Analytics <span class="admin-section-count">${usage.length} analyses run</span></div>
       </div>
 
       <div class="admin-two-col" style="margin-bottom:20px">
@@ -3436,7 +3441,7 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
 
       <!-- Usage table -->
       <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">All usage events</div>
-      ${usage.length === 0 ? '<div class="admin-empty">No usage recorded yet — events are logged when users click "Copy Prompt"</div>' : `
+      ${usage.length === 0 ? '<div class="admin-empty">No usage recorded yet — events are logged each time a user runs Generate Intel</div>' : `
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead><tr><th>#</th><th>Date / Time</th><th>User</th><th>Competitor</th><th>Analysis</th><th>Persona</th></tr></thead>
@@ -3807,6 +3812,7 @@ async function handleComposerSend() {
 
 async function generateFreeForm(question) {
   if (!question || isGenerating) return;
+  const _freeFormQuestion = question; // captured for logUsage below
   switchTab('gen');
   const context = selectedCompetitor ? driveContext(selectedCompetitor, '') : '';
   const prompt = `Answer the following question directly and concisely.
@@ -3858,7 +3864,7 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
     if (_sb) { _finalizeStreamMsg(_sb, _sa, reply); }
     else      { appendChatMessage('assistant', reply); }
     document.getElementById('btn-new-chat').style.display = 'inline-flex';
-    logUsage();
+    logUsage({ source: 'freeform', analysisType: 'Free-form' });
   } catch (err) {
     document.getElementById(thinkingId)?.remove();
     if (_sb) _sb.closest('.chat-msg-ai')?.remove();
@@ -3994,7 +4000,7 @@ Max 200 words total.`;
     if (_sb) { _finalizeStreamMsg(_sb, _sa, reply); }
     else      { appendChatMessage('assistant', reply); }
     document.getElementById('btn-new-chat').style.display = 'inline-flex';
-    logUsage();
+    logUsage({ source: 'adhoc', competitor: name, analysisType: 'Ad-hoc Research' });
   } catch (err) {
     document.getElementById(thinkingId)?.remove();
     if (_sb) _sb.closest('.chat-msg-ai')?.remove();
@@ -4913,7 +4919,6 @@ function launch() {
 function copyPrompt() {
   const prompt = buildPrompt();
   if (!prompt) { showToast('Select a competitor and analysis type first'); return; }
-  logUsage();
   navigator.clipboard.writeText(prompt).then(() => showToast('✓ Prompt copied to clipboard'));
 }
 
