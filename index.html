@@ -119,11 +119,65 @@
     padding: 16px 0 24px;
     height: 100%;
   }
+  .btn-add-company {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: calc(100% - 24px); margin: 12px 12px 0;
+    padding: 9px 0;
+    background: #ede9fe; color: #4f46e5;
+    border: 1.5px dashed #a5b4fc; border-radius: 8px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-add-company:hover { background: #ddd6fe; border-color: #6366f1; }
   .sidebar-company-count {
     font-size: 12px; color: #3730a3; font-weight: 600;
     text-align: center; padding: 16px 12px 4px;
     border-top: 1px solid #e5e7eb; margin-top: 12px;
   }
+  /* Add Company modal */
+  .add-co-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9000; opacity: 0; pointer-events: none;
+    transition: opacity 0.18s;
+  }
+  .add-co-overlay.show { opacity: 1; pointer-events: all; }
+  .add-co-modal {
+    background: #fff; border-radius: 16px; padding: 28px 28px 24px;
+    width: 420px; max-width: calc(100vw - 32px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    transform: translateY(16px); transition: transform 0.18s;
+  }
+  .add-co-overlay.show .add-co-modal { transform: translateY(0); }
+  .add-co-title { font-size: 17px; font-weight: 800; color: #111827; margin-bottom: 4px; }
+  .add-co-sub { font-size: 13px; color: #6b7280; margin-bottom: 20px; line-height: 1.5; }
+  .add-co-field { margin-bottom: 16px; }
+  .add-co-field label { display: block; font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .add-co-field input {
+    width: 100%; box-sizing: border-box;
+    padding: 10px 12px; border: 1.5px solid #d1d5db; border-radius: 8px;
+    font-size: 14px; color: #111827; outline: none;
+    transition: border-color 0.15s;
+  }
+  .add-co-field input:focus { border-color: #6366f1; }
+  .add-co-field input::placeholder { color: #9ca3af; }
+  .add-co-error { font-size: 12px; color: #ef4444; margin-top: 4px; display: none; }
+  .add-co-actions { display: flex; gap: 10px; margin-top: 8px; }
+  .btn-add-co-submit {
+    flex: 1; padding: 11px 0;
+    background: #4f46e5; color: #fff;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-add-co-submit:hover { background: #4338ca; }
+  .btn-add-co-submit:disabled { background: #a5b4fc; cursor: not-allowed; }
+  .btn-add-co-cancel {
+    padding: 11px 20px;
+    background: #f3f4f6; color: #6b7280;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-add-co-cancel:hover { background: #e5e7eb; }
   .sidebar-label {
     font-size: 10px; font-weight: 700; color: #9ca3af;
     text-transform: uppercase; letter-spacing: 0.08em;
@@ -1113,6 +1167,9 @@
       <div class="competitor-item" onclick="selectCompetitor(this,'Notable Health')">Notable Health</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'ELCAT')">Eclat / Evarie</div>
     </div>
+    <button class="btn-add-company" onclick="openAddCompanyModal()">
+      <span style="font-size:16px;line-height:1">＋</span> Add Company
+    </button>
     <div class="sidebar-company-count"><span style="font-size:15px;font-weight:700;display:block">36</span><span style="font-size:13px">competitors tracked</span></div>
   </nav>
 
@@ -1339,6 +1396,27 @@
     <div class="modal-actions">
       <button class="btn-modal-copy" onclick="copyDrivePrompt()">📋 Copy Prompt for Claude Code</button>
       <button class="btn-modal-close" onclick="closeDriveModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Company Modal -->
+<div class="add-co-overlay" id="add-co-overlay" onclick="closeAddCompanyModal(event)">
+  <div class="add-co-modal">
+    <div class="add-co-title">🔍 Research a Company</div>
+    <div class="add-co-sub">Enter any company name and website to get an instant competitive snapshot — powered by live web content.</div>
+    <div class="add-co-field">
+      <label>Company Name <span style="color:#ef4444">*</span></label>
+      <input type="text" id="add-co-name" placeholder="e.g. Acme Health" autocomplete="off" oninput="clearAddCoError()" onkeydown="if(event.key==='Enter')submitAdHocCompany()" />
+      <div class="add-co-error" id="add-co-error">Please enter a company name.</div>
+    </div>
+    <div class="add-co-field">
+      <label>Website URL <span style="color:#9ca3af;font-weight:500;text-transform:none;letter-spacing:0">(optional but recommended)</span></label>
+      <input type="url" id="add-co-url" placeholder="https://company.com" autocomplete="off" onkeydown="if(event.key==='Enter')submitAdHocCompany()" />
+    </div>
+    <div class="add-co-actions">
+      <button class="btn-add-co-submit" id="add-co-submit-btn" onclick="submitAdHocCompany()">Generate Snapshot</button>
+      <button class="btn-add-co-cancel" onclick="closeAddCompanyModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -3569,6 +3647,132 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
       </div>
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+  setGenerating(true);
+  try {
+    const reply = await callClaudeAPI(chatHistory);
+    lastAIResponse = reply;
+    chatHistory.push({ role: 'assistant', content: reply });
+    document.getElementById(thinkingId)?.remove();
+    appendChatMessage('assistant', reply);
+    document.getElementById('btn-new-chat').style.display = 'inline-flex';
+    logUsage();
+  } catch (err) {
+    document.getElementById(thinkingId)?.remove();
+    messagesEl.insertAdjacentHTML('beforeend', `<div class="chat-error">⚠️ Error: ${escHtml(err.message)}</div>`);
+  } finally {
+    setGenerating(false);
+  }
+}
+
+// ── Add Company (ad-hoc research) ─────────────────────────────────────────
+
+function openAddCompanyModal() {
+  document.getElementById('add-co-name').value = '';
+  document.getElementById('add-co-url').value = '';
+  document.getElementById('add-co-error').style.display = 'none';
+  document.getElementById('add-co-submit-btn').disabled = false;
+  document.getElementById('add-co-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('add-co-name').focus(), 120);
+}
+
+function closeAddCompanyModal(e) {
+  if (e && e.target !== document.getElementById('add-co-overlay')) return;
+  document.getElementById('add-co-overlay').classList.remove('show');
+}
+
+function clearAddCoError() {
+  document.getElementById('add-co-error').style.display = 'none';
+}
+
+async function submitAdHocCompany() {
+  const nameEl = document.getElementById('add-co-name');
+  const urlEl  = document.getElementById('add-co-url');
+  const errorEl = document.getElementById('add-co-error');
+  const submitBtn = document.getElementById('add-co-submit-btn');
+
+  const name = nameEl.value.trim();
+  const url  = urlEl.value.trim();
+
+  if (!name) {
+    errorEl.style.display = 'block';
+    nameEl.focus();
+    return;
+  }
+
+  // Close modal
+  document.getElementById('add-co-overlay').classList.remove('show');
+
+  // Build the ad-hoc research prompt
+  const websiteLine = url ? `\nWebsite: ${url}` : '';
+  const prompt = `Research the company "${name}" as a potential competitor to Navina (a clinical AI company focused on HCC risk adjustment and physician workflow tools).${websiteLine}
+
+Use web sources only — no internal materials available.
+
+Cover the following in a concise snapshot:
+• What the company does and their main product(s)
+• Target customers / market segment
+• Key differentiators or unique approach
+• Recent news, funding, or notable announcements (if known)
+• 3–5 key competitive facts relevant to Navina
+
+Be concise and factual. Use bullet points. Avoid filler. If information is unavailable, say so briefly.
+Max 200 words total.`;
+
+  // Pre-fetch live web content if URL provided
+  let webContent = '';
+  if (url) {
+    try {
+      const base = url.replace(/\/$/, '');
+      const candidates = [
+        { url: base, label: 'Official Website' },
+        { url: base + '/about', label: 'About' },
+        { url: base + '/news', label: 'News' },
+        { url: base + '/blog', label: 'Blog' },
+      ];
+      const results = await Promise.allSettled(candidates.map(async ({ url: u, label }) => {
+        const text = await fetchURLContent(u);
+        if (!text || text.length < 200) return null;
+        return { label, url: u, text: text.slice(0, 2500) };
+      }));
+      const sections = [];
+      for (const r of results) {
+        if (r.status === 'fulfilled' && r.value) {
+          const { label, url: u, text } = r.value;
+          sections.push(`### ${name} — ${label}\nSource: ${u}\n\n${text}`);
+        }
+      }
+      if (sections.length > 0) {
+        webContent = `\n\n---\n## 🌐 LIVE WEB CONTENT (fetched just now)\n${sections.join('\n\n---\n\n')}`;
+      }
+    } catch (_) { /* silently skip */ }
+  }
+
+  const fullPrompt = prompt + webContent;
+
+  // Switch to Gen Intel tab and run
+  switchTab('gen');
+  document.getElementById('gen-welcome').style.display = 'none';
+  collapseOptionsOnChatStart();
+  chatHistory = [{ role: 'user', content: fullPrompt }];
+
+  const messagesEl = document.getElementById('chat-messages');
+  messagesEl.style.display = 'flex';
+  messagesEl.innerHTML = '';
+
+  const userLabel = url ? `🔍 Ad-hoc research: **${name}** (${url})` : `🔍 Ad-hoc research: **${name}**`;
+  appendChatMessage('user', userLabel);
+
+  const thinkingId = 'thinking-' + Date.now();
+  messagesEl.insertAdjacentHTML('beforeend', `
+    <div id="${thinkingId}" class="chat-msg-ai">
+      <div class="chat-msg-ai-header"><div class="chat-msg-avatar">J</div><div class="chat-msg-name">Joey</div></div>
+      <div class="chat-thinking-body">
+        <div class="chat-dots"><span></span><span></span><span></span></div>
+        ${url ? '🌐 Fetching web content · ' : ''}Researching ${escHtml(name)}...
+      </div>
+    </div>`);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
   setGenerating(true);
   try {
     const reply = await callClaudeAPI(chatHistory);
