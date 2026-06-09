@@ -1356,6 +1356,7 @@
         <div class="admin-topbar">
           <div class="admin-title">📊 Analytics Dashboard</div>
           <button class="admin-refresh-btn" onclick="loadAdminData()">↻ Refresh</button>
+          <button class="admin-refresh-btn" onclick="resetAnalytics()" style="border-color:#fca5a5;color:#dc2626;margin-left:8px">⚠️ Reset Data</button>
         </div>
         <div id="admin-body">
           <div class="admin-loading">
@@ -1433,7 +1434,7 @@ const WORKER_URL  = 'https://navina-ci-proxy.navina-ai.workers.dev';
 const ADMIN_EMAIL = 'adi.guindy@navina.ai';
 const NOTION_TOKEN = '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';
 const NOTION_DB_ID = '37a31faa1fb780edbf13cdc366c22395';
-const GITHUB_FEEDBACK_TOKEN = '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';
+// Feedback stored via Cloudflare Worker KV (see /save-feedback endpoint)
 let   adminData   = null; // cached { logins, usage }
 
 let selectedCompetitor = null;
@@ -1443,7 +1444,7 @@ let selectedAnalysis   = null;
 let selectedPersona    = 'Sales Executive';
 const MULTI_CAPABLE    = new Set(['exec-brief', 'news']); // use cases that support multi-select
 // ⚡ STREAMING: set to true AFTER Cloudflare Worker is updated to support stream:true
-const STREAMING_ENABLED = false;
+const STREAMING_ENABLED = true;
 
 // All currently selected competitors (primary + extras)
 function allSelectedCompetitors() {
@@ -2663,7 +2664,7 @@ async function callClaudeAPI(messages, onChunk = null) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-5',   // ← was: claude-opus-4-5 (2-3× faster)
-      max_tokens: 2048,              // ← was: 4096 (faster + sufficient for CI)
+      max_tokens: 3000,              // ← was: 4096 | 2048 was too tight for long briefs
       stream: doStream,
       system: JOEY_IDENTITY,
       // web_search tool removed — content is pre-fetched via enrichPromptWithContent
@@ -3168,6 +3169,24 @@ async function loadAdminData() {
   }
 }
 
+// ── Reset analytics ──────────────────────────────────────────────────────────
+async function resetAnalytics() {
+  if (!confirm('⚠️ This will permanently delete ALL login and usage data.\n\nAre you sure?')) return;
+  if (!confirm('Last chance — this cannot be undone. Reset everything?')) return;
+  try {
+    const res = await fetch(WORKER_URL + '/reset-analytics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: ADMIN_EMAIL }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    showToast('✅ All data reset. Starting fresh.');
+    loadAdminData();
+  } catch (e) {
+    showToast('❌ Reset failed: ' + e.message);
+  }
+}
+
 // ── Render full admin panel ──────────────────────────────────────────────────
 function renderAdminPanel({ logins, usage }, feedback = []) {
   const body = document.getElementById('admin-body');
@@ -3177,9 +3196,20 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
   const todayStr = now.toISOString().split('T')[0];
   const weekAgo  = new Date(now - 7 * 86400000).toISOString().split('T')[0];
 
+  // Normalize: ensure every entry has a .date field (fallback from timestamp)
+  logins.forEach(e => { if (!e.date) e.date = (e.timestamp || '').slice(0, 10); });
+  usage.forEach(e =>  { if (!e.date) e.date = (e.timestamp || '').slice(0, 10); });
+
   const uniqueUsers   = [...new Set(logins.map(e => e.email))].length;
   const loginsToday   = logins.filter(e => e.date === todayStr).length;
   const loginsWeek    = logins.filter(e => e.date >= weekAgo).length;
+
+  // Team-only stats (excluding admin)
+  const teamLogins      = logins.filter(e => e.email !== ADMIN_EMAIL);
+  const teamUsage       = usage.filter(e => e.email !== ADMIN_EMAIL);
+  const teamUniqueUsers = [...new Set(teamLogins.map(e => e.email))].length;
+  const teamLoginsWeek  = teamLogins.filter(e => e.date >= weekAgo).length;
+
   const topCompMap    = {};
   usage.forEach(e => { topCompMap[e.competitor] = (topCompMap[e.competitor] || 0) + 1; });
   const topComp = Object.entries(topCompMap).sort((a,b) => b[1]-a[1])[0];
@@ -3244,8 +3274,9 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
   }).join('');
 
   body.innerHTML = `
-    <!-- Stats -->
-    <div class="admin-stats-grid">
+    <!-- Stats: All Users -->
+    <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">All Users (incl. you)</div>
+    <div class="admin-stats-grid" style="margin-bottom:12px">
       <div class="admin-stat-card accent-blue">
         <div class="admin-stat-icon">🔐</div>
         <div class="admin-stat-value">${logins.length}</div>
@@ -3264,6 +3295,31 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
       <div class="admin-stat-card accent-amber">
         <div class="admin-stat-icon">📋</div>
         <div class="admin-stat-value">${usage.length}</div>
+        <div class="admin-stat-label">Prompts Copied</div>
+      </div>
+    </div>
+
+    <!-- Stats: Team Only -->
+    <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Team Only (excl. you)</div>
+    <div class="admin-stats-grid" style="margin-bottom:24px">
+      <div class="admin-stat-card accent-blue">
+        <div class="admin-stat-icon">🔐</div>
+        <div class="admin-stat-value">${teamLogins.length}</div>
+        <div class="admin-stat-label">Total Sessions</div>
+      </div>
+      <div class="admin-stat-card accent-purple">
+        <div class="admin-stat-icon">👤</div>
+        <div class="admin-stat-value">${teamUniqueUsers}</div>
+        <div class="admin-stat-label">Unique Users</div>
+      </div>
+      <div class="admin-stat-card accent-green">
+        <div class="admin-stat-icon">📅</div>
+        <div class="admin-stat-value">${teamLoginsWeek}</div>
+        <div class="admin-stat-label">This Week</div>
+      </div>
+      <div class="admin-stat-card accent-amber">
+        <div class="admin-stat-icon">📋</div>
+        <div class="admin-stat-value">${teamUsage.length}</div>
         <div class="admin-stat-label">Prompts Copied</div>
       </div>
     </div>
@@ -3358,20 +3414,28 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
         ? '<div class="admin-empty">No feedback submitted yet — the 💬 Feedback button appears after each generated analysis.</div>'
         : `<div class="admin-table-wrap">
           <table class="admin-table">
-            <thead><tr><th>#</th><th>Date / Time</th><th>Company</th><th>Use Case</th><th>Feedback</th><th>Output snippet</th></tr></thead>
+            <thead><tr><th>#</th><th>Date / Time</th><th>User</th><th>Company</th><th>Use Case</th><th>Feedback</th><th>Full Output</th></tr></thead>
             <tbody>${feedback.map((e, i) => {
               const dt   = new Date(e.timestamp);
               const date = dt.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
               const time = dt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-              const snip = escHtml((e.output || '').slice(0, 110));
-              const full = escHtml(e.output || '');
+              const outputText = e.output || '';
+              const snip = escHtml(outputText.slice(0, 120));
+              const hasMore = outputText.length > 120;
+              const outputId = 'fb-out-' + i;
+              const userName  = escHtml(e.name  || '');
+              const userEmail = escHtml(e.email || '');
               return `<tr>
                 <td>${feedback.length - i}</td>
                 <td>${date}<br><span style="color:#9ca3af;font-size:11px">${time}</span></td>
+                <td><strong>${userName}</strong>${userEmail ? '<br><span style="color:#9ca3af;font-size:11px">' + userEmail + '</span>' : ''}</td>
                 <td><strong>${escHtml(e.company || '')}</strong></td>
                 <td>${escHtml(e.useCase || '')}</td>
                 <td style="max-width:220px;white-space:pre-wrap;font-size:13px">${escHtml(e.feedback || '')}</td>
-                <td style="max-width:160px;color:#9ca3af;font-size:11px;font-style:italic" title="${full}">${snip}${(e.output||'').length > 110 ? '…' : ''}</td>
+                <td style="max-width:220px;font-size:11px;color:#6b7280">
+                  <span id="${outputId}-snip" style="white-space:pre-wrap">${snip}${hasMore ? '…' : ''}</span>
+                  ${hasMore ? '<div id="' + outputId + '-full" style="display:none;white-space:pre-wrap">' + escHtml(outputText) + '</div><button onclick="var s=document.getElementById(\'' + outputId + '-snip\');var f=document.getElementById(\'' + outputId + '-full\');var open=f.style.display!==\'none\';f.style.display=open?\'none\':\'block\';s.style.display=open?\'none\':\'\';this.textContent=open?\'View full\':\'Collapse\';" style="margin-top:4px;font-size:10px;color:#4f46e5;background:none;border:none;cursor:pointer;padding:0;display:block">View full</button>' : ''}
+                </td>
               </tr>`;
             }).join('')}</tbody>
           </table>
@@ -3420,11 +3484,9 @@ function exportCSV(type) {
   showToast('✓ Downloaded ' + filename);
 }
 
-// ── Feedback System (GitHub storage) ────────────────────────────────────────
+// ── Feedback System (Worker KV storage) ─────────────────────────────────────
 
-const FEEDBACK_REPO = 'adiguindy-17/navina-ci-launcher';
-const FEEDBACK_FILE = 'feedback-log.json';
-let   feedbackCtx   = null; // { company, useCase, btnEl }
+let feedbackCtx = null; // { company, useCase, btnEl }
 
 function openFeedbackPanel(btnEl) {
   const company = btnEl.dataset.company || '';
@@ -3454,11 +3516,16 @@ async function submitFeedback() {
 
   // Capture output from the same chat message as the button
   const msgEl  = feedbackCtx.btnEl?.closest('.chat-msg-ai');
-  const output = (msgEl?.querySelector('.chat-msg-ai-body')?.innerText || '').slice(0, 800);
+  const output = (msgEl?.querySelector('.chat-msg-ai-body')?.innerText || '');
+
+  // Get logged-in user info
+  const userInfo = JSON.parse(sessionStorage.getItem('navina_user') || '{}');
 
   const entry = {
     id:        Date.now(),
     timestamp: new Date().toISOString(),
+    email:     userInfo.email || '',
+    name:      userInfo.name  || '',
     company:   feedbackCtx.company,
     useCase:   feedbackCtx.useCase,
     feedback:  text,
@@ -3466,7 +3533,7 @@ async function submitFeedback() {
   };
 
   try {
-    await saveFeedbackToGitHub(entry);
+    await saveFeedbackToWorker(entry);
     if (feedbackCtx.btnEl) {
       feedbackCtx.btnEl.textContent = '✓ Sent';
       feedbackCtx.btnEl.classList.add('sent');
@@ -3481,52 +3548,26 @@ async function submitFeedback() {
   }
 }
 
-async function saveFeedbackToGitHub(entry) {
-  const apiUrl = `https://api.github.com/repos/${FEEDBACK_REPO}/contents/${FEEDBACK_FILE}`;
-  const headers = {
-    'Authorization':       `Bearer ${GITHUB_FEEDBACK_TOKEN}`,
-    'Accept':              'application/vnd.github+json',
-    'Content-Type':        'application/json',
-    'X-GitHub-Api-Version':'2022-11-28',
-  };
-
-  let existing = [], sha = null;
-  const getRes = await fetch(apiUrl, { headers });
-  if (getRes.ok) {
-    const file = await getRes.json();
-    sha      = file.sha;
-    existing = JSON.parse(atob(file.content.replace(/\n/g, '')));
-  }
-
-  existing.unshift(entry);
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(existing, null, 2))));
-
-  const putRes = await fetch(apiUrl, {
-    method: 'PUT', headers,
-    body: JSON.stringify({
-      message: `feedback: ${entry.company} — ${entry.useCase}`,
-      content: encoded,
-      ...(sha && { sha }),
-    }),
+async function saveFeedbackToWorker(entry) {
+  const res = await fetch(WORKER_URL + '/save-feedback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
   });
-  if (!putRes.ok) {
-    const e = await putRes.json().catch(() => ({}));
-    throw new Error(e.message || 'GitHub write failed');
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error || 'Worker feedback save failed');
   }
 }
 
 async function fetchFeedbackLogs() {
   try {
+    const userInfo = JSON.parse(sessionStorage.getItem('navina_user') || '{}');
     const res = await fetch(
-      `https://api.github.com/repos/${FEEDBACK_REPO}/contents/${FEEDBACK_FILE}`,
-      { headers: {
-        'Authorization': `Bearer ${GITHUB_FEEDBACK_TOKEN}`,
-        'Accept':        'application/vnd.github+json',
-      }}
+      `${WORKER_URL}/get-feedback?email=${encodeURIComponent(userInfo.email || '')}`
     );
     if (!res.ok) return [];
-    const data = await res.json();
-    return JSON.parse(atob(data.content.replace(/\n/g, '')));
+    return await res.json();
   } catch (e) { return []; }
 }
 
