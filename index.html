@@ -2484,7 +2484,6 @@ async function generateWithAI() {
   // ── Show UI immediately — don't wait for Notion fetch ──
   switchTab('gen');
   document.getElementById('gen-welcome').style.display = 'none';
-  collapseOptionsOnChatStart();
   const messagesEl = document.getElementById('chat-messages');
   messagesEl.style.display = 'flex';
 
@@ -3630,7 +3629,6 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
   const { prompt: enriched, sourcesLoaded } = await enrichPromptWithContent(prompt);
   chatHistory = [{ role: 'user', content: enriched }];
   document.getElementById('gen-welcome').style.display = 'none';
-  collapseOptionsOnChatStart();
   const messagesEl = document.getElementById('chat-messages');
   messagesEl.style.display = 'flex';
   messagesEl.innerHTML = '';
@@ -3752,7 +3750,6 @@ Max 200 words total.`;
   // Switch to Gen Intel tab and run
   switchTab('gen');
   document.getElementById('gen-welcome').style.display = 'none';
-  collapseOptionsOnChatStart();
   chatHistory = [{ role: 'user', content: fullPrompt }];
 
   const messagesEl = document.getElementById('chat-messages');
