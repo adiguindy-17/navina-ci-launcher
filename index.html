@@ -2749,8 +2749,24 @@ function renderMarkdown(text) {
     .replace(/>/g, '&gt;');
 
   // 2. Markdown links [text](url) → clickable links
-  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g,
-    '<a class="md-a" href="$2" target="_blank" rel="noopener">$1 ↗</a>');
+  // Special case: if display text is a root-domain URL but href is the full article URL
+  // on the same domain (Claude often writes [https://domain.com/](https://domain.com/article)),
+  // show the full article path instead of the bare root.
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g, (match, text, href) => {
+    let display = text;
+    if (/^https?:\/\//.test(text)) {
+      const textNorm = text.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+      const hrefNorm = href.replace(/^https?:\/\/(www\.)?/, '').replace(/[.,;:!?]+$/, '');
+      // If href contains more path than text (text is just the root domain)
+      if (hrefNorm.startsWith(textNorm) && hrefNorm.length > textNorm.length + 1) {
+        display = hrefNorm.length > 65 ? hrefNorm.substring(0, 65) + '…' : hrefNorm;
+      } else {
+        display = textNorm.length > 55 ? textNorm.substring(0, 55) + '…' : textNorm;
+      }
+    }
+    const cleanHref = href.replace(/[.,;:!?]+$/, '');
+    return `<a class="md-a" href="${cleanHref}" target="_blank" rel="noopener">${display} ↗</a>`;
+  });
 
   // 2b. Bare https:// URLs not already inside <a> tags
   s = s.replace(/(?<![="'\/])https?:\/\/[^\s<>"'\)\],]+/g, url => {
@@ -4569,7 +4585,7 @@ No intro. No company background. Start with the first item.
 
 **[Month DD, YYYY]** — Headline.
 1–2 sentences. Facts only: names, numbers, products, customers, integrations.
-Source: [confirmed URL or "via domain"]
+Source: [full article URL — must include path, e.g. https://fiercehealthcare.com/ai/article-slug. Never use root domain only.]
 
 Repeat. 4–6 items max.
 
