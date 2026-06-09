@@ -648,6 +648,45 @@
     border-radius: 4px; transition: all 0.15s;
   }
   .chat-copy-msg-btn:hover { color: #4338ca; background: #eef2ff; }
+
+  /* ── Feedback button (inline, under each generated analysis) ── */
+  .feedback-trigger-btn {
+    font-size: 11px; color: #9ca3af; background: none; border: 1px solid #e5e7eb;
+    cursor: pointer; font-family: inherit; padding: 3px 9px;
+    border-radius: 6px; transition: all 0.15s;
+  }
+  .feedback-trigger-btn:hover { color: #4f46e5; border-color: #a5b4fc; background: #eef2ff; }
+  .feedback-trigger-btn.sent  { color: #10b981; border-color: #a7f3d0; background: #ecfdf5; pointer-events: none; }
+
+  /* ── Floating feedback panel ── */
+  .feedback-panel {
+    position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+    width: 320px; background: #fff; border: 1.5px solid #e5e7eb;
+    border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+    padding: 20px; display: none; flex-direction: column; gap: 12px;
+  }
+  .feedback-panel.visible { display: flex; }
+  .feedback-panel-title { font-size: 14px; font-weight: 700; color: #1f2937; }
+  .feedback-panel-sub   { font-size: 12px; color: #9ca3af; margin-top: -6px; }
+  .feedback-panel textarea {
+    width: 100%; height: 80px; padding: 9px 12px; box-sizing: border-box;
+    border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 13px;
+    color: #374151; resize: none; font-family: inherit; outline: none;
+    transition: border-color 0.15s;
+  }
+  .feedback-panel textarea:focus { border-color: #a5b4fc; }
+  .feedback-panel-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .feedback-panel-cancel {
+    padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    border: 1.5px solid #e5e7eb; background: #fff; color: #6b7280; cursor: pointer;
+  }
+  .feedback-panel-cancel:hover { background: #f9fafb; }
+  .feedback-panel-send {
+    padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    border: none; background: #4f46e5; color: #fff; cursor: pointer; transition: background 0.15s;
+  }
+  .feedback-panel-send:hover    { background: #4338ca; }
+  .feedback-panel-send:disabled { background: #a5b4fc; cursor: not-allowed; }
   /* Thinking */
   .chat-thinking-wrap { display: flex; align-items: flex-start; gap: 10px; }
   .chat-thinking-body {
@@ -1303,6 +1342,9 @@
 // ── Analytics & Admin ─────────────────────────────────────────────────────
 const WORKER_URL  = 'https://navina-ci-proxy.navina-ai.workers.dev';
 const ADMIN_EMAIL = 'adi.guindy@navina.ai';
+const NOTION_TOKEN = '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';
+const NOTION_DB_ID = '37a31faa1fb780edbf13cdc366c22395';
+const GITHUB_FEEDBACK_TOKEN = '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';
 let   adminData   = null; // cached { logins, usage }
 
 let selectedCompetitor = null;
@@ -2392,7 +2434,7 @@ async function generateWithAI() {
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
     document.getElementById(thinkingId)?.remove();
-    appendChatMessage('assistant', reply);
+    appendChatMessage('assistant', reply, { company: compLabel, useCase: aLabel });
     document.getElementById('btn-new-chat').style.display = 'inline-flex';
     document.getElementById('notes-input').value = '';
     document.getElementById('notes-input').style.height = 'auto';
@@ -2491,7 +2533,7 @@ async function callClaudeAPI(messages) {
 }
 
 // ── Render a chat message ─────────────────────────────────────────────────────
-function appendChatMessage(role, content) {
+function appendChatMessage(role, content, fbCtx = null) {
   const messagesEl = document.getElementById('chat-messages');
   let html = '';
 
@@ -2501,6 +2543,9 @@ function appendChatMessage(role, content) {
     </div>`;
   } else {
     const escapedForAttr = content.replace(/\\/g,'\\\\').replace(/"/g,'&quot;').replace(/\n/g,'\\n');
+    const fbBtn = fbCtx
+      ? `<button class="feedback-trigger-btn" onclick="openFeedbackPanel(this,${JSON.stringify(fbCtx.company)},${JSON.stringify(fbCtx.useCase)})">💬 Feedback</button>`
+      : '';
     html = `<div class="chat-msg-ai">
       <div class="chat-msg-ai-header">
         <div class="chat-msg-avatar">J</div>
@@ -2509,6 +2554,7 @@ function appendChatMessage(role, content) {
       <div class="chat-msg-ai-body">${renderMarkdown(content)}</div>
       <div class="chat-msg-ai-actions">
         <button class="chat-copy-msg-btn" onclick="copyMsgText(this, this.closest('.chat-msg-ai').querySelector('.chat-msg-ai-body').innerText)">Copy response</button>
+        ${fbBtn}
       </div>
     </div>`;
   }
@@ -2842,17 +2888,20 @@ async function loadAdminData() {
   body.innerHTML = `<div class="admin-loading"><div class="admin-loading-spinner"></div>Loading analytics...</div>`;
 
   try {
-    const res  = await fetch(`${WORKER_URL}/admin-data?email=${encodeURIComponent(ADMIN_EMAIL)}`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    adminData = await res.json();
-    renderAdminPanel(adminData);
+    const [analyticsRes, feedbackEntries] = await Promise.all([
+      fetch(`${WORKER_URL}/admin-data?email=${encodeURIComponent(ADMIN_EMAIL)}`),
+      fetchFeedbackLogs(),
+    ]);
+    if (!analyticsRes.ok) throw new Error('HTTP ' + analyticsRes.status);
+    adminData = await analyticsRes.json();
+    renderAdminPanel(adminData, feedbackEntries);
   } catch (e) {
     body.innerHTML = `<div class="admin-empty">⚠️ Could not load data: ${e.message}<br><small>Make sure the Cloudflare Worker is updated and KV binding is active.</small></div>`;
   }
 }
 
 // ── Render full admin panel ──────────────────────────────────────────────────
-function renderAdminPanel({ logins, usage }) {
+function renderAdminPanel({ logins, usage }, feedback = []) {
   const body = document.getElementById('admin-body');
 
   // ── Stats ──────────────────────────────────────────────────────────────────
@@ -3031,6 +3080,35 @@ function renderAdminPanel({ logins, usage }) {
         <button class="admin-export-btn" onclick="exportCSV('all')" style="border-color:#bfdbfe;color:#2563eb">⬇️ Export All Data</button>
       </div>
     </div>
+
+    <!-- ── Feedback section ── -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <div class="admin-section-title">💬 User Feedback <span class="admin-section-count">${feedback.length} submission${feedback.length !== 1 ? 's' : ''}</span></div>
+      </div>
+      ${feedback.length === 0
+        ? '<div class="admin-empty">No feedback submitted yet — the 💬 Feedback button appears after each generated analysis.</div>'
+        : `<div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Date / Time</th><th>Company</th><th>Use Case</th><th>Feedback</th><th>Output snippet</th></tr></thead>
+            <tbody>${feedback.map((e, i) => {
+              const dt   = new Date(e.timestamp);
+              const date = dt.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+              const time = dt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+              const snip = escHtml((e.output || '').slice(0, 110));
+              const full = escHtml(e.output || '');
+              return `<tr>
+                <td>${feedback.length - i}</td>
+                <td>${date}<br><span style="color:#9ca3af;font-size:11px">${time}</span></td>
+                <td><strong>${escHtml(e.company || '')}</strong></td>
+                <td>${escHtml(e.useCase || '')}</td>
+                <td style="max-width:220px;white-space:pre-wrap;font-size:13px">${escHtml(e.feedback || '')}</td>
+                <td style="max-width:160px;color:#9ca3af;font-size:11px;font-style:italic" title="${full}">${snip}${(e.output||'').length > 110 ? '…' : ''}</td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>`}
+    </div>
   `;
 }
 
@@ -3072,6 +3150,114 @@ function exportCSV(type) {
   a.click();
   URL.revokeObjectURL(a.href);
   showToast('✓ Downloaded ' + filename);
+}
+
+// ── Feedback System (GitHub storage) ────────────────────────────────────────
+
+const FEEDBACK_REPO = 'adiguindy-17/navina-ci-launcher';
+const FEEDBACK_FILE = 'feedback-log.json';
+let   feedbackCtx   = null; // { company, useCase, btnEl }
+
+function openFeedbackPanel(btnEl, company, useCase) {
+  feedbackCtx = { company, useCase, btnEl };
+  document.getElementById('feedback-panel-sub').textContent = `${company} — ${useCase}`;
+  document.getElementById('feedback-text').value = '';
+  const sendBtn = document.getElementById('feedback-send-btn');
+  sendBtn.disabled = false;
+  sendBtn.textContent = 'Send';
+  document.getElementById('feedback-panel').classList.add('visible');
+  setTimeout(() => document.getElementById('feedback-text').focus(), 50);
+}
+
+function closeFeedbackPanel() {
+  document.getElementById('feedback-panel').classList.remove('visible');
+  feedbackCtx = null;
+}
+
+async function submitFeedback() {
+  const text = document.getElementById('feedback-text').value.trim();
+  if (!text) { document.getElementById('feedback-text').focus(); return; }
+
+  const sendBtn = document.getElementById('feedback-send-btn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending…';
+
+  // Capture output from the same chat message as the button
+  const msgEl  = feedbackCtx.btnEl?.closest('.chat-msg-ai');
+  const output = (msgEl?.querySelector('.chat-msg-ai-body')?.innerText || '').slice(0, 800);
+
+  const entry = {
+    id:        Date.now(),
+    timestamp: new Date().toISOString(),
+    company:   feedbackCtx.company,
+    useCase:   feedbackCtx.useCase,
+    feedback:  text,
+    output,
+  };
+
+  try {
+    await saveFeedbackToGitHub(entry);
+    if (feedbackCtx.btnEl) {
+      feedbackCtx.btnEl.textContent = '✓ Sent';
+      feedbackCtx.btnEl.classList.add('sent');
+    }
+    closeFeedbackPanel();
+    showToast('Feedback sent — thank you! 🙏');
+  } catch (err) {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+    showToast('Could not send feedback. Please try again.');
+    console.error('[Feedback]', err);
+  }
+}
+
+async function saveFeedbackToGitHub(entry) {
+  const apiUrl = `https://api.github.com/repos/${FEEDBACK_REPO}/contents/${FEEDBACK_FILE}`;
+  const headers = {
+    'Authorization':       `Bearer ${GITHUB_FEEDBACK_TOKEN}`,
+    'Accept':              'application/vnd.github+json',
+    'Content-Type':        'application/json',
+    'X-GitHub-Api-Version':'2022-11-28',
+  };
+
+  let existing = [], sha = null;
+  const getRes = await fetch(apiUrl, { headers });
+  if (getRes.ok) {
+    const file = await getRes.json();
+    sha      = file.sha;
+    existing = JSON.parse(atob(file.content.replace(/\n/g, '')));
+  }
+
+  existing.unshift(entry);
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(existing, null, 2))));
+
+  const putRes = await fetch(apiUrl, {
+    method: 'PUT', headers,
+    body: JSON.stringify({
+      message: `feedback: ${entry.company} — ${entry.useCase}`,
+      content: encoded,
+      ...(sha && { sha }),
+    }),
+  });
+  if (!putRes.ok) {
+    const e = await putRes.json().catch(() => ({}));
+    throw new Error(e.message || 'GitHub write failed');
+  }
+}
+
+async function fetchFeedbackLogs() {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${FEEDBACK_REPO}/contents/${FEEDBACK_FILE}`,
+      { headers: {
+        'Authorization': `Bearer ${GITHUB_FEEDBACK_TOKEN}`,
+        'Accept':        'application/vnd.github+json',
+      }}
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return JSON.parse(atob(data.content.replace(/\n/g, '')));
+  } catch (e) { return []; }
 }
 
 const KB_TYPE_META = {
@@ -4416,5 +4602,18 @@ function collapseOptionsOnChatStart() { collapseOnChatStart(); }
 checkReady();
 initAuth();
 </script>
+
+<!-- ── Feedback panel (floating, appears after each analysis) ── -->
+<div class="feedback-panel" id="feedback-panel">
+  <div>
+    <div class="feedback-panel-title">💬 Quick Feedback</div>
+    <div class="feedback-panel-sub" id="feedback-panel-sub"></div>
+  </div>
+  <textarea id="feedback-text" placeholder="What could be better? Anything missing or off?"></textarea>
+  <div class="feedback-panel-actions">
+    <button class="feedback-panel-cancel" onclick="closeFeedbackPanel()">Cancel</button>
+    <button class="feedback-panel-send" id="feedback-send-btn" onclick="submitFeedback()">Send</button>
+  </div>
+</div>
 </body>
 </html>
