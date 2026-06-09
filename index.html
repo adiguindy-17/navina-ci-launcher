@@ -1442,6 +1442,8 @@ let multiSelectActive  = false; // toggled explicitly by button
 let selectedAnalysis   = null;
 let selectedPersona    = 'Sales Executive';
 const MULTI_CAPABLE    = new Set(['exec-brief', 'news']); // use cases that support multi-select
+// ⚡ STREAMING: set to true AFTER Cloudflare Worker is updated to support stream:true
+const STREAMING_ENABLED = false;
 
 // All currently selected competitors (primary + extras)
 function allSelectedCompetitors() {
@@ -2551,22 +2553,35 @@ async function generateWithAI() {
       ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Analyzing ${escHtml(allComps.join(', '))}...
     `;
   }
+  let _streamBody = null, _streamActs = null;
   try {
-    const reply = await callClaudeAPI(chatHistory);
+    const reply = await callClaudeAPI(chatHistory, (partial) => {
+      if (!_streamBody) {
+        document.getElementById(thinkingId)?.remove();
+        const s = _createStreamMsg(messagesEl);
+        _streamBody = s.bodyEl; _streamActs = s.actionsEl;
+      }
+      _streamBody.textContent = partial;            // plain text during stream
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
     document.getElementById(thinkingId)?.remove();
-    appendChatMessage('assistant', reply, { company: compLabel, useCase: aLabel });
+    if (_streamBody) {
+      _finalizeStreamMsg(_streamBody, _streamActs, reply, { company: compLabel, useCase: aLabel });
+    } else {
+      appendChatMessage('assistant', reply, { company: compLabel, useCase: aLabel });
+    }
     document.getElementById('btn-new-chat').style.display = 'inline-flex';
     document.getElementById('notes-input').value = '';
     document.getElementById('notes-input').style.height = 'auto';
-    // Re-expand options bar so user can immediately pick a new competitor/use case
     document.getElementById('gen-options-bar')?.classList.remove('panel-collapsed');
     updateOptionsSummary();
     document.getElementById('notes-input').focus();
     logUsage();
   } catch (err) {
     document.getElementById(thinkingId)?.remove();
+    if (_streamBody) _streamBody.closest('.chat-msg-ai')?.remove();
     messagesEl.insertAdjacentHTML('beforeend',
       `<div class="chat-error">⚠️ Error: ${escHtml(err.message)}<br><small>Check that the Cloudflare Worker has the ANTHROPIC_API_KEY secret set.</small></div>`);
   } finally {
@@ -2612,12 +2627,22 @@ async function sendFollowUp() {
         📚 Loaded: ${sourcesLoaded.join(', ')} · Reading content...`;
     }
 
-    chatHistory.push({ role: 'user', content: enrichedText });  // push enriched version
-    const reply = await callClaudeAPI(chatHistory);
+    chatHistory.push({ role: 'user', content: enrichedText });
+    let _sb = null, _sa = null;
+    const reply = await callClaudeAPI(chatHistory, (partial) => {
+      if (!_sb) {
+        document.getElementById(thinkingId)?.remove();
+        const s = _createStreamMsg(messagesEl);
+        _sb = s.bodyEl; _sa = s.actionsEl;
+      }
+      _sb.textContent = partial;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
     document.getElementById(thinkingId)?.remove();
-    appendChatMessage('assistant', reply);
+    if (_sb) { _finalizeStreamMsg(_sb, _sa, reply); }
+    else      { appendChatMessage('assistant', reply); }
   } catch (err) {
     document.getElementById(thinkingId)?.remove();
     messagesEl.insertAdjacentHTML('beforeend',
@@ -2629,15 +2654,19 @@ async function sendFollowUp() {
 }
 
 // ── API call ──────────────────────────────────────────────────────────────────
-async function callClaudeAPI(messages) {
+// onChunk(partialText) is called on each token when STREAMING_ENABLED=true.
+// When STREAMING_ENABLED=false (or onChunk=null), works exactly as before.
+async function callClaudeAPI(messages, onChunk = null) {
+  const doStream = STREAMING_ENABLED && onChunk !== null;
   const res = await fetch(WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-opus-4-5',
-      max_tokens: 4096,
+      model: 'claude-sonnet-4-5',   // ← was: claude-opus-4-5 (2-3× faster)
+      max_tokens: 2048,              // ← was: 4096 (faster + sufficient for CI)
+      stream: doStream,
       system: JOEY_IDENTITY,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
+      // web_search tool removed — content is pre-fetched via enrichPromptWithContent
       messages: messages,
     }),
   });
@@ -2645,13 +2674,73 @@ async function callClaudeAPI(messages) {
     const txt = await res.text();
     throw new Error(`Worker returned ${res.status}: ${txt}`);
   }
+
+  // ── Streaming path ──────────────────────────────────────────────────────────
+  if (doStream) {
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let buffer = '';
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6).trim();
+          if (!raw || raw === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(raw);
+            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+              fullText += evt.delta.text;
+              onChunk(fullText);
+            }
+          } catch (_) { /* ignore malformed SSE lines */ }
+        }
+      }
+    } finally { reader.releaseLock(); }
+    return fullText;
+  }
+
+  // ── Non-streaming path (current behavior) ──────────────────────────────────
   const data = await res.json();
   if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-  // Extract all text blocks (web search returns multiple content blocks)
   if (Array.isArray(data.content)) {
     return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n\n');
   }
   return data.content?.[0]?.text || '';
+}
+
+// ── Streaming UI helpers ───────────────────────────────────────────────────────
+// Creates an empty message container that gets populated token-by-token.
+function _createStreamMsg(messagesEl) {
+  const sid = 'smsg-' + Date.now();
+  messagesEl.insertAdjacentHTML('beforeend', `
+    <div id="${sid}" class="chat-msg-ai">
+      <div class="chat-msg-ai-header">
+        <div class="chat-msg-avatar">J</div>
+        <div class="chat-msg-name">Joey</div>
+      </div>
+      <div class="chat-msg-ai-body" id="${sid}-body"></div>
+      <div class="chat-msg-ai-actions" id="${sid}-acts" style="display:none"></div>
+    </div>`);
+  return {
+    bodyEl:    document.getElementById(`${sid}-body`),
+    actionsEl: document.getElementById(`${sid}-acts`),
+  };
+}
+
+// Finalizes the streaming element: renders markdown + adds copy/feedback buttons.
+function _finalizeStreamMsg(bodyEl, actionsEl, fullText, fbCtx = null) {
+  bodyEl.innerHTML = renderMarkdown(fullText);
+  const fbBtn = fbCtx
+    ? `<button class="feedback-trigger-btn" data-company="${escHtml(fbCtx.company)}" data-usecase="${escHtml(fbCtx.useCase)}" onclick="openFeedbackPanel(this)">💬 Feedback</button>`
+    : '';
+  actionsEl.innerHTML = `<button class="chat-copy-msg-btn" onclick="copyMsgText(this,this.closest('.chat-msg-ai').querySelector('.chat-msg-ai-body').innerText)">Copy response</button>${fbBtn}`;
+  actionsEl.style.display = '';
 }
 
 // ── Render a chat message ─────────────────────────────────────────────────────
@@ -3667,16 +3756,27 @@ QUESTION: ${question}${context ? '\n\n' + context : ''}`;
     </div>`);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   setGenerating(true);
+  let _sb = null, _sa = null;
   try {
-    const reply = await callClaudeAPI(chatHistory);
+    const reply = await callClaudeAPI(chatHistory, (partial) => {
+      if (!_sb) {
+        document.getElementById(thinkingId)?.remove();
+        const s = _createStreamMsg(messagesEl);
+        _sb = s.bodyEl; _sa = s.actionsEl;
+      }
+      _sb.textContent = partial;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
     document.getElementById(thinkingId)?.remove();
-    appendChatMessage('assistant', reply);
+    if (_sb) { _finalizeStreamMsg(_sb, _sa, reply); }
+    else      { appendChatMessage('assistant', reply); }
     document.getElementById('btn-new-chat').style.display = 'inline-flex';
     logUsage();
   } catch (err) {
     document.getElementById(thinkingId)?.remove();
+    if (_sb) _sb.closest('.chat-msg-ai')?.remove();
     messagesEl.insertAdjacentHTML('beforeend', `<div class="chat-error">⚠️ Error: ${escHtml(err.message)}</div>`);
   } finally {
     setGenerating(false);
@@ -3792,16 +3892,27 @@ Max 200 words total.`;
   messagesEl.scrollTop = messagesEl.scrollHeight;
 
   setGenerating(true);
+  let _sb = null, _sa = null;
   try {
-    const reply = await callClaudeAPI(chatHistory);
+    const reply = await callClaudeAPI(chatHistory, (partial) => {
+      if (!_sb) {
+        document.getElementById(thinkingId)?.remove();
+        const s = _createStreamMsg(messagesEl);
+        _sb = s.bodyEl; _sa = s.actionsEl;
+      }
+      _sb.textContent = partial;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
     document.getElementById(thinkingId)?.remove();
-    appendChatMessage('assistant', reply);
+    if (_sb) { _finalizeStreamMsg(_sb, _sa, reply); }
+    else      { appendChatMessage('assistant', reply); }
     document.getElementById('btn-new-chat').style.display = 'inline-flex';
     logUsage();
   } catch (err) {
     document.getElementById(thinkingId)?.remove();
+    if (_sb) _sb.closest('.chat-msg-ai')?.remove();
     messagesEl.insertAdjacentHTML('beforeend', `<div class="chat-error">⚠️ Error: ${escHtml(err.message)}</div>`);
   } finally {
     setGenerating(false);
