@@ -2802,6 +2802,11 @@ function appendChatMessage(role, content, fbCtx = null) {
 function renderMarkdown(text) {
   // 0. Pre-process: clean common AI formatting artifacts BEFORE HTML escaping
   let s = text
+    // Strip lone-period separator lines (press-release artifact: "\n\n.\n\nNext sentence")
+    // Merge sentences separated by lone "." BUT keep "Source:" on its own line
+    .replace(/\n+[ \t]*\.[ \t]*\n+(?!Source:)/g, ' ')
+    .replace(/\n+[ \t]*\.[ \t]*\n+(?=Source:)/g, '\n')
+
     // Collapse 3+ consecutive blank lines to exactly 2
     .replace(/\n{3,}/g, '\n\n')
 
@@ -4768,8 +4773,7 @@ ${officialSources}
 - Any URL you cannot confirm is real
 
 ## OUTPUT FORMAT — start directly, no intro
-**[Month DD, 2026]** — Headline.
-1–2 sentences. Facts only: names, numbers, customer names, dollar amounts.
+**[Month DD, 2026]** — Headline. One or two sentences of context in the SAME line — no line breaks between them. Facts only: names, numbers, customer names, dollar amounts. Do NOT write each sentence on its own line. Do NOT use bullet sub-points. Do NOT use "." as a separator. Everything about one news item goes in ONE paragraph.
 Source: [full URL with article path — e.g. https://fiercehealthcare.com/health-tech/slug — never root domain]
 
 3–5 items max, newest first.
