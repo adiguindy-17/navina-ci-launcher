@@ -929,6 +929,11 @@
   .md-hr { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
   .md-ul, .md-ol { padding-left: 20px; margin: 2px 0 6px; }
   .md-li { margin: 0; line-height: 1.55; }
+  /* Safety net: reduce gap when a paragraph immediately follows/precedes a list */
+  .chat-msg-ai-body .md-ul + .md-p,
+  .chat-msg-ai-body .md-ol + .md-p { margin-top: 0; }
+  .chat-msg-ai-body .md-p + .md-ul,
+  .chat-msg-ai-body .md-p + .md-ol { margin-top: 0; }
   .md-code-block { background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 10px; font-family: 'SF Mono','Fira Code',monospace; font-size: 12.5px; overflow-x: auto; margin: 12px 0; line-height: 1.6; }
   .md-inline-code { background: #f1f5f9; color: #3730a3; padding: 2px 7px; border-radius: 5px; font-size: 12.5px; font-family: 'SF Mono','Fira Code',monospace; }
   .chat-analysis-divider { display:flex; align-items:center; gap:10px; margin:20px 0 4px; color:#9ca3af; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
@@ -2696,9 +2701,10 @@ function renderMarkdown(text) {
 
     // Pass 2: Key-only bullet join — "- Founded:\n\nValue" → "- Founded: Value"
     // Claude sometimes emits the label as a bullet and the value on the next line.
-    // Match: bullet line ending with colon, followed by blank line(s), then content
-    // that is NOT another bullet and NOT a heading. Join them onto one line.
-    .replace(/(^[ \t]*[-*•] [^\n]*:)[ \t]*\n{1,2}(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?=\S)/gm, '$1 ')
+    // Match: bullet line ending with colon (or ":**" bold-colon), followed by blank
+    // line(s), then content that is NOT another bullet and NOT a heading.
+    // The \*{0,2} handles "- **Key:**\n\nValue" where ** trails the colon.
+    .replace(/(^[ \t]*[-*•] [^\n]*:\*{0,2})[ \t]*\n{1,2}(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?=\S)/gm, '$1 ')
 
     // Pass 3: Continuation join — single-newline continuations after a bullet
     // "- Funding: $72M;\n$125M debt" → "- Funding: $72M; $125M debt"
