@@ -3060,27 +3060,14 @@ function extractNotionPageId(url) {
 }
 
 // Fetch Notion page content via Worker /notion-page endpoint
-// Worker: GET /notion-page?id={pageId} → returns Notion page JSON
+// Worker: GET /notion-page?id={pageId} → returns { content: "plain text of all page blocks" }
 async function fetchNotionContent(pageId) {
   try {
     const res = await fetch(`${WORKER_URL}/notion-page?id=${encodeURIComponent(pageId)}`);
     if (!res.ok) return null;
     const data = await res.json();
-    if (data.error) return null;
-    // Notion page API returns page object — extract title + all rich_text/select property values
-    const lines = [];
-    for (const [key, prop] of Object.entries(data.properties || {})) {
-      if (prop.type === 'title') {
-        const t = prop.title?.map(r => r.plain_text).join('');
-        if (t) lines.push(`Title: ${t}`);
-      } else if (prop.type === 'rich_text') {
-        const t = prop.rich_text?.map(r => r.plain_text).join('');
-        if (t) lines.push(`${key}: ${t}`);
-      } else if (prop.type === 'select' && prop.select?.name) {
-        lines.push(`${key}: ${prop.select.name}`);
-      }
-    }
-    return lines.length > 0 ? lines.join('\n') : null;
+    if (data.error || !data.content) return null;
+    return data.content;
   } catch {
     return null;
   }
