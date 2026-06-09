@@ -2325,20 +2325,26 @@ const COMPANIES = {
       comparisonDeck:   { label: 'Navina vs Charta/Fold/MedChartScan (slides 1-2)', url: 'https://docs.google.com/presentation/d/1pjIKEgSanmNfROJDWEXxD9iExxVt3dLbvCN9J6Jpf7A/edit', type: 'comparison', visibleInKB: true, usedInGenIntel: true  },
     },
     intelligenceProfile: {
-      overview: `Charta Health is a risk adjustment and retrospective chart review platform serving health plans and Medicare Advantage organizations. Uses AI to analyze clinical documentation for HCC coding accuracy and missed diagnoses. Primarily payer-side tooling — limited point-of-care physician workflow. Notion page available for internal research.`,
-      keyFacts: `– Focus: AI-assisted retrospective HCC chart review
-– Target: health plans, Medicare Advantage payers
-– Workflow: retrospective, post-visit processing
-– No confirmed point-of-care physician interface
-– No ambient documentation
-– No quality/HEDIS module`,
-      navinaDifferentiation: `– Retrospective chart review only vs. Navina's prospective point-of-care workflow
+      overview: `Charta Health is a pre-bill AI chart review platform focused on coding accuracy, revenue integrity, payer compliance, and retrospective HCC review. Primarily a post-encounter, retrospective review layer — used by payer coding teams for documentation audits and undercoding detection. Supports autonomous coding review, revenue discovery, payer compliance audits, and basic quality reporting. Claims integration support for dozens of EHRs, but this appears to be data-ingestion for downstream review rather than a true point-of-care clinician-facing workflow. Both founders are ex-Rockset (acquired by OpenAI).`,
+      keyFacts: `– Focus: pre-bill AI chart review — coding accuracy, revenue integrity, payer compliance, retrospective HCC
+– Target: health plans, Medicare Advantage payers, coding teams
+– Workflow: post-encounter retrospective review; not a prospective or point-of-care tool
+– Founded: 2023, HQ: San Francisco, CA
+– Employees: ~65–70
+– Funding: ~$30M total — $22M Series A (July 2025, led by Bain Capital Ventures)
+– No prospective coding workflow — no new-condition suspecting/identification confirmed publicly
+– No ambient AI documentation
+– No care management platform
+– Limited quality/HEDIS workflow depth
+– No AI assistant/chatbot layer`,
+      navinaDifferentiation: `– Retrospective/post-bill chart review only vs. Navina's prospective point-of-care workflow
 – Payer-focused vs. Navina's provider/physician-first approach
-– No physician-facing EHR-embedded interface
+– No physician-facing EHR-embedded interface at point of care
 – No ambient documentation
-– Navina creates the clinical signal at the point of care; Charta reviews charts after the fact`,
+– No advanced HCC suspecting (new condition identification) confirmed
+– Navina creates the clinical signal during the encounter; Charta audits charts after the fact`,
     },
-    lastUpdated: '2025-06-07',
+    lastUpdated: '2026-06-09',
   },
 
   'MedChartScan': {
@@ -4467,7 +4473,7 @@ function driveContext(c, analysis = '') {
   }
 
   if (links.length > 0) {
-    parts.push(`INTERNAL MATERIALS — content from these sources is pre-fetched and appended below:\n${links.join('\n')}`);
+    parts.push(`INTERNAL MATERIALS — Navina's research files for ${c} (listed for reference; dynamically loaded below if accessible):\n${links.join('\n')}`);
   }
 
   if (parts.length === 0) return '';
@@ -4475,9 +4481,10 @@ function driveContext(c, analysis = '') {
   return `${parts.join('\n\n')}
 
 RESEARCH PROCESS:
-1. Use the internal knowledge and pre-fetched content below as your foundation.
-2. For Comparison analyses: live web content from the competitor's site is also injected below (marked 🌐).
-3. Synthesize all sources — internal, web, and your knowledge — into one integrated response.`;
+1. The INTERNAL KNOWLEDGE block above is Navina's pre-researched baseline — use it as your starting context.
+2. If an "INTERNAL NAVINA RESEARCH DATA" section appears below, it was loaded successfully and OVERRIDES the baseline above — prefer it for all factual fields (founding year, funding, headcount, product details).
+3. For Comparison analyses: live web content from the competitor's site is also injected below (marked 🌐).
+4. If no loaded data appears below, rely on the INTERNAL KNOWLEDGE above plus your best training-data knowledge — but flag any uncertainty on specific facts like funding and headcount.`;
 }
 
 function newsContext(c) {
