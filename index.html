@@ -1102,10 +1102,11 @@
 
     <div class="category-group">
       <div class="category-header"><span class="category-dot" style="background:#6b7280"></span>Other</div>
-      <div class="competitor-item" onclick="selectCompetitor(this,'Doximity')">Doximity</div>
-      <div class="competitor-item" onclick="selectCompetitor(this,'ELCAT')">ELCAT</div>
-      <div class="competitor-item" onclick="selectCompetitor(this,'Notable Health')">Notable Health</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'Fold Health')">Fold Health</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Zus Health')">Zus Health</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Doximity')">Doximity</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'Notable Health')">Notable Health</div>
+      <div class="competitor-item" onclick="selectCompetitor(this,'ELCAT')">Eclat / Evarie</div>
     </div>
   </nav>
 
@@ -2324,6 +2325,23 @@ const COMPANIES = {
 – Different layer of the VBC stack: contract management vs. clinical execution`,
     },
     lastUpdated: '2025-06-07',
+  },
+
+  'Zus Health': {
+    id: 'zushealth',
+    name: 'Zus Health',
+    category: 'Health Data Network / FHIR Infrastructure',
+    website: 'https://zushealth.com/',
+    resources: {
+      notionPage: { label: 'Zus Health — Main Notion Page', url: 'https://app.notion.com/p/navinaai/Zus-Health-37a31faa1fb780f59c5af420e7ae1fa4', type: 'notion',  visibleInKB: true, usedInGenIntel: true  },
+      website:    { label: 'Official Website',               url: 'https://zushealth.com/',                                                          type: 'website', visibleInKB: true, usedInGenIntel: false },
+    },
+    intelligenceProfile: {
+      overview: '',
+      keyFacts: '',
+      navinaDifferentiation: '',
+    },
+    lastUpdated: '2025-06-09',
   },
 
 };
