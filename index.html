@@ -2563,7 +2563,7 @@ async function generateWithAI() {
   // exec-brief → reads company website + Crunchbase for current funding/info
   //
   // product-overview, battlecard, sw → streaming OK (analytical / less time-sensitive)
-  const WEB_SEARCH_USES = new Set(['news', 'deep-dive', 'exec-brief']);
+  const WEB_SEARCH_USES = new Set(['news', 'deep-dive']);
   const needsWebSearch = WEB_SEARCH_USES.has(selectedAnalysis);
 
   if (needsWebSearch) {
