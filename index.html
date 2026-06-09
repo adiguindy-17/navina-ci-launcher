@@ -1352,7 +1352,7 @@ let extraCompetitors   = []; // up to 2 extra when multi-select mode is active
 let multiSelectActive  = false; // toggled explicitly by button
 let selectedAnalysis   = null;
 let selectedPersona    = 'Sales Executive';
-const MULTI_CAPABLE    = new Set(['exec-brief', 'sw', 'news']); // use cases that support multi-select
+const MULTI_CAPABLE    = new Set(['exec-brief', 'news']); // use cases that support multi-select
 
 // All currently selected competitors (primary + extras)
 function allSelectedCompetitors() {
@@ -3618,8 +3618,8 @@ const DRIVE_BATTLECARD_OUTPUT_FOLDER = '1t9CPc6COFVSgzj0N8hQTYIgLuGKh5w4v'; // b
 const DRIVE_BATTLECARD_OUTPUT_URL = 'https://drive.google.com/drive/folders/1t9CPc6COFVSgzj0N8hQTYIgLuGKh5w4v';
 
 function getTemplateTypeForAnalysis(analysis) {
-  if (analysis === 'battlecard' || analysis === 'compare' || analysis === 'navina-wins') return 'battlecard';
-  if (analysis === 'deep-dive' || analysis === 'kpi') return 'overview';
+  if (analysis === 'battlecard') return 'battlecard';
+  if (analysis === 'deep-dive') return 'overview';
   return null;
 }
 
@@ -4206,7 +4206,6 @@ ${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 Produce exactly 9 sections. No other sections. No preamble.
 
 Research: ${websiteScope}
-External: beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · businesswire.com · prnewswire.com · klasresearch.com · crunchbase.com
 
 Identify ${c}'s PRIMARY category and apply matching depth:
 – Ambient AI / Documentation → ambient workflow · voice capture · push-to-EHR · EHR embedding · specialty coverage · physician adoption
