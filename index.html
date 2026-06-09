@@ -119,6 +119,11 @@
     padding: 16px 0 24px;
     height: 100%;
   }
+  .sidebar-company-count {
+    font-size: 11px; color: #d1d5db; font-weight: 500;
+    text-align: center; padding: 16px 12px 4px;
+    border-top: 1px solid #f3f4f6; margin-top: 12px;
+  }
   .sidebar-label {
     font-size: 10px; font-weight: 700; color: #9ca3af;
     text-transform: uppercase; letter-spacing: 0.08em;
@@ -1108,6 +1113,7 @@
       <div class="competitor-item" onclick="selectCompetitor(this,'Notable Health')">Notable Health</div>
       <div class="competitor-item" onclick="selectCompetitor(this,'ELCAT')">Eclat / Evarie</div>
     </div>
+    <div class="sidebar-company-count">36 competitors tracked</div>
   </nav>
 
   <!-- Sidebar drag-resize handle (sibling, NOT inside nav so overflow doesn't clip it) -->
@@ -2333,8 +2339,7 @@ const COMPANIES = {
     category: 'Health Data Network / FHIR Infrastructure',
     website: 'https://zushealth.com/',
     resources: {
-      notionPage: { label: 'Zus Health — Main Notion Page', url: 'https://app.notion.com/p/navinaai/Zus-Health-37a31faa1fb780f59c5af420e7ae1fa4', type: 'notion',  visibleInKB: true, usedInGenIntel: true  },
-      website:    { label: 'Official Website',               url: 'https://zushealth.com/',                                                          type: 'website', visibleInKB: true, usedInGenIntel: false },
+      notionPage: { label: 'Zus Health — Main Notion Page', url: 'https://app.notion.com/p/navinaai/Zus-Health-37a31faa1fb780f59c5af420e7ae1fa4', type: 'notion', visibleInKB: true, usedInGenIntel: true },
     },
     intelligenceProfile: {
       overview: '',
