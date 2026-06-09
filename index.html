@@ -1280,7 +1280,6 @@
               <div class="gen-chip" onclick="selectTemplate(this,'product-overview')">⚙️ Product Overview</div>
               <div class="gen-chip" onclick="selectTemplate(this,'battlecard')">⚖️ Comparison</div>
               <div class="gen-chip" onclick="selectTemplate(this,'news')">📰 Latest News</div>
-              <div class="gen-chip" onclick="selectTemplate(this,'case-studies')">📊 Case Studies</div>
             </div>
           </div>
           <div class="gen-opt-row">
@@ -3114,7 +3113,7 @@ function renderAdminPanel({ logins, usage }, feedback = []) {
   const analysisLabelsMap = {
     battlecard:'Comparison', 'deep-dive':'Deep Dive',
     sw:'S&W Analysis', news:'Latest News',
-    'product-overview':'Product Overview', 'case-studies':'Case Studies',
+    'product-overview':'Product Overview',
     'exec-brief':'Exec Brief',
   };
   const topAnalMap = {};
@@ -4132,7 +4131,7 @@ This applies to every list in every section without exception. If you insert bla
 SOURCE RULES
 - Ground every factual claim in an available source.
 - Static facts: cite source once at end of section.
-- News and dated items: include exact date (Month DD, YYYY) + confirmed URL or domain.
+- News and dated items: include exact date (Month DD, YYYY) + full article URL with path (e.g. https://fiercehealthcare.com/ai/article-slug — never root domain only).
 - Metrics and KPIs: cite source per metric. If unsourced: write "Unconfirmed."
 - Do not present assumptions as facts.
 - Never construct or guess a URL — only cite confirmed URLs.
@@ -4146,7 +4145,7 @@ INTERNAL DATA HANDLING
 RESPONSE BOUNDARIES
 - Do not add Navina comparison, KPI tables, or positioning unless the use case explicitly requires it.
 - Do not fabricate competitor weaknesses or customer evidence.
-- Do not include Navina proof points in competitor-first use cases (Deep Dive, Product Overview, Latest News, Case Studies, Exec Brief).`;
+- Do not include Navina proof points in competitor-first use cases (Deep Dive, Product Overview, Latest News, Exec Brief).`;
 
 // ── Navina competitive context — injected only into Battlecard and S&W ────────
 const NAVINA_COMPETITIVE_CONTEXT = `NAVINA — KEY FACTS FOR COMPETITIVE COMPARISON
@@ -4477,7 +4476,7 @@ Direct, non-marketing. No vague language.
 | Latest Investment | Round · lead investor · date |
 | CEO | |
 
-Source: [crunchbase.com or company website]
+Source: [full URL with path — e.g. https://crunchbase.com/organization/company-name or https://company.com/about]
 
 ---
 
@@ -4499,20 +4498,13 @@ Source: [product page URL]
 
 ---
 
-## 5. Case Studies
-Review published case studies and customer stories. For each:
-– **[Customer name or org type, year]** — [measurable outcome]. Source: [domain]
-2–4 examples. If none found: "No published case studies found." then list any available testimonials or outcome claims with evidence quality (self-reported / anonymized / independent).
-
----
-
-## 6. Positioning
+## 5. Positioning
 1–2 sentence positioning summary. Then bullets:
 – How they describe themselves (their language, not a rewrite)
 – Main messaging themes
 – Buyer narrative (what problem they claim to solve)
 – ROI or value claims (label self-reported claims as such)
-Source: [website URL]
+Source: [full URL with path — e.g. https://company.com/why-us or https://company.com/solutions/product]
 
 ---
 
@@ -4542,7 +4534,7 @@ ${newsContext(c)}
 
 STRICT 90-DAY FILTER. Only items from the last 90 days.
 Persona emphasis for ${persona}: prioritize ${newsPersonaFocus}.
-Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [confirmed URL or "via domain"]
+Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [full article URL with path — never root domain only]
 2–4 items max. If no meaningful news in the last 90 days: write "No significant news in the last 90 days." Do not include older items to fill the section.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
@@ -4566,11 +4558,14 @@ Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [confi
       : 'customer wins · named logos · enterprise deals · pricing signals · ROI claims';
     return `${driveContext(c, 'news')}
 
-Find the 4–6 most significant developments about ${c} from the last 90 days.
+Find the 4–5 most significant developments about ${c} from the last 60 days.
 Persona emphasis for ${persona}: ${personaFocus}
 
-STRICT 90-DAY FILTER. Only items published in the last 90 days.
-If no qualifying news: write "No significant news in the last 90 days." Do not fill with older items.
+STRICT 60-DAY FILTER. Only items published in the last 60 days.
+If no qualifying news: write "No significant news in the last 60 days." Do not fill with older items.
+
+SORT ORDER: newest first — most recent items at the top. Start from today going backward.
+Priority: items from the last 7 days first, then last 30 days, then up to 60 days.
 
 Search order:
 ${officialSources}
@@ -4581,18 +4576,18 @@ Skip: thought leadership · vague AI messaging · event appearances · announcem
 
 ---
 
-No intro. No company background. Start with the first item.
+No intro. No company background. Start with the most recent item.
 
 **[Month DD, YYYY]** — Headline.
 1–2 sentences. Facts only: names, numbers, products, customers, integrations.
-Source: [full article URL — must include path, e.g. https://fiercehealthcare.com/ai/article-slug. Never use root domain only.]
+Source: [full article URL — must include full path, e.g. https://fiercehealthcare.com/ai/article-slug — never root domain only]
 
-Repeat. 4–6 items max.
+Repeat. 4–5 items max, newest first.
 
 ---
 
 **Bottom Line**
-– Biggest development in the last 90 days — one sentence.
+– Biggest development in the last 60 days — one sentence.
 – One signal worth watching — one sentence.
 
 Do not add product overview, company background, S&W, or pricing.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
@@ -4638,43 +4633,9 @@ Source: [integration page URL if found]
 Last 6 months only. Search: ${base ? base + ' (/news, /blog, /releases)' : c + ' website'} · businesswire.com · prnewswire.com · mobihealthnews.com
 Focus: new features · new integrations · platform changes.
 Skip: funding rounds · executive hires · awards · generic partnerships.
-Format: **[Month DD, YYYY]** — one sentence. Source: [confirmed URL or "via domain"]
+Format: **[Month DD, YYYY]** — one sentence. Source: [full article URL with path — never root domain only]
 If nothing found: "No product updates found in the last 6 months."${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
-
-  'case-studies': (c, persona, notes) =>
-`${driveContext(c, 'case-studies')}
-
-Produce a customer evidence analysis for ${c}. Exactly 3 sections. No product overview, no company background, no S&W.
-Research: ${c} website (/case-studies, /outcomes, /resources, /customers) · press releases · healthcare media.
-
----
-
-## PUBLISHED CASE STUDIES
-For each case study found:
-**[Customer name or org type, year]** — [measurable outcome with numbers].
-Include: customer type · use case · outcome metric · evidence quality (self-reported / anonymized / independent).
-Source: [domain]
-2–5 examples. If none found: "No published case studies found." List available testimonials or outcome claims if present.
-
----
-
-## CLAIMED METRICS & KPIs
-| Metric | Value | Source | Date | Evidence Quality |
-|---|---|---|---|---|
-Metrics to find: HCC capture rate · clinician engagement · time savings · ROI · revenue uplift · quality improvement.
-Evidence Quality: Confirmed (independent) / Self-reported / Unverified.
-If none: "No public outcome data available."
-
----
-
-## EVIDENCE QUALITY ASSESSMENT
-3 bullets only:
-– What is independently confirmed
-– What is self-reported only and lacks validation
-– What a ${persona} should ask to pressure-test ${c}'s claims
-
-Do not add Navina KPI comparison, product overview, or company background.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`,
 
   'exec-brief': (c, persona, notes) => {
     const company = COMPANIES[c];
@@ -4718,7 +4679,7 @@ Read: ${base ? base : c + ' website'} and crunchbase.com for verified facts.${no
 
 const analysisLabels = {
   'deep-dive':'Deep Dive','exec-brief':'Exec Brief','product-overview':'Product Overview',
-  'battlecard':'Comparison','news':'Latest News','case-studies':'Case Studies'
+  'battlecard':'Comparison','news':'Latest News'
 };
 
 // buildPrompt is an alias for buildFullPrompt (multi-select aware)
