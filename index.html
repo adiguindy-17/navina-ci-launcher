@@ -3054,34 +3054,51 @@ function extractNotionPageId(url) {
 }
 
 // Fetch Notion page content via Worker /notion-page endpoint
+// Worker: GET /notion-page?id={pageId} → returns Notion page JSON
 async function fetchNotionContent(pageId) {
   try {
-    const res = await fetch(WORKER_URL + '/notion-page', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pageId }),
-    });
+    const res = await fetch(`${WORKER_URL}/notion-page?id=${encodeURIComponent(pageId)}`);
     if (!res.ok) return null;
     const data = await res.json();
-    if (data.error || !data.content) return null;
-    return data.content;
+    if (data.error) return null;
+    // Notion page API returns page object — extract title + all rich_text/select property values
+    const lines = [];
+    for (const [key, prop] of Object.entries(data.properties || {})) {
+      if (prop.type === 'title') {
+        const t = prop.title?.map(r => r.plain_text).join('');
+        if (t) lines.push(`Title: ${t}`);
+      } else if (prop.type === 'rich_text') {
+        const t = prop.rich_text?.map(r => r.plain_text).join('');
+        if (t) lines.push(`${key}: ${t}`);
+      } else if (prop.type === 'select' && prop.select?.name) {
+        lines.push(`${key}: ${prop.select.name}`);
+      }
+    }
+    return lines.length > 0 ? lines.join('\n') : null;
   } catch {
     return null;
   }
 }
 
 // Fetch generic URL content via Worker /fetch-url endpoint (for Drive/Docs)
+// Worker: GET /fetch-url?url={url} → returns { html: rawText }
+// For Google Docs, converts /edit URL → /export?format=txt to get readable plain text.
 async function fetchURLContent(url) {
   try {
-    const res = await fetch(WORKER_URL + '/fetch-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url }),
-    });
+    // Google Docs: convert edit URL to plain-text export URL
+    let fetchUrl = url;
+    if (/docs\.google\.com\/document\/d\//.test(url)) {
+      fetchUrl = url.replace(/\/edit[^]*$/, '/export?format=txt')
+                    .replace(/\/pub[^]*$/, '/export?format=txt');
+    } else if (/docs\.google\.com\/presentation\/d\//.test(url)) {
+      fetchUrl = url.replace(/\/edit[^]*$/, '/export?format=txt')
+                    .replace(/\/pub[^]*$/, '/export?format=txt');
+    }
+    const res = await fetch(`${WORKER_URL}/fetch-url?url=${encodeURIComponent(fetchUrl)}`);
     if (!res.ok) return null;
     const data = await res.json();
-    if (data.error || !data.content) return null;
-    return data.content
+    if (data.error || !data.html) return null;
+    return data.html
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/<[^>]+>/g, ' ')
@@ -3168,7 +3185,7 @@ async function enrichPromptWithContent(prompt) {
 
   const enrichedPrompt = sections.length === 0
     ? prompt
-    : prompt + '\n\n---\n## ⚠️ INTERNAL NAVINA RESEARCH DATA — HIGHEST PRIORITY\nThe following content was pre-fetched from Navina\'s internal Notion pages and Google Drive. This is primary source material written by Navina\'s team. Use it as your main foundation — prioritize it over web search results.\nSources loaded: ' + sourcesLoaded.join(', ') + '\n\n' + sections.join('\n\n');
+    : prompt + '\n\n---\n## ⚠️ INTERNAL NAVINA RESEARCH DATA — HIGHEST PRIORITY\nThe following content was pre-fetched NOW from Navina\'s internal Notion pages and Google Drive documents.\nThis is the most up-to-date primary source material. It OVERRIDES any older "INTERNAL KNOWLEDGE" block above and supersedes Claude\'s training data.\nIf there is a conflict (e.g. different funding amounts, employee count, founding year) — always use the data from THIS section.\nSources loaded: ' + sourcesLoaded.join(', ') + '\n\n' + sections.join('\n\n');
 
   return { prompt: enrichedPrompt, sourcesLoaded };
 }
@@ -4887,7 +4904,13 @@ Write 1–2 sharp sentences explaining what the company does, its main product c
 - Customers: [named customers if publicly disclosed, or "No named customers found"]
 
 Plain, factual, neutral language. No marketing words. No opinions.
-Read: ${base ? base : c + ' website'} and crunchbase.com for verified facts.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+
+⚠️ DATA PRIORITY ORDER (always follow this):
+1. "INTERNAL NAVINA RESEARCH DATA" section below (if present) — most recent, pre-fetched now. Use this first.
+2. ${base ? `Live content from ${base} and crunchbase.com` : `${c} website and crunchbase.com`}
+3. "INTERNAL KNOWLEDGE" block above — may be outdated, use only as backup context
+
+For General info (funding, employees, founding year): use source #1 if available, otherwise source #2. Do NOT use source #3 for factual data points.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
 };
