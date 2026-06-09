@@ -2419,7 +2419,24 @@ async function generateWithAI() {
 
   // ── Now do the slow Notion/Drive fetch in background ──
   const rawPrompt = buildFullPrompt();
-  const { prompt, sourcesLoaded } = await enrichPromptWithContent(rawPrompt);
+  let { prompt, sourcesLoaded } = await enrichPromptWithContent(rawPrompt);
+
+  // ── For Comparison: also pre-fetch live web content ──────────────────────
+  if (selectedAnalysis === 'battlecard') {
+    const bodyElEarly = document.getElementById(`${thinkingId}-body`);
+    if (bodyElEarly) {
+      bodyElEarly.innerHTML = `
+        <div class="chat-dots"><span></span><span></span><span></span></div>
+        ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}🌐 Fetching live web content for ${escHtml(compLabel)}...
+      `;
+    }
+    const { content: webContent, sources: webSources } = await fetchWebContext(allComps[0] || selectedCompetitor);
+    if (webContent) {
+      prompt += '\n\n' + webContent;
+      sourcesLoaded.push(...webSources);
+    }
+  }
+
   chatHistory = [{ role: 'user', content: prompt }];
 
   // Update loading message to show what was loaded
@@ -2427,7 +2444,7 @@ async function generateWithAI() {
   if (bodyEl) {
     bodyEl.innerHTML = `
       <div class="chat-dots"><span></span><span></span><span></span></div>
-      ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Searching and analyzing ${escHtml(allComps.join(', '))}...
+      ${sourcesLoaded.length > 0 ? `📚 Loaded: ${sourcesLoaded.join(', ')} · ` : ''}Analyzing ${escHtml(allComps.join(', '))}...
     `;
   }
   try {
@@ -2818,6 +2835,48 @@ async function fetchURLContent(url) {
   } catch {
     return null;
   }
+}
+
+// ── Web context pre-fetch (used for Comparison analysis) ─────────────────────
+async function fetchWebContext(c) {
+  const company = COMPANIES[c];
+  if (!company?.website) return { content: '', sources: [] };
+
+  const base = company.website.replace(/\/$/, '');
+
+  // Pages to try — homepage + likely newsroom/press paths
+  const candidates = [
+    { url: base,                       label: 'Official Website'  },
+    { url: base + '/newsroom',         label: 'Newsroom'          },
+    { url: base + '/news',             label: 'News'              },
+    { url: base + '/press-releases',   label: 'Press Releases'    },
+    { url: base + '/press',            label: 'Press'             },
+    { url: base + '/blog',             label: 'Blog'              },
+  ];
+
+  const results = await Promise.allSettled(
+    candidates.map(async ({ url, label }) => {
+      const text = await fetchURLContent(url);
+      if (!text || text.length < 200) return null;
+      return { label, url, text: text.slice(0, 2500) };
+    })
+  );
+
+  const sections = [];
+  const sources  = [];
+
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) {
+      const { label, url, text } = r.value;
+      sections.push(`### ${c} — ${label}\nSource: ${url}\n\n${text}`);
+      sources.push(`Web:${label}`);
+    }
+  }
+
+  if (sections.length === 0) return { content: '', sources: [] };
+
+  const content = `---\n## 🌐 LIVE WEB CONTENT — PRE-FETCHED (treat as external public source)\nFetched just now. Use for recent news, product updates, announcements. Cite as "web" or by page label.\n\n${sections.join('\n\n---\n\n')}`;
+  return { content, sources };
 }
 
 async function enrichPromptWithContent(prompt) {
@@ -4016,8 +4075,11 @@ Before writing the answer, analyze:
 Use sources in this order:
 
 1. Internal materials above: comparison decks, PDFs, Notion pages, demo summaries, battlecards.
-2. Navina context above: product capabilities, KPIs, proof points, studies, customer evidence.
-3. Reliable public sources about ${c}.
+2. Pre-fetched live web content above (marked 🌐): competitor website, newsroom, press releases.
+3. Navina context above: product capabilities, KPIs, proof points, studies, customer evidence.
+4. Your own knowledge about ${c} — only for well-established facts.
+
+For every factual claim: note the source type in parentheses — (internal) · (web) · (Navina data) · (inferred).
 
 Produce exactly 5 sections. No extra sections.
 
