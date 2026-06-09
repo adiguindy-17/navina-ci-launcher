@@ -2810,24 +2810,31 @@ function renderMarkdown(text) {
     // Collapse 3+ consecutive blank lines to exactly 2
     .replace(/\n{3,}/g, '\n\n')
 
+    // Join lines separated by a lone "/" — Claude sometimes outputs alternative
+    // values as "51-100 (Crunchbase)\n/\n214 (Business Wire)" instead of inline.
+    .replace(/\n[ \t]*\/[ \t]*\n/g, ' / ')
+
     // ── Tight list enforcement ────────────────────────────────────────────────
-    // Pass 1: Collapse ANY blank lines immediately before a bullet line (- * •).
+    // Pass 1: Collapse ANY blank lines immediately before a bullet line (- * • –).
     // Claude habitually emits loose lists; each <li> ending up in its own <ul>
     // creates visible block gaps. This collapses them before HTML conversion.
-    .replace(/\n\n+(?=[ \t]*[-*•] )/g, '\n')
+    // Covers both hyphen (-) and en-dash (–) bullets.
+    .replace(/\n\n+(?=[ \t]*[-*•–] )/g, '\n')
 
     // Pass 2: Key-only bullet join — "- Founded:\n\nValue" → "- Founded: Value"
     // Claude sometimes emits the label as a bullet and the value on the next line.
     // Match: bullet line ending with colon (or ":**" bold-colon), followed by blank
     // line(s), then content that is NOT another bullet and NOT a heading.
     // The \*{0,2} handles "- **Key:**\n\nValue" where ** trails the colon.
-    .replace(/(^[ \t]*[-*•] [^\n]*:\*{0,2})[ \t]*\n{1,2}(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?=\S)/gm, '$1 ')
+    // Covers both hyphen (-) and en-dash (–) bullets.
+    .replace(/(^[ \t]*[-*•–] [^\n]*:\*{0,2})[ \t]*\n{1,2}(?!\n)(?![ \t]*[-*•–] )(?![ \t]*#)(?=\S)/gm, '$1 ')
 
     // Pass 3: Continuation join — single-newline continuations after a bullet
     // "- Funding: $72M;\n$125M debt" → "- Funding: $72M; $125M debt"
     // Only fires on single \n (never \n\n which = section break).
     // Guards: not another bullet, not a heading, not a horizontal rule, not a table row.
-    .replace(/(^[ \t]*[-*•] [^\n]+)\n(?!\n)(?![ \t]*[-*•] )(?![ \t]*#)(?![ \t]*[-]{3,})(?![ \t]*\|)(?=\S)/gm, '$1 ')
+    // Covers both hyphen (-) and en-dash (–) bullets.
+    .replace(/(^[ \t]*[-*•–] [^\n]+)\n(?!\n)(?![ \t]*[-*•–] )(?![ \t]*#)(?![ \t]*[-]{3,})(?![ \t]*\|)(?=\S)/gm, '$1 ')
 
     // ── Fix AI mid-sentence line-break artifacts ──────────────────────────────
     // 1. Remove lines containing ONLY a comma (e.g. "2023\n\n,\n\nheadquartered" → "2023, headquartered")
@@ -2941,8 +2948,8 @@ function renderMarkdown(text) {
   // 8. Inline code
   s = s.replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>');
 
-  // 9. Unordered lists
-  s = s.replace(/^[ \t]*[-*•] (.+)$/gm, '<li class="md-li">$1</li>');
+  // 9. Unordered lists (- * • and – en-dash bullets)
+  s = s.replace(/^[ \t]*[-*•–] (.+)$/gm, '<li class="md-li">$1</li>');
   // Collapse any remaining blank lines between converted <li> elements
   // (safety net in case the pre-processor missed any case)
   s = s.replace(/(<\/li>)\n\n+(?=<li class="md-li">)/g, '$1\n');
@@ -2954,6 +2961,15 @@ function renderMarkdown(text) {
   s = s.replace(/(<\/li>)\n\n+(?=<li class="md-li md-oli">)/g, '$1\n');
   s = s.replace(/(<li class="md-li md-oli">.*?<\/li>\n?)+/gs,
     m => `<ol class="md-ol">${m}</ol>`);
+
+  // 10b. Ensure <ul>/<ol> blocks are separated from adjacent text by \n\n so that
+  // step 11 places them in their own paragraph blocks. Without this, a bold
+  // section heading like "**General info:**\n- item1\n- item2" ends up as a
+  // single block; the paragraph wrapper converts the \n inside the <ul> to <br>,
+  // creating visible blank gaps between every bullet. The fix: if a <ul>/<ol>
+  // follows non-newline content with only a single \n, insert an extra \n.
+  s = s.replace(/([^\n])\n(<(?:ul|ol) )/g, '$1\n\n$2');
+  s = s.replace(/(<\/(?:ul|ol)>)\n([^\n])/g, '$1\n\n$2');
 
   // 11. Paragraphs — split on double newlines
   const blocks = s.split(/\n{2,}/);
