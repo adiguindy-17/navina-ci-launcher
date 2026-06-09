@@ -2555,16 +2555,27 @@ async function generateWithAI() {
     `;
   }
   let _streamBody = null, _streamActs = null;
+
+  // 'news' must use non-streaming so the Worker injects web_search (live results).
+  // All other use cases use streaming for fast token-by-token display.
+  const isNewsMode = selectedAnalysis === 'news';
+  if (isNewsMode) {
+    const bEl = document.getElementById(`${thinkingId}-body`);
+    if (bEl) bEl.innerHTML = `<div class="chat-dots"><span></span><span></span><span></span></div>🔍 Searching live web for latest news on ${escHtml(compLabel)}…`;
+  }
+
+  const streamCallback = isNewsMode ? null : (partial) => {
+    if (!_streamBody) {
+      document.getElementById(thinkingId)?.remove();
+      const s = _createStreamMsg(messagesEl);
+      _streamBody = s.bodyEl; _streamActs = s.actionsEl;
+    }
+    _streamBody.textContent = partial;
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  };
+
   try {
-    const reply = await callClaudeAPI(chatHistory, (partial) => {
-      if (!_streamBody) {
-        document.getElementById(thinkingId)?.remove();
-        const s = _createStreamMsg(messagesEl);
-        _streamBody = s.bodyEl; _streamActs = s.actionsEl;
-      }
-      _streamBody.textContent = partial;            // plain text during stream
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    });
+    const reply = await callClaudeAPI(chatHistory, streamCallback);
     lastAIResponse = reply;
     chatHistory.push({ role: 'assistant', content: reply });
     document.getElementById(thinkingId)?.remove();
@@ -4708,39 +4719,55 @@ Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [full 
       : p.includes('ci') || p.includes('analyst')
       ? 'material developments only · signal vs. noise · confirmed sources'
       : 'customer wins · named logos · enterprise deals · pricing signals · ROI claims';
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     return `${driveContext(c, 'news')}
 
-Find the 4–5 most significant developments about ${c} from the last 60 days.
+Today's date: ${todayStr}.
 Persona emphasis for ${persona}: ${personaFocus}
 
-STRICT 60-DAY FILTER. Only items published in the last 60 days.
-If no qualifying news: write "No significant news in the last 60 days." Do not fill with older items.
+## TASK
+Use web_search to find the 3–5 most recent, significant news items about ${c}.
 
-SORT ORDER: newest first — most recent items at the top. Start from today going backward.
-Priority: items from the last 7 days first, then last 30 days, then up to 60 days.
+## DATE RULES — STRICT
+- PRIMARY window: March 1, 2026 – ${todayStr} (3 months back)
+- PREFERRED: May 2026 and later (last ~6 weeks) — surface these first
+- ABSOLUTE MINIMUM: no item older than March 1, 2026
+- If you find NOTHING from March 2026 onward after searching: say exactly "No confirmed news found from March 2026 onward." Do NOT fill with older items.
 
-Search order:
+## SEARCH STRATEGY
+Run multiple searches. Try:
+1. "${c} news 2026"
+2. "${c} announcement May 2026" / "${c} June 2026"
+3. "${c}" site:businesswire.com OR site:prnewswire.com OR site:fiercehealthcare.com
+4. "${c}" site:${base || c.toLowerCase().replace(/\s+/g,'')+'.com'}/news OR /newsroom OR /press
+
+Priority sources (search these first):
 ${officialSources}
-– beckershospitalreview.com · fiercehealthcare.com · healthcareitnews.com · modernhealthcare.com
-– businesswire.com · prnewswire.com · globenewswire.com · crunchbase.com
+– fiercehealthcare.com · healthcareitnews.com · beckershospitalreview.com · modernhealthcare.com
+– businesswire.com · prnewswire.com · globenewswire.com
+– statnews.com · medcitynews.com · hitconsultant.net
+– techcrunch.com · crunchbase.com · axios.com
 
-Skip: thought leadership · vague AI messaging · event appearances · announcements without concrete detail.
+## WHAT TO SKIP
+- Items before March 1, 2026
+- Thought leadership / vague AI messaging / event appearances
+- Announcements without concrete detail (no names, numbers, or outcomes)
+- Any URL you are not confident is real and reachable
+
+## OUTPUT FORMAT
+No intro. No company background. Start directly with the most recent item.
+
+**[Month DD, YYYY]** — One sharp headline sentence.
+1–2 sentences max. Facts only: names, numbers, dollar amounts, customer names, product names.
+Source: [full article URL with complete path — e.g. https://fiercehealthcare.com/health-tech/article-slug — NEVER a root domain]
+
+Repeat for each item. 3–5 items, newest first.
 
 ---
-
-No intro. No company background. Start with the most recent item.
-
-**[Month DD, YYYY]** — Headline.
-1–2 sentences. Facts only: names, numbers, products, customers, integrations.
-Source: [full article URL — must include full path, e.g. https://fiercehealthcare.com/ai/article-slug — never root domain only]
-
-Repeat. 4–5 items max, newest first.
-
----
-
 **Bottom Line**
-– Biggest development in the last 60 days — one sentence.
-– One signal worth watching — one sentence.
+– Most significant development — one sentence.
+– One forward-looking signal — one sentence.
 
 Do not add product overview, company background, S&W, or pricing.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
