@@ -2556,15 +2556,27 @@ async function generateWithAI() {
   }
   let _streamBody = null, _streamActs = null;
 
-  // 'news' must use non-streaming so the Worker injects web_search (live results).
-  // All other use cases use streaming for fast token-by-token display.
-  const isNewsMode = selectedAnalysis === 'news';
-  if (isNewsMode) {
+  // Use cases that require live web_search must be non-streaming.
+  // Worker only injects web_search tool for non-streaming requests.
+  // news       → live news search, always needs fresh data
+  // deep-dive  → section 9 "Latest News / Recent Signals" needs live search
+  // exec-brief → reads company website + Crunchbase for current funding/info
+  //
+  // product-overview, battlecard, sw → streaming OK (analytical / less time-sensitive)
+  const WEB_SEARCH_USES = new Set(['news', 'deep-dive', 'exec-brief']);
+  const needsWebSearch = WEB_SEARCH_USES.has(selectedAnalysis);
+
+  if (needsWebSearch) {
     const bEl = document.getElementById(`${thinkingId}-body`);
-    if (bEl) bEl.innerHTML = `<div class="chat-dots"><span></span><span></span><span></span></div>🔍 Searching live web for latest news on ${escHtml(compLabel)}…`;
+    if (bEl) {
+      const label = selectedAnalysis === 'news'
+        ? `🔍 Searching live web for latest news on ${escHtml(compLabel)}…`
+        : `🔍 Searching live web for current data on ${escHtml(compLabel)}…`;
+      bEl.innerHTML = `<div class="chat-dots"><span></span><span></span><span></span></div>${label}`;
+    }
   }
 
-  const streamCallback = isNewsMode ? null : (partial) => {
+  const streamCallback = needsWebSearch ? null : (partial) => {
     if (!_streamBody) {
       document.getElementById(thinkingId)?.remove();
       const s = _createStreamMsg(messagesEl);
