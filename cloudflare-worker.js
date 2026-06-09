@@ -1,20 +1,3 @@
-/**
- * Navina CI Proxy — Cloudflare Worker
- * KV binding: ANALYTICS (stores logins, usage, and feedback)
- * Secrets: ANTHROPIC_API_KEY, NOTION_TOKEN, GOOGLE_SERVICE_ACCOUNT_KEY
- *
- * WHAT CHANGED (for Yoni):
- *  1. Anthropic proxy: streaming support + web_search only for non-stream
- *  2. POST /save-feedback    → saves feedback entry to KV
- *  3. GET  /get-feedback     → returns feedback list (admin only)
- *  4. POST /reset-analytics  → clears logins + usage from KV (admin only)
- *  5. NEW: GET /fetch-url    → now authenticates Google Docs/Slides via service account
- *  6. NEW: GET /notion-page  → now returns full page content (blocks), not just metadata
- *
- * NEW SECRETS NEEDED (Yoni — add in Workers dashboard → Settings → Variables):
- *  GOOGLE_SERVICE_ACCOUNT_KEY  ← paste the full JSON content of the service account key file
- */
-
 const ADMIN_EMAIL = 'adi.guindy@navina.ai';
 
 function cors() {
