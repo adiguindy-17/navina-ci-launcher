@@ -4721,55 +4721,53 @@ Format: **[Month DD, YYYY]** — Headline. 1 sentence of context. Source: [full 
       : 'customer wins · named logos · enterprise deals · pricing signals · ROI claims';
     const today = new Date();
     const todayStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    return `${driveContext(c, 'news')}
+    return `⚠️ TODAY IS ${todayStr.toUpperCase()}. DO NOT OUTPUT ANY ITEM DATED BEFORE MARCH 1, 2026. NOT APRIL 2025. NOT 2025 AT ALL. ONLY 2026.
 
-Today's date: ${todayStr}.
 Persona emphasis for ${persona}: ${personaFocus}
 
 ## TASK
-Use web_search to find the 3–5 most recent, significant news items about ${c}.
+Use web_search NOW to find the 3–5 most recent news items about ${c} published in 2026.
 
-## DATE RULES — STRICT
-- PRIMARY window: March 1, 2026 – ${todayStr} (3 months back)
-- PREFERRED: May 2026 and later (last ~6 weeks) — surface these first
-- ABSOLUTE MINIMUM: no item older than March 1, 2026
-- If you find NOTHING from March 2026 onward after searching: say exactly "No confirmed news found from March 2026 onward." Do NOT fill with older items.
+## MANDATORY DATE FILTER
+ONLY include items published on or after March 1, 2026.
+If an item is from 2025 or earlier — SKIP IT, do not include it.
+If after searching you find ZERO items from 2026 — output exactly:
+"No confirmed news found for ${c} from March 2026 onward."
+DO NOT substitute with 2025 items. DO NOT make up 2026 dates for 2025 events.
 
-## SEARCH STRATEGY
-Run multiple searches. Try:
-1. "${c} news 2026"
-2. "${c} announcement May 2026" / "${c} June 2026"
-3. "${c}" site:businesswire.com OR site:prnewswire.com OR site:fiercehealthcare.com
-4. "${c}" site:${base || c.toLowerCase().replace(/\s+/g,'')+'.com'}/news OR /newsroom OR /press
+## SEARCH QUERIES TO RUN (in order)
+1. "${c} 2026"
+2. "${c} news June 2026"
+3. "${c} news May 2026"
+4. "${c} announcement 2026"
+5. site:businesswire.com "${c}" 2026
+6. site:fiercehealthcare.com "${c}" 2026
 
-Priority sources (search these first):
+## SOURCES — search these specifically
 ${officialSources}
 – fiercehealthcare.com · healthcareitnews.com · beckershospitalreview.com · modernhealthcare.com
 – businesswire.com · prnewswire.com · globenewswire.com
-– statnews.com · medcitynews.com · hitconsultant.net
-– techcrunch.com · crunchbase.com · axios.com
+– statnews.com · medcitynews.com · hitconsultant.net · axios.com
+– techcrunch.com · crunchbase.com
 
-## WHAT TO SKIP
-- Items before March 1, 2026
-- Thought leadership / vague AI messaging / event appearances
-- Announcements without concrete detail (no names, numbers, or outcomes)
-- Any URL you are not confident is real and reachable
+## SKIP
+- Any item from 2025 or earlier (hard rule)
+- Thought leadership · vague AI messaging · event appearances
+- Any URL you cannot confirm is real
 
-## OUTPUT FORMAT
-No intro. No company background. Start directly with the most recent item.
+## OUTPUT FORMAT — start directly, no intro
+**[Month DD, 2026]** — Headline.
+1–2 sentences. Facts only: names, numbers, customer names, dollar amounts.
+Source: [full URL with article path — e.g. https://fiercehealthcare.com/health-tech/slug — never root domain]
 
-**[Month DD, YYYY]** — One sharp headline sentence.
-1–2 sentences max. Facts only: names, numbers, dollar amounts, customer names, product names.
-Source: [full article URL with complete path — e.g. https://fiercehealthcare.com/health-tech/article-slug — NEVER a root domain]
-
-Repeat for each item. 3–5 items, newest first.
+3–5 items max, newest first.
 
 ---
 **Bottom Line**
-– Most significant development — one sentence.
+– Most significant 2026 development — one sentence.
 – One forward-looking signal — one sentence.
 
-Do not add product overview, company background, S&W, or pricing.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
+No company background. No S&W. No pricing.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
   },
 
   'product-overview': (c, persona, notes) => {
