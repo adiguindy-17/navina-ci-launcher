@@ -103,21 +103,45 @@ function extractBlockText(block) {
   const type    = block.type;
   const content = block[type];
   if (!content) return '';
-  const text = (content.rich_text || []).map(rt => rt.plain_text).join('');
+  const text   = (content.rich_text || []).map(rt => rt.plain_text).join('');
+  const indent = '  '.repeat(block._depth || 0);
   switch (type) {
     case 'heading_1':           return `# ${text}`;
     case 'heading_2':           return `## ${text}`;
     case 'heading_3':           return `### ${text}`;
-    case 'bulleted_list_item':  return `- ${text}`;
-    case 'numbered_list_item':  return `- ${text}`;
-    case 'to_do':               return `- [${content.checked ? 'x' : ' '}] ${text}`;
-    case 'toggle':              return `▸ ${text}`;
-    case 'quote':               return `> ${text}`;
+    case 'bulleted_list_item':  return `${indent}- ${text}`;
+    case 'numbered_list_item':  return `${indent}- ${text}`;
+    case 'to_do':               return `${indent}- [${content.checked ? 'x' : ' '}] ${text}`;
+    case 'toggle':              return `${indent}▸ ${text}`;
+    case 'quote':               return `${indent}> ${text}`;
     case 'callout':             return text;
-    case 'paragraph':           return text;
+    case 'paragraph':           return `${indent}${text}`;
     case 'divider':             return '---';
-    default:                    return text;
+    default:                    return `${indent}${text}`;
   }
+}
+
+// Recursively fetches Notion blocks up to 2 levels deep to capture nested lists
+async function fetchAllNotionBlocks(blockId, notionHeaders, depth = 0) {
+  const res  = await fetch(
+    `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`,
+    { headers: notionHeaders },
+  );
+  const data   = await res.json();
+  const blocks = data.results || [];
+  if (depth >= 2) return blocks;
+
+  const expanded = [];
+  for (const block of blocks) {
+    expanded.push(block);
+    if (block.has_children) {
+      const children = await fetchAllNotionBlocks(block.id, notionHeaders, depth + 1);
+      for (const child of children) {
+        expanded.push({ ...child, _depth: (child._depth || 0) + depth + 1 });
+      }
+    }
+  }
+  return expanded;
 }
 
 // ── Main fetch handler ─────────────────────────────────────────────────────
@@ -247,25 +271,18 @@ export default {
           'Notion-Version': '2022-06-28',
         };
 
-        // Fetch page properties + block children in parallel
-        const [pageRes, blocksRes] = await Promise.all([
-          fetch(`https://api.notion.com/v1/pages/${pageId}`, { headers: notionHeaders }),
-          fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, { headers: notionHeaders }),
-        ]);
-
-        const [pageData, blocksData] = await Promise.all([
-          pageRes.json(),
-          blocksRes.json(),
-        ]);
+        // Fetch page properties first (to check access), then recursively fetch all blocks
+        const pageRes  = await fetch(`https://api.notion.com/v1/pages/${pageId}`, { headers: notionHeaders });
+        const pageData = await pageRes.json();
 
         if (pageData.object === 'error') {
           return new Response(JSON.stringify({ error: pageData.message }), { status: 403, headers: cors() });
         }
 
-        // Extract plain text from block children
-        const blocks   = blocksData.results || [];
+        // Recursively fetch blocks up to 2 levels deep (captures nested bullet lists)
+        const blocks    = await fetchAllNotionBlocks(pageId, notionHeaders);
         const textLines = blocks.map(extractBlockText).filter(Boolean);
-        const content  = textLines.join('\n');
+        const content   = textLines.join('\n');
 
         return new Response(JSON.stringify({ content }), {
           headers: { ...cors(), 'Content-Type': 'application/json' },

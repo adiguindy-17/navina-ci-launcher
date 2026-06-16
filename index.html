@@ -2569,7 +2569,7 @@ async function generateWithAI() {
   // exec-brief → reads company website + Crunchbase for current funding/info
   //
   // product-overview, battlecard, sw → streaming OK (analytical / less time-sensitive)
-  const WEB_SEARCH_USES = new Set(['news', 'deep-dive']);
+  const WEB_SEARCH_USES = new Set(['news', 'deep-dive', 'product-overview']);
   const needsWebSearch = WEB_SEARCH_USES.has(selectedAnalysis);
 
   if (needsWebSearch) {
@@ -4825,7 +4825,11 @@ No company background. No S&W. No pricing.${notes ? `\n\n## CONTEXT\n${notes}` :
     return `${driveContext(c, 'product-overview')}
 
 Produce a product overview for ${c}. Exactly 4 sections. No S&W, no company background, no pricing, no news.
-Primary source: ${base ? base + ' — product pages · features · integrations' : c + ' official website — product pages · features · integrations'}
+
+⚠️ DATA PRIORITY ORDER:
+1. "INTERNAL NAVINA RESEARCH DATA" below (if present) — use for PRODUCT PILLARS, WORKFLOW & DEPLOYMENT, INTEGRATIONS. This is Navina's pre-researched source and must take priority for product details.
+2. ${base ? base + ' — product pages · features · integrations' : c + ' official website'} — supplement or fill gaps.
+3. Web search — use ONLY for RECENT PRODUCT UPDATES section (last 6 months of news).
 
 ---
 
