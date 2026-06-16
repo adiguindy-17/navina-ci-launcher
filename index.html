@@ -1470,7 +1470,7 @@ const COMPANIES = {
     intelligenceProfile: {
       overview: `Reveleer is a risk adjustment and quality management platform focused on retrospective HCC coding and chart review automation. Primarily serves health plans, payers, and risk-bearing organizations. Uses AI/NLP for bulk chart review — processing large volumes of records post-visit to identify missed HCC codes. Strong in the payer market but limited in point-of-care physician workflows. Does not integrate directly into EHR at the point of care.`,
       keyFacts: `– Founded: 2016 · HQ: Alpharetta, GA
-– Funding: ~$170M raised (Series D, Warburg Pincus lead)
+– Funding: ~$170M raised (Series D, Warburg Pincus lead) — acquired by Datavant in 2023
 – ~300–400 employees
 – Core: retrospective chart review, HCC suspecting from claims+clinical data, quality/STARS
 – EHR: reads data but no bidirectional EHR-native push to physician at point of care
@@ -1775,7 +1775,7 @@ const COMPANIES = {
     intelligenceProfile: {
       overview: `Abridge is an AI ambient documentation platform focused on converting physician-patient conversations into structured clinical notes. Key partnership with UPMC (health system) and deep Epic integration. Raised significant funding and positioned as a premium ambient scribe. Strong in academic medical centers and large health systems. Documentation-only platform — no HCC risk adjustment, no care gaps, no quality/HEDIS, no population health.`,
       keyFacts: `– Founded: 2018 · HQ: Pittsburgh, PA
-– Funding: ~$212M raised (Series C, Spark Capital lead)
+– Funding: ~$450M+ raised (incl. $250M round Oct 2024, Spark Capital lead)
 – ~200 employees
 – Key partnerships: UPMC (anchor), Epic (deep integration in App Orchard)
 – Workflow: pre/during/post visit ambient capture → structured note → push to Epic
@@ -2564,11 +2564,11 @@ async function generateWithAI() {
 
   // Use cases that require live web_search must be non-streaming.
   // Worker only injects web_search tool for non-streaming requests.
-  // news       → live news search, always needs fresh data
-  // deep-dive  → section 9 "Latest News / Recent Signals" needs live search
-  // exec-brief → reads company website + Crunchbase for current funding/info
+  // news             → live news search, always needs fresh data
+  // deep-dive        → section 9 "Latest News / Recent Signals" needs live search
+  // product-overview → RECENT PRODUCT UPDATES section needs fresh web data
   //
-  // product-overview, battlecard, sw → streaming OK (analytical / less time-sensitive)
+  // exec-brief, battlecard, sw → streaming (rely on pre-fetched Notion/Drive enrichment)
   const WEB_SEARCH_USES = new Set(['news', 'deep-dive', 'product-overview']);
   const needsWebSearch = WEB_SEARCH_USES.has(selectedAnalysis);
 
@@ -3822,7 +3822,6 @@ async function handleComposerSend() {
 
 async function generateFreeForm(question) {
   if (!question || isGenerating) return;
-  const _freeFormQuestion = question; // captured for logUsage below
   switchTab('gen');
   const context = selectedCompetitor ? driveContext(selectedCompetitor, '') : '';
   const prompt = `Answer the following question directly and concisely.
@@ -4905,7 +4904,7 @@ Plain, factual, neutral language. No marketing words. No opinions.
 
 ⚠️ DATA PRIORITY ORDER (always follow this):
 1. "INTERNAL NAVINA RESEARCH DATA" section below (if present) — most recent, pre-fetched now. Use this first.
-2. ${base ? `Live content from ${base} and crunchbase.com` : `${c} website and crunchbase.com`}
+2. Your training-data knowledge of ${base ? `${base} and crunchbase.com` : `${c} and crunchbase.com`} — no real-time web access in this mode; source #1 above is the real-time layer
 3. "INTERNAL KNOWLEDGE" block above — may be outdated, use only as backup context
 
 For General info (funding, employees, founding year): use source #1 if available, otherwise source #2. Do NOT use source #3 for factual data points.${notes ? `\n\n## CONTEXT\n${notes}` : ''}`;
