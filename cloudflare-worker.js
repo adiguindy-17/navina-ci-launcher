@@ -129,16 +129,13 @@ async function fetchAllNotionBlocks(blockId, notionHeaders, depth = 0) {
   );
   const data   = await res.json();
   const blocks = data.results || [];
-  if (depth >= 2) return blocks;
 
   const expanded = [];
   for (const block of blocks) {
-    expanded.push(block);
-    if (block.has_children) {
+    expanded.push({ ...block, _depth: depth });
+    if (block.has_children && depth < 2) {
       const children = await fetchAllNotionBlocks(block.id, notionHeaders, depth + 1);
-      for (const child of children) {
-        expanded.push({ ...child, _depth: (child._depth || 0) + depth + 1 });
-      }
+      expanded.push(...children);
     }
   }
   return expanded;
